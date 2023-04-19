@@ -1,0 +1,4 @@
+<paths>
+    <external-path name="log" path="CommureGW/"/>
+    <external-path name="*" path="."/>
+</paths>
