@@ -104,11 +104,6 @@ public class ModifySettingsActivity extends BaseActivity<ActivityModifySettingsB
             mqttDeviceConfig.cleanSession = result.data.get("clean_session").getAsInt() == 1;
             mqttDeviceConfig.connectMode = result.data.get("security_type").getAsInt();
             mqttDeviceConfig.keepAlive = result.data.get("keepalive").getAsInt();
-            mqttDeviceConfig.lwtEnable = result.data.get("lwt_en").getAsInt() == 1;
-            mqttDeviceConfig.lwtQos = result.data.get("lwt_qos").getAsInt();
-            mqttDeviceConfig.lwtRetain = result.data.get("lwt_retain").getAsInt() == 1;
-            mqttDeviceConfig.lwtTopic = result.data.get("lwt_topic").getAsString();
-            mqttDeviceConfig.lwtPayload = result.data.get("lwt_payload").getAsString();
         }
         if (msg_id == MQTTConstants.CONFIG_MSG_ID_REBOOT) {
             Type type = new TypeToken<MsgConfigResult>() {
@@ -117,8 +112,6 @@ public class ModifySettingsActivity extends BaseActivity<ActivityModifySettingsB
             if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
                 return;
             if (result.result_code == 0) {
-                mMokoDevice.lwtEnable = mqttDeviceConfig.lwtEnable ? 1 : 0;
-                mMokoDevice.lwtTopic = mqttDeviceConfig.lwtTopic;
                 mMokoDevice.topicPublish = mqttDeviceConfig.topicPublish;
                 mMokoDevice.topicSubscribe = mqttDeviceConfig.topicSubscribe;
                 MQTTConfig mqttConfig = new Gson().fromJson(mMokoDevice.mqttInfo, MQTTConfig.class);
@@ -133,11 +126,6 @@ public class ModifySettingsActivity extends BaseActivity<ActivityModifySettingsB
                 mqttConfig.cleanSession = mqttDeviceConfig.cleanSession;
                 mqttConfig.connectMode = mqttDeviceConfig.connectMode;
                 mqttConfig.keepAlive =  mqttDeviceConfig.keepAlive;
-                mqttConfig.lwtEnable = mqttDeviceConfig.lwtEnable;
-                mqttConfig.lwtQos = mqttDeviceConfig.lwtQos;
-                mqttConfig.lwtRetain =  mqttDeviceConfig.lwtRetain;
-                mqttConfig.lwtTopic =  mqttDeviceConfig.lwtTopic;
-                mqttConfig.lwtPayload = mqttDeviceConfig.lwtPayload;
                 mMokoDevice.mqttInfo = new Gson().toJson(mqttConfig, MQTTConfig.class);
                 DBTools.getInstance(this).updateDevice(mMokoDevice);
                 mBind.tvName.postDelayed(() -> {

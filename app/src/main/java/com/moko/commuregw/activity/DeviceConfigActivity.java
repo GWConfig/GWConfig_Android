@@ -181,8 +181,6 @@ public class DeviceConfigActivity extends BaseActivity<ActivityDeviceConfigBindi
                     mokoDevice.mqttInfo = mqttConfigStr;
                     mokoDevice.topicSubscribe = mDeviceMqttConfig.topicSubscribe;
                     mokoDevice.topicPublish = mDeviceMqttConfig.topicPublish;
-                    mokoDevice.lwtEnable = mDeviceMqttConfig.lwtEnable ? 1 : 0;
-                    mokoDevice.lwtTopic = mDeviceMqttConfig.lwtTopic;
                     mokoDevice.deviceType = mSelectedDeviceType;
                     DBTools.getInstance(DeviceConfigActivity.this).insertDevice(mokoDevice);
                 } else {
@@ -191,8 +189,6 @@ public class DeviceConfigActivity extends BaseActivity<ActivityDeviceConfigBindi
                     mokoDevice.mqttInfo = mqttConfigStr;
                     mokoDevice.topicSubscribe = mDeviceMqttConfig.topicSubscribe;
                     mokoDevice.topicPublish = mDeviceMqttConfig.topicPublish;
-                    mokoDevice.lwtEnable = mDeviceMqttConfig.lwtEnable ? 1 : 0;
-                    mokoDevice.lwtTopic = mDeviceMqttConfig.lwtTopic;
                     mokoDevice.deviceType = mSelectedDeviceType;
                     DBTools.getInstance(DeviceConfigActivity.this).updateDevice(mokoDevice);
                 }
@@ -324,19 +320,7 @@ public class DeviceConfigActivity extends BaseActivity<ActivityDeviceConfigBindi
     private void subscribeTopic() {
         // 订阅
         try {
-            if (TextUtils.isEmpty(mAppMqttConfig.topicSubscribe)) {
-                MQTTSupport.getInstance().subscribe(mDeviceMqttConfig.topicPublish, mAppMqttConfig.qos);
-            }
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-        // 订阅遗愿主题
-        try {
-            if (mDeviceMqttConfig.lwtEnable
-                    && !TextUtils.isEmpty(mDeviceMqttConfig.lwtTopic)
-                    && !mDeviceMqttConfig.lwtTopic.equals(mDeviceMqttConfig.topicPublish)) {
-                MQTTSupport.getInstance().subscribe(mDeviceMqttConfig.lwtTopic, mAppMqttConfig.qos);
-            }
+            MQTTSupport.getInstance().subscribe(mDeviceMqttConfig.topicPublish, mAppMqttConfig.qos);
         } catch (MqttException e) {
             e.printStackTrace();
         }

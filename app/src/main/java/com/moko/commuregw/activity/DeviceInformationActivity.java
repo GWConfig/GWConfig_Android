@@ -31,7 +31,6 @@ public class DeviceInformationActivity extends BaseActivity<ActivityDeviceInform
             List<OrderTask> orderTasks = new ArrayList<>();
             orderTasks.add(OrderTaskAssembler.getDeviceName());
             orderTasks.add(OrderTaskAssembler.getDeviceModel());
-            orderTasks.add(OrderTaskAssembler.getManufacturer());
             orderTasks.add(OrderTaskAssembler.getFirmwareVersion());
             orderTasks.add(OrderTaskAssembler.getHardwareVersion());
             orderTasks.add(OrderTaskAssembler.getSoftwareVersion());
@@ -72,9 +71,6 @@ public class DeviceInformationActivity extends BaseActivity<ActivityDeviceInform
             switch (orderCHAR) {
                 case CHAR_MODEL_NUMBER:
                     mBind.tvProductModel.setText(new String(value));
-                    break;
-                case CHAR_MANUFACTURER_NAME:
-                    mBind.tvManufacturer.setText(new String(value));
                     break;
                 case CHAR_FIRMWARE_REVISION:
                     mBind.tvDeviceFirmwareVersion.setText(new String(value));

@@ -137,25 +137,10 @@
             android:clickable="true"
             android:drawableRight="@drawable/arrow_right"
             android:gravity="center_vertical"
-            android:onClick="onFilterByName"
+            android:onClick="onFilterByTagId"
             android:paddingLeft="12dp"
             android:paddingRight="12dp"
-            android:text="Filter by ADV Name"
-            android:textColor="@color/black_333333"
-            android:textSize="15sp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="1dp"
-            android:background="@color/white_ffffff"
-            android:clickable="true"
-            android:drawableRight="@drawable/arrow_right"
-            android:gravity="center_vertical"
-            android:onClick="onFilterByRawData"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp"
-            android:text="Filter by Raw Data"
+            android:text="Filter by Tag id"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
 
@@ -190,7 +175,7 @@
                 android:minWidth="150dp"
                 android:onClick="onFilterRelationship"
                 android:padding="10dp"
-                android:text="@string/filter_adv_name_raw_data"
+                android:text="Null"
                 android:textColor="@color/white_ffffff"
                 android:textSize="15sp"
                 app:layout_constraintRight_toRightOf="parent"
@@ -203,7 +188,7 @@
             android:layout_marginTop="12dp"
             android:background="@color/white_ffffff"
             android:clickable="true"
-            android:onClick="onDuplicateDataFilter">
+            android:onClick="onTimeOffset">
 
             <TextView
                 android:layout_width="match_parent"
@@ -212,7 +197,7 @@
                 android:layout_marginLeft="12dp"
                 android:layout_marginRight="12dp"
                 android:drawableRight="@drawable/arrow_right"
-                android:text="Duplicate Data Filter"
+                android:text="@string/time_offset"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
 
@@ -229,7 +214,7 @@
             android:layout_marginTop="12dp"
             android:background="@color/white_ffffff"
             android:clickable="true"
-            android:onClick="onUploadDataOption">
+            android:onClick="onDecryptionKey">
 
             <TextView
                 android:layout_width="match_parent"
@@ -238,7 +223,7 @@
                 android:layout_marginLeft="12dp"
                 android:layout_marginRight="12dp"
                 android:drawableRight="@drawable/arrow_right"
-                android:text="Upload Data Option"
+                android:text="@string/decryption_key"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
 

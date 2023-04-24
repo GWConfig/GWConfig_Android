@@ -82,6 +82,16 @@
     <string name="system_time">System time</string>
     <string name="modify_network_settings">Modify Network Settings</string>
     <string name="reset_device_by_button">Reset device by button</string>
+    <string name="time_offset">Time offset</string>
+    <string name="decryption_key">Decryption key</string>
+    <string name="batch_dfu_beacon">Batch DFU Beacon</string>
+    <string name="batch_update_beacon_key">Batch update Beacon key</string>
+    <string name="init_data_file_url">Init data file Url error</string>
+    <string name="beacon_list_mac_error">Beacon list mac error</string>
+    <string name="encryption_key_error">Encryption key error</string>
+    <string name="sos_triggered_by_button">SOS triggered by button</string>
+    <string name="self_test_triggered_by_button">Self test triggered by button</string>
+    <string name="update_encryption_key">Update encryption key</string>
 
 
 </resources>

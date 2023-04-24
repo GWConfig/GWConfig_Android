@@ -119,11 +119,11 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
             errorReport.append(result.toString());
             XLog.e(errorReport.toString());
         }
-            mBind.tvTitle.setOnClickListener(v -> {
-                if (isWindowLocked()) return;
-                // 关于
-                startActivity(new Intent(this, AboutActivity.class));
-            });
+        mBind.tvTitle.setOnClickListener(v -> {
+            if (isWindowLocked()) return;
+            // 关于
+            startActivity(new Intent(this, AboutActivity.class));
+        });
     }
 
     @Override
@@ -233,32 +233,19 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
                     MokoDevice mokoDevice = DBTools.getInstance(this).selectDevice(mac);
                     for (final MokoDevice device : devices) {
                         if (mac.equals(device.mac)) {
-                            if (TextUtils.isEmpty(mAppMqttConfig.topicSubscribe)) {
-                                try {
-                                    if (!device.topicPublish.equals(mokoDevice.topicPublish)) {
-                                        // 取消订阅旧主题
-                                        MQTTSupport.getInstance().unSubscribe(device.topicPublish);
-                                        // 订阅新主题
-                                        MQTTSupport.getInstance().subscribe(mokoDevice.topicPublish, mAppMqttConfig.qos);
-                                    }
-                                    if (device.lwtEnable == 1
-                                            && !TextUtils.isEmpty(device.lwtTopic)
-                                            && !device.lwtTopic.equals(mokoDevice.topicPublish)) {
-                                        // 取消订阅旧遗愿主题
-                                        MQTTSupport.getInstance().unSubscribe(device.lwtTopic);
-                                        // 订阅新遗愿主题
-                                        MQTTSupport.getInstance().subscribe(mokoDevice.lwtTopic, mAppMqttConfig.qos);
-
-                                    }
-                                } catch (MqttException e) {
-                                    e.printStackTrace();
+                            try {
+                                if (!device.topicPublish.equals(mokoDevice.topicPublish)) {
+                                    // 取消订阅旧主题
+                                    MQTTSupport.getInstance().unSubscribe(device.topicPublish);
+                                    // 订阅新主题
+                                    MQTTSupport.getInstance().subscribe(mokoDevice.topicPublish, mAppMqttConfig.qos);
                                 }
+                            } catch (MqttException e) {
+                                e.printStackTrace();
                             }
                             device.mqttInfo = mokoDevice.mqttInfo;
                             device.topicPublish = mokoDevice.topicPublish;
                             device.topicSubscribe = mokoDevice.topicSubscribe;
-                            device.lwtEnable = mokoDevice.lwtEnable;
-                            device.lwtTopic = mokoDevice.lwtTopic;
                             break;
                         }
                     }
@@ -328,16 +315,10 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
             }
             showLoadingProgressDialog();
             // 取消订阅
-            if (TextUtils.isEmpty(mAppMqttConfig.topicSubscribe)) {
-                try {
-                    MQTTSupport.getInstance().unSubscribe(mokoDevice.topicPublish);
-                    if (mokoDevice.lwtEnable == 1
-                            && !TextUtils.isEmpty(mokoDevice.lwtTopic)
-                            && !mokoDevice.lwtTopic.equals(mokoDevice.topicPublish))
-                        MQTTSupport.getInstance().unSubscribe(mokoDevice.lwtTopic);
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
+            try {
+                MQTTSupport.getInstance().unSubscribe(mokoDevice.topicPublish);
+            } catch (MqttException e) {
+                e.printStackTrace();
             }
             XLog.i(String.format("删除设备:%s", mokoDevice.name));
             DBTools.getInstance(MainActivity.this).deleteDevice(mokoDevice);
@@ -354,28 +335,14 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
     }
 
     private void subscribeAllDevices() {
-        if (!TextUtils.isEmpty(mAppMqttConfig.topicSubscribe)) {
+        if (devices.isEmpty())
+            return;
+        for (MokoDevice device : devices) {
             try {
-                MQTTSupport.getInstance().subscribe(mAppMqttConfig.topicSubscribe, mAppMqttConfig.qos);
+                // 订阅设备发布主题
+                MQTTSupport.getInstance().subscribe(device.topicPublish, mAppMqttConfig.qos);
             } catch (MqttException e) {
                 e.printStackTrace();
-            }
-        } else {
-            if (devices.isEmpty())
-                return;
-            for (MokoDevice device : devices) {
-                try {
-                    // 订阅设备发布主题
-                    if (TextUtils.isEmpty(mAppMqttConfig.topicSubscribe))
-                        MQTTSupport.getInstance().subscribe(device.topicPublish, mAppMqttConfig.qos);
-                    // 订阅遗愿主题
-                    if (device.lwtEnable == 1
-                            && !TextUtils.isEmpty(device.lwtTopic)
-                            && !device.lwtTopic.equals(device.topicPublish))
-                        MQTTSupport.getInstance().subscribe(device.lwtTopic, mAppMqttConfig.qos);
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
             }
         }
     }
@@ -494,9 +461,9 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
     }
 
     private void back() {
-            AlertMessageDialog dialog = new AlertMessageDialog();
-            dialog.setMessage(R.string.main_exit_tips);
-            dialog.setOnAlertConfirmListener(() -> finish());
-            dialog.show(getSupportFragmentManager());
+        AlertMessageDialog dialog = new AlertMessageDialog();
+        dialog.setMessage(R.string.main_exit_tips);
+        dialog.setOnAlertConfirmListener(() -> finish());
+        dialog.show(getSupportFragmentManager());
     }
 }

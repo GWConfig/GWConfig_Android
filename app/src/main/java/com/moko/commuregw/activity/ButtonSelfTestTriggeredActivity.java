@@ -1,6 +1,5 @@
 package com.moko.commuregw.activity;
 
-
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -11,16 +10,18 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.moko.commuregw.AppConstants;
+import com.moko.commuregw.R;
 import com.moko.commuregw.base.BaseActivity;
-import com.moko.commuregw.databinding.ActivityFilterUidBinding;
+import com.moko.commuregw.databinding.ActivityButtonSelfTestTriggeredBinding;
 import com.moko.commuregw.entity.MQTTConfig;
 import com.moko.commuregw.entity.MokoDevice;
 import com.moko.commuregw.utils.SPUtiles;
 import com.moko.commuregw.utils.ToastUtils;
 import com.moko.support.commuregw.MQTTConstants;
 import com.moko.support.commuregw.MQTTSupport;
+import com.moko.support.commuregw.entity.BXPButtonInfo;
 import com.moko.support.commuregw.entity.MsgConfigResult;
-import com.moko.support.commuregw.entity.MsgReadResult;
+import com.moko.support.commuregw.entity.MsgNotify;
 import com.moko.support.commuregw.event.DeviceOnlineEvent;
 import com.moko.support.commuregw.event.MQTTMessageArrivedEvent;
 
@@ -30,12 +31,13 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.reflect.Type;
 
-public class FilterUIDActivity extends BaseActivity<ActivityFilterUidBinding> {
+public class ButtonSelfTestTriggeredActivity extends BaseActivity<ActivityButtonSelfTestTriggeredBinding> {
 
     private MokoDevice mMokoDevice;
     private MQTTConfig appMqttConfig;
     private String mAppTopic;
 
+    private BXPButtonInfo mBXPButtonInfo;
     public Handler mHandler;
 
     @Override
@@ -45,17 +47,18 @@ public class FilterUIDActivity extends BaseActivity<ActivityFilterUidBinding> {
         appMqttConfig = new Gson().fromJson(mqttConfigAppStr, MQTTConfig.class);
         mAppTopic = TextUtils.isEmpty(appMqttConfig.topicPublish) ? mMokoDevice.topicSubscribe : appMqttConfig.topicPublish;
         mHandler = new Handler(Looper.getMainLooper());
+        mBXPButtonInfo = (BXPButtonInfo) getIntent().getSerializableExtra(AppConstants.EXTRA_KEY_BXP_BUTTON_INFO);
         mHandler.postDelayed(() -> {
             dismissLoadingProgressDialog();
             finish();
         }, 30 * 1000);
         showLoadingProgressDialog();
-        getFilterUid();
+        getButtonSelfTestDuration();
     }
 
     @Override
-    protected ActivityFilterUidBinding getViewBinding() {
-        return ActivityFilterUidBinding.inflate(getLayoutInflater());
+    protected ActivityButtonSelfTestTriggeredBinding getViewBinding() {
+        return ActivityButtonSelfTestTriggeredBinding.inflate(getLayoutInflater());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -74,19 +77,23 @@ public class FilterUIDActivity extends BaseActivity<ActivityFilterUidBinding> {
             e.printStackTrace();
             return;
         }
-        if (msg_id == MQTTConstants.READ_MSG_ID_FILTER_UID) {
-            Type type = new TypeToken<MsgReadResult<JsonObject>>() {
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_GET_SELF_TEST_DURATION) {
+            Type type = new TypeToken<MsgNotify<JsonObject>>() {
             }.getType();
-            MsgReadResult<JsonObject> result = new Gson().fromJson(message, type);
+            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
             if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
                 return;
             dismissLoadingProgressDialog();
             mHandler.removeMessages(0);
-            mBind.cbUid.setChecked(result.data.get("switch_value").getAsInt() == 1);
-            mBind.etUidNamespace.setText(result.data.get("namespace").getAsString());
-            mBind.etUidInstanceId.setText(result.data.get("instance").getAsString());
+            int result_code = result.data.get("result_code").getAsInt();
+            if (result_code != 0) {
+                ToastUtils.showToast(this, "Setup failed");
+                return;
+            }
+            int time = result.data.get("time").getAsInt();
+            mBind.etSelfTestDuration.setText(String.valueOf(time));
         }
-        if (msg_id == MQTTConstants.CONFIG_MSG_ID_FILTER_UID) {
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_SELF_TEST_DURATION) {
             Type type = new TypeToken<MsgConfigResult>() {
             }.getType();
             MsgConfigResult result = new Gson().fromJson(message, type);
@@ -107,39 +114,14 @@ public class FilterUIDActivity extends BaseActivity<ActivityFilterUidBinding> {
         super.offline(event, mMokoDevice.mac);
     }
 
-    private void getFilterUid() {
-        int msgId = MQTTConstants.READ_MSG_ID_FILTER_UID;
-        String message = assembleReadCommon(msgId, mMokoDevice.mac);
-        try {
-            MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void onBack(View view) {
         finish();
     }
 
-    public void onSave(View view) {
-        if (isWindowLocked()) return;
-        if (isValid()) {
-            mHandler.postDelayed(() -> {
-                dismissLoadingProgressDialog();
-                ToastUtils.showToast(this, "Set up failed");
-            }, 30 * 1000);
-            showLoadingProgressDialog();
-            saveParams();
-        }
-    }
-
-
-    private void saveParams() {
-        int msgId = MQTTConstants.CONFIG_MSG_ID_FILTER_UID;
+    private void getButtonSelfTestDuration() {
+        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_GET_SELF_TEST_DURATION;
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("switch_value", mBind.cbUid.isChecked() ? 1 : 0);
-        jsonObject.addProperty("namespace", mBind.etUidNamespace.getText().toString());
-        jsonObject.addProperty("instance", mBind.etUidInstanceId.getText().toString());
+        jsonObject.addProperty("mac", mBXPButtonInfo.mac);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
         try {
             MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
@@ -148,23 +130,40 @@ public class FilterUIDActivity extends BaseActivity<ActivityFilterUidBinding> {
         }
     }
 
-    private boolean isValid() {
-        final String namespace = mBind.etUidNamespace.getText().toString();
-        final String instanceId = mBind.etUidInstanceId.getText().toString();
-        if (!TextUtils.isEmpty(namespace)) {
-            int length = namespace.length();
-            if (length % 2 != 0) {
-                ToastUtils.showToast(this, "Para Error");
-                return false;
-            }
+    private void setButtonSelfTestDuration(int duration) {
+        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_SELF_TEST_DURATION;
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("mac", mBXPButtonInfo.mac);
+        jsonObject.addProperty("time", duration);
+        String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
+        try {
+            MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
+        } catch (MqttException e) {
+            e.printStackTrace();
         }
-        if (!TextUtils.isEmpty(instanceId)) {
-            int length = instanceId.length();
-            if (length % 2 != 0) {
-                ToastUtils.showToast(this, "Para Error");
-                return false;
-            }
+    }
+
+    public void onSave(View view) {
+        if (isWindowLocked()) return;
+        String durationStr = mBind.etSelfTestDuration.getText().toString();
+        if (TextUtils.isEmpty(durationStr)) {
+            ToastUtils.showToast(this, "Para Error");
+            return;
         }
-        return true;
+        int duration = Integer.parseInt(durationStr);
+        if (duration < 1 || duration > 255) {
+            ToastUtils.showToast(this, "Para Error");
+            return;
+        }
+        if (!MQTTSupport.getInstance().isConnected()) {
+            ToastUtils.showToast(this, R.string.network_error);
+            return;
+        }
+        mHandler.postDelayed(() -> {
+            dismissLoadingProgressDialog();
+            ToastUtils.showToast(this, "Set up failed");
+        }, 30 * 1000);
+        showLoadingProgressDialog();
+        setButtonSelfTestDuration(duration);
     }
 }

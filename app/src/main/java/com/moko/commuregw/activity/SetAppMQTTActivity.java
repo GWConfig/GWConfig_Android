@@ -71,9 +71,9 @@ public class SetAppMQTTActivity extends BaseActivity<ActivityMqttAppRemoteBindin
         String MQTTConfigStr = SPUtiles.getStringValue(this, AppConstants.SP_KEY_MQTT_CONFIG_APP, "");
         if (TextUtils.isEmpty(MQTTConfigStr)) {
             UUID uuid = UUID.randomUUID();
-            String clintIdStr = String.format("MK_%s", uuid.toString().substring(0, 8).toUpperCase());
+            String clintIdStr = uuid.toString().substring(0, 8).toUpperCase();
             mqttConfig = new MQTTConfig();
-            mqttConfig.host = "47.104.81.55";
+            mqttConfig.host = "iot.csafe.cloud";
             mqttConfig.port = "1883";
             mqttConfig.clientId = clintIdStr;
         } else {
@@ -88,8 +88,6 @@ public class SetAppMQTTActivity extends BaseActivity<ActivityMqttAppRemoteBindin
         };
         mBind.etMqttHost.setFilters(new InputFilter[]{new InputFilter.LengthFilter(64), filter});
         mBind.etMqttClientId.setFilters(new InputFilter[]{new InputFilter.LengthFilter(64), filter});
-        mBind.etMqttSubscribeTopic.setFilters(new InputFilter[]{new InputFilter.LengthFilter(128), filter});
-        mBind.etMqttPublishTopic.setFilters(new InputFilter[]{new InputFilter.LengthFilter(128), filter});
         createFragment();
         initData();
         adapter = new MQTTFragmentAdapter(this);
@@ -151,8 +149,6 @@ public class SetAppMQTTActivity extends BaseActivity<ActivityMqttAppRemoteBindin
         mBind.etMqttHost.setText(mqttConfig.host);
         mBind.etMqttPort.setText(mqttConfig.port);
         mBind.etMqttClientId.setText(mqttConfig.clientId);
-        mBind.etMqttSubscribeTopic.setText(mqttConfig.topicSubscribe);
-        mBind.etMqttPublishTopic.setText(mqttConfig.topicPublish);
         generalFragment.setCleanSession(mqttConfig.cleanSession);
         generalFragment.setQos(mqttConfig.qos);
         generalFragment.setKeepAlive(mqttConfig.keepAlive);
@@ -228,8 +224,6 @@ public class SetAppMQTTActivity extends BaseActivity<ActivityMqttAppRemoteBindin
         String host = mBind.etMqttHost.getText().toString().replaceAll(" ", "");
         String port = mBind.etMqttPort.getText().toString();
         String clientId = mBind.etMqttClientId.getText().toString().replaceAll(" ", "");
-        String subscribeTopic = mBind.etMqttSubscribeTopic.getText().toString().replaceAll(" ", "");
-        String publishTopic = mBind.etMqttPublishTopic.getText().toString().replaceAll(" ", "");
 
         if (TextUtils.isEmpty(host)) {
             ToastUtils.showToast(this, getString(R.string.mqtt_verify_host));
@@ -255,20 +249,12 @@ public class SetAppMQTTActivity extends BaseActivity<ActivityMqttAppRemoteBindin
         mqttConfig.cleanSession = generalFragment.isCleanSession();
         mqttConfig.qos = generalFragment.getQos();
         mqttConfig.keepAlive = generalFragment.getKeepAlive();
-        mqttConfig.topicSubscribe = subscribeTopic;
-        mqttConfig.topicPublish = publishTopic;
         mqttConfig.username = userFragment.getUsername();
         mqttConfig.password = userFragment.getPassword();
         mqttConfig.connectMode = sslFragment.getConnectMode();
         mqttConfig.caPath = sslFragment.getCaPath();
         mqttConfig.clientKeyPath = sslFragment.getClientKeyPath();
         mqttConfig.clientCertPath = sslFragment.getClientCertPath();
-
-        if (!mqttConfig.topicPublish.isEmpty() && !mqttConfig.topicSubscribe.isEmpty()
-                && mqttConfig.topicPublish.equals(mqttConfig.topicSubscribe)) {
-            ToastUtils.showToast(this, "Subscribed and published topic can't be same !");
-            return true;
-        }
         return false;
     }
 
@@ -302,8 +288,6 @@ public class SetAppMQTTActivity extends BaseActivity<ActivityMqttAppRemoteBindin
         mqttConfig.host = mBind.etMqttHost.getText().toString().replaceAll(" ", "");
         mqttConfig.port = mBind.etMqttPort.getText().toString();
         mqttConfig.clientId = mBind.etMqttClientId.getText().toString().replaceAll(" ", "");
-        mqttConfig.topicSubscribe = mBind.etMqttSubscribeTopic.getText().toString().replaceAll(" ", "");
-        mqttConfig.topicPublish = mBind.etMqttPublishTopic.getText().toString().replaceAll(" ", "");
         mqttConfig.cleanSession = generalFragment.isCleanSession();
         mqttConfig.qos = generalFragment.getQos();
         mqttConfig.keepAlive = generalFragment.getKeepAlive();

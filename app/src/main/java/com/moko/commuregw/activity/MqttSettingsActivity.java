@@ -59,7 +59,6 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
     private GeneralDeviceFragment generalFragment;
     private UserDeviceFragment userFragment;
     private SSLDeviceFragment sslFragment;
-    private LWTFragment lwtFragment;
     private MQTTFragmentAdapter adapter;
     private ArrayList<Fragment> fragments;
 
@@ -104,8 +103,6 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
                     mBind.rbUser.setChecked(true);
                 } else if (position == 2) {
                     mBind.rbSsl.setChecked(true);
-                } else if (position == 3) {
-                    mBind.rbLwt.setChecked(true);
                 }
             }
         });
@@ -127,12 +124,7 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
             orderTasks.add(OrderTaskAssembler.getMQTTSubscribeTopic());
             orderTasks.add(OrderTaskAssembler.getMQTTPublishTopic());
             orderTasks.add(OrderTaskAssembler.getMQTTUsername());
-            orderTasks.add(OrderTaskAssembler.getMQTTPassword());
-            orderTasks.add(OrderTaskAssembler.getMQTTLwtEnable());
-            orderTasks.add(OrderTaskAssembler.getMQTTLwtRetain());
-            orderTasks.add(OrderTaskAssembler.getMQTTLwtQos());
-            orderTasks.add(OrderTaskAssembler.getMQTTLwtTopic());
-            orderTasks.add(OrderTaskAssembler.getMQTTLwtPayload());
+            orderTasks.add(OrderTaskAssembler.getMQTTPassword());;
             MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
         }, 500);
 
@@ -294,26 +286,6 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
                                         mqttDeviceConfig.topicPublish = new String(Arrays.copyOfRange(value, 4, 4 + length));
                                         mBind.etMqttPublishTopic.setText(mqttDeviceConfig.topicPublish);
                                         break;
-                                    case KEY_MQTT_LWT_ENABLE:
-                                        mqttDeviceConfig.lwtEnable = value[4] == 1;
-                                        lwtFragment.setLwtEnable(mqttDeviceConfig.lwtEnable);
-                                        break;
-                                    case KEY_MQTT_LWT_QOS:
-                                        mqttDeviceConfig.qos = value[4];
-                                        lwtFragment.setQos(mqttDeviceConfig.qos);
-                                        break;
-                                    case KEY_MQTT_LWT_RETAIN:
-                                        mqttDeviceConfig.lwtRetain = value[4] == 1;
-                                        lwtFragment.setLwtRetain(mqttDeviceConfig.lwtRetain);
-                                        break;
-                                    case KEY_MQTT_LWT_TOPIC:
-                                        mqttDeviceConfig.lwtTopic = new String(Arrays.copyOfRange(value, 4, 4 + length));
-                                        lwtFragment.setTopic(mqttDeviceConfig.lwtTopic);
-                                        break;
-                                    case KEY_MQTT_LWT_PAYLOAD:
-                                        mqttDeviceConfig.lwtPayload = new String(Arrays.copyOfRange(value, 4, 4 + length));
-                                        lwtFragment.setPayload(mqttDeviceConfig.lwtPayload);
-                                        break;
                                     case KEY_DEVICE_NAME:
                                         String name = new String(Arrays.copyOfRange(value, 4, 4 + length));
                                         mqttDeviceConfig.deviceName = name;
@@ -338,11 +310,9 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
         generalFragment = GeneralDeviceFragment.newInstance();
         userFragment = UserDeviceFragment.newInstance();
         sslFragment = SSLDeviceFragment.newInstance();
-        lwtFragment = LWTFragment.newInstance();
         fragments.add(generalFragment);
         fragments.add(userFragment);
         fragments.add(sslFragment);
-        fragments.add(lwtFragment);
     }
 
     private void initData() {
@@ -360,11 +330,6 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
         sslFragment.setClientKeyPath(mqttDeviceConfig.clientKeyPath);
         sslFragment.setClientCertPath(mqttDeviceConfig.clientCertPath);
         sslFragment.setConnectMode(mqttDeviceConfig.connectMode);
-        lwtFragment.setLwtEnable(mqttDeviceConfig.lwtEnable);
-        lwtFragment.setLwtRetain(mqttDeviceConfig.lwtRetain);
-        lwtFragment.setQos(mqttDeviceConfig.lwtQos);
-        lwtFragment.setTopic(mqttDeviceConfig.lwtTopic);
-        lwtFragment.setPayload(mqttDeviceConfig.lwtPayload);
     }
 
     public void onBack(View view) {
@@ -393,8 +358,6 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
             mBind.vpMqtt.setCurrentItem(1);
         } else if (checkedId == R.id.rb_ssl) {
             mBind.vpMqtt.setCurrentItem(2);
-        } else if (checkedId == R.id.rb_lwt) {
-            mBind.vpMqtt.setCurrentItem(3);
         }
     }
 
@@ -440,7 +403,7 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
             ToastUtils.showToast(this, "Subscribed and published topic can't be same !");
             return true;
         }
-        if (!generalFragment.isValid() || !sslFragment.isValid() || !lwtFragment.isValid())
+        if (!generalFragment.isValid() || !sslFragment.isValid())
             return true;
         mqttDeviceConfig.host = host;
         mqttDeviceConfig.port = port;
@@ -456,13 +419,6 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
         mqttDeviceConfig.caPath = sslFragment.getCaPath();
         mqttDeviceConfig.clientKeyPath = sslFragment.getClientKeyPath();
         mqttDeviceConfig.clientCertPath = sslFragment.getClientCertPath();
-        mqttDeviceConfig.lwtEnable = lwtFragment.getLwtEnable();
-        if (mqttDeviceConfig.lwtEnable) {
-            mqttDeviceConfig.lwtQos = lwtFragment.getQos();
-            mqttDeviceConfig.lwtRetain = lwtFragment.getLwtRetain();
-            mqttDeviceConfig.lwtTopic = lwtFragment.getTopic();
-            mqttDeviceConfig.lwtPayload = lwtFragment.getPayload();
-        }
         return false;
     }
 
@@ -478,13 +434,6 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
             orderTasks.add(OrderTaskAssembler.setMqttKeepAlive(mqttDeviceConfig.keepAlive));
             orderTasks.add(OrderTaskAssembler.setMqttPublishTopic(mqttDeviceConfig.topicPublish));
             orderTasks.add(OrderTaskAssembler.setMqttSubscribeTopic(mqttDeviceConfig.topicSubscribe));
-            orderTasks.add(OrderTaskAssembler.setMqttLwtEnable(mqttDeviceConfig.lwtEnable ? 1 : 0));
-            if (mqttDeviceConfig.lwtEnable) {
-                orderTasks.add(OrderTaskAssembler.setMqttLwtQos(mqttDeviceConfig.lwtQos));
-                orderTasks.add(OrderTaskAssembler.setMqttLwtRetain(mqttDeviceConfig.lwtRetain ? 1 : 0));
-                orderTasks.add(OrderTaskAssembler.setMqttLwtTopic(mqttDeviceConfig.lwtTopic));
-                orderTasks.add(OrderTaskAssembler.setMqttLwtPayload(mqttDeviceConfig.lwtPayload));
-            }
             orderTasks.add(OrderTaskAssembler.setMqttUserName(mqttDeviceConfig.username));
             orderTasks.add(OrderTaskAssembler.setMqttPassword(mqttDeviceConfig.password));
             orderTasks.add(OrderTaskAssembler.setMqttConnectMode(mqttDeviceConfig.connectMode));
@@ -546,11 +495,6 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
         mqttDeviceConfig.caPath = sslFragment.getCaPath();
         mqttDeviceConfig.clientKeyPath = sslFragment.getClientKeyPath();
         mqttDeviceConfig.clientCertPath = sslFragment.getClientCertPath();
-        mqttDeviceConfig.lwtEnable = lwtFragment.getLwtEnable();
-        mqttDeviceConfig.lwtRetain = lwtFragment.getLwtRetain();
-        mqttDeviceConfig.lwtQos = lwtFragment.getQos();
-        mqttDeviceConfig.lwtTopic = lwtFragment.getTopic();
-        mqttDeviceConfig.lwtPayload = lwtFragment.getPayload();
         showLoadingProgressDialog();
         final File expertFile = new File(expertFilePath);
         try {
@@ -648,36 +592,36 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
                 row11.createCell(2).setCellValue("Range: 0/1 0:Disable SSL (TCP mode) 1:Enable SSL");
                 row12.createCell(2).setCellValue("Valid when SSL is enabled, range: 1/2/3 1: CA certificate file 2: CA certificate file 3: Self signed certificates");
 
-                XSSFRow row13 = sheet.createRow(13);
-                row13.createCell(0).setCellValue("LWT");
-                row13.createCell(1).setCellValue(mqttDeviceConfig.lwtEnable ? "value:1" : "value:0");
-                row13.createCell(2).setCellValue("Range: 0/1 0:Disable 1:Enable");
-
-                XSSFRow row14 = sheet.createRow(14);
-                row14.createCell(0).setCellValue("LWT Retain");
-                row14.createCell(1).setCellValue(mqttDeviceConfig.lwtRetain ? "value:1" : "value:0");
-                row14.createCell(2).setCellValue("Range: 0/1 0:NO 1:YES");
-
-                XSSFRow row15 = sheet.createRow(15);
-                row15.createCell(0).setCellValue("LWT Qos");
-                row15.createCell(1).setCellValue(String.format("value:%d", mqttDeviceConfig.lwtQos));
-                row15.createCell(2).setCellValue("Range: 0/1/2 0:qos0 1:qos1 2:qos2");
-
-                XSSFRow row16 = sheet.createRow(16);
-                row16.createCell(0).setCellValue("LWT Topic");
-                if (!TextUtils.isEmpty(mqttDeviceConfig.lwtTopic))
-                    row16.createCell(1).setCellValue(String.format("value:%s", mqttDeviceConfig.lwtTopic));
-//                else
-//                    row16.createCell(1).setCellValue("");
-                row16.createCell(2).setCellValue("1-128 characters (When LWT is enabled) ");
-
-                XSSFRow row17 = sheet.createRow(17);
-                row17.createCell(0).setCellValue("LWT Payload");
-                if (!TextUtils.isEmpty(mqttDeviceConfig.lwtPayload))
-                    row17.createCell(1).setCellValue(String.format("value:%s", mqttDeviceConfig.lwtPayload));
-//                else
-//                    row17.createCell(1).setCellValue("");
-                row17.createCell(2).setCellValue("1-128 characters (When LWT is enabled) ");
+//                XSSFRow row13 = sheet.createRow(13);
+//                row13.createCell(0).setCellValue("LWT");
+//                row13.createCell(1).setCellValue(mqttDeviceConfig.lwtEnable ? "value:1" : "value:0");
+//                row13.createCell(2).setCellValue("Range: 0/1 0:Disable 1:Enable");
+//
+//                XSSFRow row14 = sheet.createRow(14);
+//                row14.createCell(0).setCellValue("LWT Retain");
+//                row14.createCell(1).setCellValue(mqttDeviceConfig.lwtRetain ? "value:1" : "value:0");
+//                row14.createCell(2).setCellValue("Range: 0/1 0:NO 1:YES");
+//
+//                XSSFRow row15 = sheet.createRow(15);
+//                row15.createCell(0).setCellValue("LWT Qos");
+//                row15.createCell(1).setCellValue(String.format("value:%d", mqttDeviceConfig.lwtQos));
+//                row15.createCell(2).setCellValue("Range: 0/1/2 0:qos0 1:qos1 2:qos2");
+//
+//                XSSFRow row16 = sheet.createRow(16);
+//                row16.createCell(0).setCellValue("LWT Topic");
+//                if (!TextUtils.isEmpty(mqttDeviceConfig.lwtTopic))
+//                    row16.createCell(1).setCellValue(String.format("value:%s", mqttDeviceConfig.lwtTopic));
+////                else
+////                    row16.createCell(1).setCellValue("");
+//                row16.createCell(2).setCellValue("1-128 characters (When LWT is enabled) ");
+//
+//                XSSFRow row17 = sheet.createRow(17);
+//                row17.createCell(0).setCellValue("LWT Payload");
+//                if (!TextUtils.isEmpty(mqttDeviceConfig.lwtPayload))
+//                    row17.createCell(1).setCellValue(String.format("value:%s", mqttDeviceConfig.lwtPayload));
+////                else
+////                    row17.createCell(1).setCellValue("");
+//                row17.createCell(2).setCellValue("1-128 characters (When LWT is enabled) ");
 
                 Uri uri = Uri.fromFile(expertFile);
                 try {
@@ -795,23 +739,23 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
                                         mqttDeviceConfig.connectMode = Integer.parseInt(cell.getStringCellValue().replaceAll("value:", ""));
                                 }
                             }
-                            Cell lwtEnableCell = sheet.getRow(13).getCell(1);
-                            if (lwtEnableCell != null)
-                                mqttDeviceConfig.lwtEnable = "1".equals(lwtEnableCell.getStringCellValue().replaceAll("value:", ""));
-                            Cell lwtRetainCell = sheet.getRow(14).getCell(1);
-                            if (lwtRetainCell != null)
-                                mqttDeviceConfig.lwtRetain = "1".equals(lwtRetainCell.getStringCellValue().replaceAll("value:", ""));
-                            Cell lwtQosCell = sheet.getRow(15).getCell(1);
-                            if (lwtQosCell != null)
-                                mqttDeviceConfig.lwtQos = Integer.parseInt(lwtQosCell.getStringCellValue().replaceAll("value:", ""));
-                            Cell topicCell = sheet.getRow(16).getCell(1);
-                            if (topicCell != null) {
-                                mqttDeviceConfig.lwtTopic = topicCell.getStringCellValue().replaceAll("value:", "");
-                            }
-                            Cell payloadCell = sheet.getRow(17).getCell(1);
-                            if (payloadCell != null) {
-                                mqttDeviceConfig.lwtPayload = payloadCell.getStringCellValue().replaceAll("value:", "");
-                            }
+//                            Cell lwtEnableCell = sheet.getRow(13).getCell(1);
+//                            if (lwtEnableCell != null)
+//                                mqttDeviceConfig.lwtEnable = "1".equals(lwtEnableCell.getStringCellValue().replaceAll("value:", ""));
+//                            Cell lwtRetainCell = sheet.getRow(14).getCell(1);
+//                            if (lwtRetainCell != null)
+//                                mqttDeviceConfig.lwtRetain = "1".equals(lwtRetainCell.getStringCellValue().replaceAll("value:", ""));
+//                            Cell lwtQosCell = sheet.getRow(15).getCell(1);
+//                            if (lwtQosCell != null)
+//                                mqttDeviceConfig.lwtQos = Integer.parseInt(lwtQosCell.getStringCellValue().replaceAll("value:", ""));
+//                            Cell topicCell = sheet.getRow(16).getCell(1);
+//                            if (topicCell != null) {
+//                                mqttDeviceConfig.lwtTopic = topicCell.getStringCellValue().replaceAll("value:", "");
+//                            }
+//                            Cell payloadCell = sheet.getRow(17).getCell(1);
+//                            if (payloadCell != null) {
+//                                mqttDeviceConfig.lwtPayload = payloadCell.getStringCellValue().replaceAll("value:", "");
+//                            }
                             runOnUiThread(() -> {
                                 dismissLoadingProgressDialog();
                                 if (isFileError) {

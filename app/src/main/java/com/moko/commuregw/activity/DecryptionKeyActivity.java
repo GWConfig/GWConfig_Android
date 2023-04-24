@@ -10,13 +10,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.moko.commuregw.AppConstants;
+import com.moko.commuregw.R;
 import com.moko.commuregw.base.BaseActivity;
-import com.moko.commuregw.databinding.ActivityDeviceInformationBinding;
+import com.moko.commuregw.databinding.ActivityDecryptionKeyBinding;
 import com.moko.commuregw.entity.MQTTConfig;
 import com.moko.commuregw.entity.MokoDevice;
 import com.moko.commuregw.utils.SPUtiles;
+import com.moko.commuregw.utils.ToastUtils;
 import com.moko.support.commuregw.MQTTConstants;
 import com.moko.support.commuregw.MQTTSupport;
+import com.moko.support.commuregw.entity.MsgConfigResult;
 import com.moko.support.commuregw.entity.MsgReadResult;
 import com.moko.support.commuregw.event.DeviceOnlineEvent;
 import com.moko.support.commuregw.event.MQTTMessageArrivedEvent;
@@ -27,7 +30,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.reflect.Type;
 
-public class DeviceInfoActivity extends BaseActivity<ActivityDeviceInformationBinding> {
+public class DecryptionKeyActivity extends BaseActivity<ActivityDecryptionKeyBinding> {
 
     private MokoDevice mMokoDevice;
     private MQTTConfig appMqttConfig;
@@ -42,17 +45,11 @@ public class DeviceInfoActivity extends BaseActivity<ActivityDeviceInformationBi
         appMqttConfig = new Gson().fromJson(mqttConfigAppStr, MQTTConfig.class);
         mAppTopic = TextUtils.isEmpty(appMqttConfig.topicPublish) ? mMokoDevice.topicSubscribe : appMqttConfig.topicPublish;
         mHandler = new Handler(Looper.getMainLooper());
-        mHandler.postDelayed(() -> {
-            dismissLoadingProgressDialog();
-            finish();
-        }, 30 * 1000);
-        showLoadingProgressDialog();
-        getDeviceInfo();
     }
 
     @Override
-    protected ActivityDeviceInformationBinding getViewBinding() {
-        return ActivityDeviceInformationBinding.inflate(getLayoutInflater());
+    protected ActivityDecryptionKeyBinding getViewBinding() {
+        return ActivityDecryptionKeyBinding.inflate(getLayoutInflater());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -71,7 +68,7 @@ public class DeviceInfoActivity extends BaseActivity<ActivityDeviceInformationBi
             e.printStackTrace();
             return;
         }
-        if (msg_id == MQTTConstants.READ_MSG_ID_DEVICE_INFO) {
+        if (msg_id == MQTTConstants.READ_MSG_ID_DECRYPTION_KEY) {
             Type type = new TypeToken<MsgReadResult<JsonObject>>() {
             }.getType();
             MsgReadResult<JsonObject> result = new Gson().fromJson(message, type);
@@ -79,13 +76,21 @@ public class DeviceInfoActivity extends BaseActivity<ActivityDeviceInformationBi
                 return;
             dismissLoadingProgressDialog();
             mHandler.removeMessages(0);
-            mBind.tvDeviceName.setText(result.data.get("device_name").getAsString());
-            mBind.tvProductModel.setText(result.data.get("product_model").getAsString());
-            mBind.tvDeviceHardwareVersion.setText(result.data.get("hardware_version").getAsString());
-            mBind.tvDeviceSoftwareVersion.setText(result.data.get("software_version").getAsString());
-            mBind.tvDeviceFirmwareVersion.setText(result.data.get("firmware_version").getAsString());
-            mBind.tvDeviceStaMac.setText(result.device_info.mac);
-            mBind.tvDeviceBtMac.setText(result.data.get("ble_mac").getAsString());
+            mBind.etDecryptionKey.setText(result.data.get("bxp_b_decrypt_key").getAsString());
+        }
+        if (msg_id == MQTTConstants.CONFIG_MSG_ID_DECRYPTION_KEY) {
+            Type type = new TypeToken<MsgConfigResult>() {
+            }.getType();
+            MsgConfigResult result = new Gson().fromJson(message, type);
+            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                return;
+            dismissLoadingProgressDialog();
+            mHandler.removeMessages(0);
+            if (result.result_code == 0) {
+                ToastUtils.showToast(this, "Set up succeed");
+            } else {
+                ToastUtils.showToast(this, "Set up failed");
+            }
         }
     }
 
@@ -98,14 +103,38 @@ public class DeviceInfoActivity extends BaseActivity<ActivityDeviceInformationBi
         finish();
     }
 
-
-    private void getDeviceInfo() {
-        int msgId = MQTTConstants.READ_MSG_ID_DEVICE_INFO;
-        String message = assembleReadCommon(msgId, mMokoDevice.mac);
+    private void setDecryptionKey(String key) {
+        int msgId = MQTTConstants.CONFIG_MSG_ID_DECRYPTION_KEY;
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("bxp_b_decrypt_key", key);
+        String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
         try {
             MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
         } catch (MqttException e) {
             e.printStackTrace();
         }
+    }
+
+    public void onSave(View view) {
+        if (isWindowLocked()) return;
+        String keyStr = mBind.etDecryptionKey.getText().toString();
+        if (TextUtils.isEmpty(keyStr)) {
+            ToastUtils.showToast(this, "Para Error");
+            return;
+        }
+        if (keyStr.length() != 64) {
+            ToastUtils.showToast(this, "Para Error");
+            return;
+        }
+        if (!MQTTSupport.getInstance().isConnected()) {
+            ToastUtils.showToast(this, R.string.network_error);
+            return;
+        }
+        mHandler.postDelayed(() -> {
+            dismissLoadingProgressDialog();
+            ToastUtils.showToast(this, "Set up failed");
+        }, 30 * 1000);
+        showLoadingProgressDialog();
+        setDecryptionKey(keyStr);
     }
 }

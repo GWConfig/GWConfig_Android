@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/grey_f2f2f2"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="@color/blue_0188cc">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:onClick="onBack"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/sos_triggered_by_button"
+            android:textColor="@color/white_ffffff"
+            android:textSize="18sp" />
+
+
+        <View
+            style="@style/divider_line"
+            android:layout_alignParentBottom="true"
+            android:background="@color/grey_999999" />
+    </RelativeLayout>
+
+    <RadioGroup
+        android:id="@+id/rg_button_sos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/rb_single"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:button="@null"
+            android:checked="true"
+            android:drawableRight="@drawable/radio_btn"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="Single click"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp" />
+
+        <View style="@style/divider_line" />
+
+        <RadioButton
+            android:id="@+id/rb_double"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:button="@null"
+            android:drawableRight="@drawable/radio_btn"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="Double click"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp" />
+
+        <View style="@style/divider_line" />
+
+        <RadioButton
+            android:id="@+id/rb_triple"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:button="@null"
+            android:drawableRight="@drawable/radio_btn"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="Triple click"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp" />
+
+        <View style="@style/divider_line" />
+    </RadioGroup>
+</LinearLayout>

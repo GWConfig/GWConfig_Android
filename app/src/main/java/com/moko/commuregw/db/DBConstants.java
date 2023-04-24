@@ -10,6 +10,4 @@ public class DBConstants {
     public static final String DEVICE_FIELD_DEVICE_TYPE = "device_type";
     public static final String DEVICE_FIELD_TOPIC_PUBLISH = "publish_topic";
     public static final String DEVICE_FIELD_TOPIC_SUBSCRIBE = "subscribe_topic";
-    public static final String DEVICE_FIELD_LWT_TOPIC = "lwt_topic";
-    public static final String DEVICE_FIELD_LWT_ENABLE = "lwt_enable";
 }

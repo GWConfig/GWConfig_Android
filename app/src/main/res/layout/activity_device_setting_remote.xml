@@ -49,20 +49,6 @@
             android:orientation="vertical"
             android:paddingBottom="20dp">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@color/white_ffffff"
-                android:clickable="true"
-                android:drawableRight="@drawable/arrow_right"
-                android:gravity="center_vertical"
-                android:onClick="onIndicatorSettings"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:text="@string/indicator_settings"
-                android:textColor="@color/black_333333"
-                android:textSize="15sp" />
-
 
             <TextView
                 android:layout_width="match_parent"
@@ -87,41 +73,10 @@
                 android:clickable="true"
                 android:drawableRight="@drawable/arrow_right"
                 android:gravity="center_vertical"
-                android:onClick="onReconnectTimeout"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:text="@string/reconnect_timeout"
-                android:textColor="@color/black_333333"
-                android:textSize="15sp" />
-
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="1dp"
-                android:background="@color/white_ffffff"
-                android:clickable="true"
-                android:drawableRight="@drawable/arrow_right"
-                android:gravity="center_vertical"
                 android:onClick="onCommunicationTimeout"
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp"
                 android:text="@string/communication_timeout"
-                android:textColor="@color/black_333333"
-                android:textSize="15sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="1dp"
-                android:background="@color/white_ffffff"
-                android:clickable="true"
-                android:drawableRight="@drawable/arrow_right"
-                android:gravity="center_vertical"
-                android:onClick="onDataReportTimeout"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:text="@string/data_report_timeout"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
 
@@ -172,6 +127,22 @@
                 android:textSize="15sp" />
 
             <TextView
+                android:id="@+id/tv_power_switch"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/ic_cb_close"
+                android:gravity="center_vertical"
+                android:onClick="onPowerSwitch"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="Power switch"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="12dp"
@@ -205,7 +176,38 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                android:layout_marginTop="12dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onBatchDFU"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/batch_dfu_beacon"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
                 android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onBatchUpdateBeaconKey"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/batch_update_beacon_key"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp"
                 android:background="@color/white_ffffff"
                 android:clickable="true"
                 android:drawableRight="@drawable/arrow_right"

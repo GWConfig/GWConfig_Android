@@ -59,12 +59,8 @@ public class ScannerUploadOptionActivity extends BaseActivity<ActivityScannerUpl
         mRelationshipValues = new ArrayList<>();
         mRelationshipValues.add("Null");
         mRelationshipValues.add("Only MAC");
-        mRelationshipValues.add("Only ADV Name");
-        mRelationshipValues.add("Only RAW DATA");
-        mRelationshipValues.add("ADV name&Raw data");
-        mRelationshipValues.add("MAC&ADV name&Raw data");
-        mRelationshipValues.add("ADV name | Raw data");
-        mRelationshipValues.add("ADV NAME & MAC");
+        mRelationshipValues.add("Only Tag id");
+        mRelationshipValues.add("MAC&Tag id");
         mHandler.postDelayed(() -> {
             dismissLoadingProgressDialog();
             finish();
@@ -233,7 +229,6 @@ public class ScannerUploadOptionActivity extends BaseActivity<ActivityScannerUpl
         i.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
         startActivity(i);
     }
-
     public void onFilterByMac(View view) {
         if (isWindowLocked())
             return;
@@ -246,17 +241,42 @@ public class ScannerUploadOptionActivity extends BaseActivity<ActivityScannerUpl
         startActivity(i);
     }
 
-    public void onFilterByName(View view) {
+    public void onFilterByTagId(View view) {
         if (isWindowLocked())
             return;
         if (!MQTTSupport.getInstance().isConnected()) {
             ToastUtils.showToast(this, R.string.network_error);
             return;
         }
-        Intent i = new Intent(this, FilterAdvNameActivity.class);
+        Intent i = new Intent(this, FilterTagIdActivity.class);
         i.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
         startActivity(i);
     }
+
+    public void onTimeOffset(View view) {
+        if (isWindowLocked())
+            return;
+        if (!MQTTSupport.getInstance().isConnected()) {
+            ToastUtils.showToast(this, R.string.network_error);
+            return;
+        }
+        Intent i = new Intent(this, TimeOffsetActivity.class);
+        i.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
+        startActivity(i);
+    }
+
+    public void onDecryptionKey(View view) {
+        if (isWindowLocked())
+            return;
+        if (!MQTTSupport.getInstance().isConnected()) {
+            ToastUtils.showToast(this, R.string.network_error);
+            return;
+        }
+        Intent i = new Intent(this, DecryptionKeyActivity.class);
+        i.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
+        startActivity(i);
+    }
+
 
     public void onFilterByRawData(View view) {
         if (isWindowLocked())
@@ -313,4 +333,6 @@ public class ScannerUploadOptionActivity extends BaseActivity<ActivityScannerUpl
     public void onStopTrackingTouch(SeekBar seekBar) {
 
     }
+
+
 }

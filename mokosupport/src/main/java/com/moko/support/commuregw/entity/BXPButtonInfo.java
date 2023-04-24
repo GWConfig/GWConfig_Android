@@ -14,8 +14,6 @@ public class BXPButtonInfo implements Serializable {
     public String software_version;
     public String firmware_version;
     public int battery_v;
-    public int single_alarm_num;
-    public int double_alarm_num;
-    public int long_alarm_num;
     public int alarm_status;
+    public String tag_id;
 }

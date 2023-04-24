@@ -51,6 +51,18 @@
             android:orientation="vertical"
             android:paddingBottom="50dp">
 
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingLeft="12dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:text="Device info and battery"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -63,7 +75,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1.0"
-                    android:text="@string/device_info_product_model"
+                    android:text="Product name"
                     android:textColor="@color/black_333333"
                     android:textSize="15sp" />
 
@@ -89,15 +101,46 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1.0"
-                    android:text="@string/device_info_manufacturer"
+                    android:text="MAC address"
                     android:textColor="@color/black_333333"
                     android:textSize="15sp" />
 
                 <TextView
-                    android:id="@+id/tv_manufacturer"
+                    android:id="@+id/tv_device_mac"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
+                    android:textColor="@color/black_333333"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:onClick="onModifyTagId"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1.0"
+                    android:text="Tag ID"
+                    android:textColor="@color/black_333333"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/tv_tag_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:drawableRight="@drawable/arrow_right"
+                    android:drawablePadding="5dp"
+                    android:text=""
                     android:textColor="@color/black_333333"
                     android:textSize="15sp" />
             </LinearLayout>
@@ -124,9 +167,9 @@
                     android:id="@+id/tv_device_firmware_version"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:layout_marginRight="10dp"
                     android:layout_gravity="center_vertical"
+                    android:layout_marginRight="10dp"
+                    android:text=""
                     android:textColor="@color/black_333333"
                     android:textSize="15sp" />
 
@@ -158,87 +201,16 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1.0"
-                    android:text="@string/device_info_hardware_version"
+                    android:text="Battery voltage"
                     android:textColor="@color/black_333333"
                     android:textSize="15sp" />
 
                 <TextView
-                    android:id="@+id/tv_device_hardware_version"
+                    android:id="@+id/tv_battery_voltage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:textColor="@color/black_333333"
-                    android:textSize="15sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="1dp"
-                android:background="@color/white_ffffff"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1.0"
-                    android:text="@string/device_info_software_version"
-                    android:textColor="@color/black_333333"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/tv_device_software_version"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textColor="@color/black_333333"
-                    android:textSize="15sp" />
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="1dp"
-                android:background="@color/white_ffffff"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1.0"
-                    android:text="MAC address"
-                    android:textColor="@color/black_333333"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/tv_device_mac"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textColor="@color/black_333333"
-                    android:textSize="15sp" />
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="10dp"
-                android:background="@color/white_ffffff"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1.0"
-                    android:text="Read battery and alarm info"
+                    android:layout_marginRight="10dp"
                     android:textColor="@color/black_333333"
                     android:textSize="15sp" />
 
@@ -249,7 +221,7 @@
                     android:background="@drawable/shape_radius_blue_btn_bg"
                     android:clickable="true"
                     android:gravity="center"
-                    android:onClick="onReadBXPButtonStatus"
+                    android:onClick="onReadBXPButtonBattery"
                     android:paddingLeft="12dp"
                     android:paddingRight="12dp"
                     android:text="Read"
@@ -257,110 +229,16 @@
                     android:textSize="15sp" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="1dp"
-                android:background="@color/white_ffffff"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:paddingLeft="12dp"
-                android:paddingRight="12dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1.0"
-                    android:text="Battery voltage"
-                    android:textColor="@color/black_333333"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/tv_battery_voltage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textColor="@color/black_333333"
-                    android:textSize="15sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="1dp"
-                android:background="@color/white_ffffff"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1.0"
-                    android:text="Single press event count"
-                    android:textColor="@color/black_333333"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/tv_single_press_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textColor="@color/black_333333"
-                    android:textSize="15sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="1dp"
-                android:background="@color/white_ffffff"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1.0"
-                    android:text="Double press event count"
-                    android:textColor="@color/black_333333"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/tv_double_press__count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textColor="@color/black_333333"
-                    android:textSize="15sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="1dp"
-                android:background="@color/white_ffffff"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1.0"
-                    android:text="Long press event count"
-                    android:textColor="@color/black_333333"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/tv_long_press_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textColor="@color/black_333333"
-                    android:textSize="15sp" />
-            </LinearLayout>
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:text="Alarm response"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -384,37 +262,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:textColor="@color/black_333333"
-                    android:textSize="15sp" />
-
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dp"
-                android:text="Mode description in alrm status: mode 1: Single press, mode 2: double press,
-mode 3: long press, mode 4: Abnormal inactivity"
-                android:textColor="@color/grey_999999"
-                android:textSize="15sp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@color/white_ffffff"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1.0"
-                    android:text="Dismiss Alarm status"
+                    android:layout_marginRight="10dp"
                     android:textColor="@color/black_333333"
                     android:textSize="15sp" />
 
                 <TextView
+                    android:id="@+id/tv_dismiss_alarm"
+                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="35dp"
                     android:layout_gravity="center_vertical"
@@ -429,6 +283,132 @@ mode 3: long press, mode 4: Abnormal inactivity"
                     android:textSize="15sp" />
             </LinearLayout>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onLEDReminder"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="LED reminder"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onBuzzerReminder"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="Buzzer reminder"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingLeft="12dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:text="System parameters"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1.0"
+                    android:text="Timestamp"
+                    android:textColor="@color/black_333333"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/tv_timestamp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="10dp"
+                    android:textColor="@color/black_333333"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/shape_radius_blue_btn_bg"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:onClick="onSyncTimeFromPhone"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:text="Sync"
+                    android:textColor="@color/white_ffffff"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onUpdateEncryptionKey"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/update_encryption_key"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onSOSTriggeredByButton"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/sos_triggered_by_button"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onSelfTestTriggeredByButton"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/self_test_triggered_by_button"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

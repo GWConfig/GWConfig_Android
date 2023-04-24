@@ -21,6 +21,7 @@ import com.moko.commuregw.utils.SPUtiles;
 import com.moko.commuregw.utils.ToastUtils;
 import com.moko.support.commuregw.MQTTConstants;
 import com.moko.support.commuregw.MQTTSupport;
+import com.moko.support.commuregw.entity.BatchDFUBeacon;
 import com.moko.support.commuregw.entity.MsgConfigResult;
 import com.moko.support.commuregw.entity.MsgNotify;
 import com.moko.support.commuregw.event.DeviceOnlineEvent;
@@ -31,6 +32,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 public class BeaconDFUActivity extends BaseActivity<ActivityBeaconDfuBinding> {
     private final String FILTER_ASCII = "[ -~]*";
@@ -88,6 +90,8 @@ public class BeaconDFUActivity extends BaseActivity<ActivityBeaconDfuBinding> {
             MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
             if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
                 return;
+            String mac = result.data.get("mac").getAsString();
+            if (!mBeaconMac.equalsIgnoreCase(mac)) return;
             int percent = result.data.get("percent").getAsInt();
             if (!isFinishing() && mLoadingMessageDialog != null && mLoadingMessageDialog.isResumed())
                 mLoadingMessageDialog.setMessage(String.format("Beacon DFU process: %d%%", percent));
@@ -98,14 +102,18 @@ public class BeaconDFUActivity extends BaseActivity<ActivityBeaconDfuBinding> {
             MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
             if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
                 return;
+            String mac = result.data.get("mac").getAsString();
+            if (!mBeaconMac.equalsIgnoreCase(mac)) return;
             dismissLoadingMessageDialog();
-            int resultCode = result.data.get("result_code").getAsInt();
+            int resultCode = result.data.get("status").getAsInt();
+            // DFU开始
+            if (resultCode == 0) return;
             ToastUtils.showToast(this,
-                    String.format("Beacon DFU %s!", resultCode == 0 ? "successfully" : "failed"));
+                    String.format("Beacon DFU %s!", resultCode == 1 ? "successfully" : "failed"));
             setResult(RESULT_OK);
             finish();
         }
-        if (msg_id == MQTTConstants.CONFIG_MSG_ID_BLE_DFU) {
+        if (msg_id == MQTTConstants.CONFIG_MSG_ID_BATCH_DFU) {
             Type type = new TypeToken<MsgConfigResult>() {
             }.getType();
             MsgConfigResult result = new Gson().fromJson(message, type);
@@ -115,15 +123,14 @@ public class BeaconDFUActivity extends BaseActivity<ActivityBeaconDfuBinding> {
             mHandler.removeMessages(0);
             showLoadingMessageDialog("Beacon DFU process: 0%", false);
         }
-        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_DISCONNECTED
-                || msg_id == MQTTConstants.CONFIG_MSG_ID_BLE_DISCONNECT) {
-            dismissLoadingProgressDialog();
-            mHandler.removeMessages(0);
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_DISCONNECTED) {
             Type type = new TypeToken<MsgNotify<JsonObject>>() {
             }.getType();
             MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
             if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
                 return;
+            dismissLoadingProgressDialog();
+            mHandler.removeMessages(0);
             finish();
         }
     }
@@ -161,11 +168,19 @@ public class BeaconDFUActivity extends BaseActivity<ActivityBeaconDfuBinding> {
 
 
     private void setDFU(String firmwareFileUrlStr, String initDataFileUrlStr) {
-        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_DFU;
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("mac", mBeaconMac);
-        jsonObject.addProperty("firmware_url", firmwareFileUrlStr);
-        jsonObject.addProperty("init_data_url", initDataFileUrlStr);
+        ArrayList<BatchDFUBeacon.BleDevice> mBeaconList = new ArrayList<>();
+        BatchDFUBeacon.BleDevice bleDevice = new BatchDFUBeacon.BleDevice();
+        bleDevice.mac = mBeaconMac;
+        mBeaconList.add(bleDevice);
+        int msgId = MQTTConstants.CONFIG_MSG_ID_BATCH_DFU;
+        BatchDFUBeacon batchDFUBeacon = new BatchDFUBeacon();
+        batchDFUBeacon.firmware_url = firmwareFileUrlStr;
+        batchDFUBeacon.init_data_url = initDataFileUrlStr;
+        batchDFUBeacon.ble_dev = mBeaconList;
+        JsonElement jsonElement = new Gson().toJsonTree(batchDFUBeacon);
+        JsonObject jsonObject = (JsonObject) jsonElement;
+        // property removal
+        jsonObject.remove("property");
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
         try {
             MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);

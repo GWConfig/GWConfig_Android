@@ -52,7 +52,7 @@
         android:onClick="onScannerOptionSetting"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:text="Scanner and Upload option"
+        android:text="Scanner and decryption option"
         android:textColor="@color/white_ffffff"
         android:textSize="15sp" />
 

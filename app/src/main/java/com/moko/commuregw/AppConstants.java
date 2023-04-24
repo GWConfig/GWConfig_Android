@@ -68,6 +68,7 @@ public class AppConstants {
     public static final int REQUEST_CODE_FILTER_RAW_DATA = 129;
     public static final int REQUEST_CODE_OPEN_APP_SETTINGS_FILE = 130;
     public static final int REQUEST_CODE_OPEN_DEVICE_SETTINGS_FILE = 131;
+    public static final int REQUEST_CODE_OPEN_BEACON_LIST = 132;
 
     public static final int REQUEST_CODE_SELECT_CA = 140;
     public static final int REQUEST_CODE_SELECT_CLIENT_KEY = 141;

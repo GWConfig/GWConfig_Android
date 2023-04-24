@@ -58,10 +58,6 @@ public class DBOpenHelper extends SQLiteOpenHelper {
             + DBConstants.DEVICE_FIELD_MAC + " TEXT,"
             // mqtt信息
             + DBConstants.DEVICE_FIELD_MQTT_INFO + " TEXT,"
-            // 遗愿开关
-            + DBConstants.DEVICE_FIELD_LWT_ENABLE + " TEXT,"
-            // 遗愿主题
-            + DBConstants.DEVICE_FIELD_LWT_TOPIC + " TEXT,"
             // 发布主题
             + DBConstants.DEVICE_FIELD_TOPIC_PUBLISH + " TEXT,"
             // 订阅主题

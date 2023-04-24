@@ -216,28 +216,11 @@ public class FilterRawDataSwitchActivity extends BaseActivity<ActivityFilterRawD
         }
     }
 
-    public void onFilterByIBeacon(View view) {
-        if (isWindowLocked())
-            return;
-        if (!MQTTSupport.getInstance().isConnected()) {
-            ToastUtils.showToast(this, R.string.network_error);
-            return;
-        }
-        Intent i = new Intent(this, FilterIBeaconActivity.class);
-        i.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
-        startFilterDetail.launch(i);
-    }
+    public void onFilterByIBeacon(View view) {}
 
     public void onFilterByUid(View view) {
         if (isWindowLocked())
             return;
-        if (!MQTTSupport.getInstance().isConnected()) {
-            ToastUtils.showToast(this, R.string.network_error);
-            return;
-        }
-        Intent i = new Intent(this, FilterUIDActivity.class);
-        i.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
-        startFilterDetail.launch(i);
     }
 
     public void onFilterByUrl(View view) {

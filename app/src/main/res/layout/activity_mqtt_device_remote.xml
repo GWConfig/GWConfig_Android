@@ -276,17 +276,6 @@
                     android:text="SSL/TLS"
                     android:textColor="@drawable/selector_rb_text_color"
                     android:textSize="15sp" />
-
-                <RadioButton
-                    android:id="@+id/rb_lwt"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1.0"
-                    android:button="@null"
-                    android:gravity="center"
-                    android:text="LWT"
-                    android:textColor="@drawable/selector_rb_text_color"
-                    android:textSize="15sp" />
             </RadioGroup>
 
             <androidx.viewpager2.widget.ViewPager2
