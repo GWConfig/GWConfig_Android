@@ -43,8 +43,15 @@ public class LEDReminderDialog extends MokoBaseDialog<DialogModifyLedReminderBin
                 return;
             }
             dismiss();
+            String color = "";
+            if (mBind.rbRed.isChecked())
+                color = "red";
+            if (mBind.rbBlue.isChecked())
+                color = "blue";
+            if (mBind.rbGreen.isChecked())
+                color = "green";
             if (dialogClickListener != null)
-                dialogClickListener.onEnsureClicked(interval, duration);
+                dialogClickListener.onEnsureClicked(color, interval, duration);
         });
         mBind.etInterval.postDelayed(() -> {
             //设置可获得焦点
@@ -97,6 +104,6 @@ public class LEDReminderDialog extends MokoBaseDialog<DialogModifyLedReminderBin
 
     public interface DialogClickListener {
 
-        void onEnsureClicked(int interval, int duration);
+        void onEnsureClicked(String color, int interval, int duration);
     }
 }

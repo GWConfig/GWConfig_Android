@@ -295,14 +295,14 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
     public void onLEDReminder(View view) {
         if (isWindowLocked()) return;
         LEDReminderDialog dialog = new LEDReminderDialog();
-        dialog.setOnDialogClicked((interval, duration) -> {
+        dialog.setOnDialogClicked((color, interval, duration) -> {
             if (isWindowLocked()) return;
             mHandler.postDelayed(() -> {
                 dismissLoadingProgressDialog();
                 ToastUtils.showToast(this, "Setup failed");
             }, 30 * 1000);
             showLoadingProgressDialog();
-            setBXPButtonLEDReminder(interval, duration);
+            setBXPButtonLEDReminder(color, interval, duration);
         });
         dialog.show(getSupportFragmentManager());
     }
@@ -408,11 +408,11 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
         }
     }
 
-    private void setBXPButtonLEDReminder(int interval, int duration) {
+    private void setBXPButtonLEDReminder(String color, int interval, int duration) {
         int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_LED_REMINDER;
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("mac", mBXPButtonInfo.mac);
-        jsonObject.addProperty("led_color", "red");
+        jsonObject.addProperty("led_color", color);
         jsonObject.addProperty("flash_interval", interval);
         jsonObject.addProperty("flash_time", duration);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);

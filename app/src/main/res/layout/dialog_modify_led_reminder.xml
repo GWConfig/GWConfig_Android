@@ -34,6 +34,66 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="LED Color"
+                android:textSize="16sp" />
+
+            <RadioGroup
+                android:id="@+id/rg_led_color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/rb_red"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:button="@null"
+                    android:checked="true"
+                    android:drawableRight="@drawable/radio_btn"
+                    android:text="Red"
+                    android:textColor="@color/black_333333"
+                    android:textSize="15sp" />
+
+                <RadioButton
+                    android:id="@+id/rb_blue"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="1.0"
+                    android:button="@null"
+                    android:drawableRight="@drawable/radio_btn"
+                    android:text="Blue"
+                    android:textColor="@color/black_333333"
+                    android:textSize="15sp" />
+
+                <RadioButton
+                    android:id="@+id/rb_green"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="1.0"
+                    android:button="@null"
+                    android:drawableRight="@drawable/radio_btn"
+                    android:text="Green"
+                    android:textColor="@color/black_333333"
+                    android:textSize="15sp" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginRight="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="Blinking interval"
                 android:textSize="16sp" />
