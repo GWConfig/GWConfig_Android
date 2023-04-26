@@ -15,12 +15,30 @@ android {
         setProperty("archivesBaseName", "GWConfig_${versionName}_${formatDate}")
     }
 
+    signingConfigs {
+        release {
+            keyAlias "moko"
+            keyPassword "moko1234"
+            storeFile file("../keystore/GWConfig.jks")
+            storePassword "moko1234"
+        }
+
+        debug {
+            keyAlias "moko"
+            keyPassword "moko1234"
+            storeFile file("../keystore/GWConfig.jks")
+            storePassword "moko1234"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
         }
         debug {
             minifyEnabled false
+            signingConfig signingConfigs.debug
         }
     }
 
