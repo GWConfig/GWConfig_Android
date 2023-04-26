@@ -11,8 +11,6 @@ import com.moko.commuregw.R;
 import com.moko.commuregw.databinding.DialogModifyTagIdBinding;
 import com.moko.commuregw.utils.ToastUtils;
 
-import es.dmoral.toasty.Toasty;
-
 public class TagIdDialog extends MokoBaseDialog<DialogModifyTagIdBinding> {
     public static final String TAG = TagIdDialog.class.getSimpleName();
 

@@ -12,7 +12,7 @@ android {
         versionCode 1
         versionName "1.0.0"
         def formatDate = new Date().format("yyyyMMddHHmm")
-        setProperty("archivesBaseName", "CommureGW_${versionName}_${formatDate}")
+        setProperty("archivesBaseName", "GWConfig_${versionName}_${formatDate}")
     }
 
     buildTypes {

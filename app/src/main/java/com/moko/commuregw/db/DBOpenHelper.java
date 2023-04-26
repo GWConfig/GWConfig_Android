@@ -8,7 +8,7 @@ import android.util.Log;
 import com.elvishew.xlog.XLog;
 
 public class DBOpenHelper extends SQLiteOpenHelper {
-    private static final String DB_NAME = "CommureGW";
+    private static final String DB_NAME = "GWConfig";
     // 数据库版本号
     private static final int DB_VERSION = 1;
 
@@ -22,7 +22,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE_DEVICE);
-        Log.i("CommureGW", "创建数据库");
+        Log.i("GWConfig", "创建数据库");
     }
 
     /**

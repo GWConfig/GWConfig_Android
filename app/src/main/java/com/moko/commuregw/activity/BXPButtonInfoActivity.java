@@ -1,6 +1,7 @@
 package com.moko.commuregw.activity;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -17,6 +18,7 @@ import com.moko.commuregw.databinding.ActivityBxpButtonInfoBinding;
 import com.moko.commuregw.db.DBTools;
 import com.moko.commuregw.dialog.AlertMessageDialog;
 import com.moko.commuregw.dialog.BuzzerReminderDialog;
+import com.moko.commuregw.dialog.ChangePasswordDialog;
 import com.moko.commuregw.dialog.EncryptionKeyDialog;
 import com.moko.commuregw.dialog.LEDReminderDialog;
 import com.moko.commuregw.dialog.TagIdDialog;
@@ -44,6 +46,7 @@ import java.util.Calendar;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
 
 public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBinding> {
 
@@ -53,6 +56,8 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
 
     private BXPButtonInfo mBXPButtonInfo;
     private Handler mHandler;
+    private boolean mIsPasswordVerifyOpen;
+    private String mTagId;
 
     @Override
     protected void onCreate() {
@@ -81,6 +86,11 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
         }
         mBind.tvAlarmStatus.setText(alarmStatusStr);
         mBind.tvDismissAlarm.setVisibility(mBXPButtonInfo.alarm_status == 1 ? View.VISIBLE : View.GONE);
+        mIsPasswordVerifyOpen = mBXPButtonInfo.switch_value == 1;
+        Drawable dra = ContextCompat.getDrawable(this, mBXPButtonInfo.switch_value == 0 ?
+                R.drawable.ic_cb_close : R.drawable.ic_cb_open);
+        dra.setBounds(0, 0, dra.getIntrinsicWidth(), dra.getIntrinsicHeight());
+        mBind.tvPasswordVerify.setCompoundDrawables(null, null, dra, null);
     }
 
     @Override
@@ -173,22 +183,8 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SYSTEM_TIME
                 || msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_TAG_ID
                 || msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_LED_REMINDER
-                || msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_BUZZER_REMINDER) {
-            Type type = new TypeToken<MsgNotify<JsonObject>>() {
-            }.getType();
-            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
-            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
-                return;
-            dismissLoadingProgressDialog();
-            mHandler.removeMessages(0);
-            int result_code = result.data.get("result_code").getAsInt();
-            if (result_code != 0) {
-                ToastUtils.showToast(this, "Setup failed");
-                return;
-            }
-            ToastUtils.showToast(this, "Setup succeed!");
-        }
-        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_ENCRYPTION_KEY_RESULT) {
+                || msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_BUZZER_REMINDER
+                || msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_ENCRYPTION_KEY_RESULT) {
             Type type = new TypeToken<MsgNotify<JsonObject>>() {
             }.getType();
             MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
@@ -196,15 +192,41 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
                 return;
             String mac = result.data.get("mac").getAsString();
             if (!mBXPButtonInfo.mac.equalsIgnoreCase(mac)) return;
-            dismissLoadingMessageDialog();
+            dismissLoadingProgressDialog();
+            mHandler.removeMessages(0);
+            int result_code = result.data.get("result_code").getAsInt();
+            if (result_code == 0) {
+                if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_TAG_ID)
+                    mBind.tvTagId.setText(mTagId);
+                ToastUtils.showToast(this, "Setup succeed!");
+            } else {
+                ToastUtils.showToast(this, "Setup failed");
+            }
+        }
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_PASSWORD_VERIFY) {
+            Type type = new TypeToken<MsgNotify<JsonObject>>() {
+            }.getType();
+            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
+            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                return;
+            String mac = result.data.get("mac").getAsString();
+            if (!mBXPButtonInfo.mac.equalsIgnoreCase(mac)) return;
+            dismissLoadingProgressDialog();
+            mHandler.removeMessages(0);
             int resultCode = result.data.get("result_code").getAsInt();
             if (resultCode != 0) {
                 ToastUtils.showToast(this, "Setup failed");
                 return;
             }
+            mIsPasswordVerifyOpen = !mIsPasswordVerifyOpen;
+            Drawable dra = ContextCompat.getDrawable(this, mIsPasswordVerifyOpen ?
+                    R.drawable.ic_cb_open : R.drawable.ic_cb_close);
+            dra.setBounds(0, 0, dra.getIntrinsicWidth(), dra.getIntrinsicHeight());
+            mBind.tvPasswordVerify.setCompoundDrawables(null, null, dra, null);
             ToastUtils.showToast(this, "Setup succeed!");
         }
-        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_DISCONNECTED) {
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_DISCONNECTED
+                || msg_id == MQTTConstants.CONFIG_MSG_ID_BLE_DISCONNECT) {
             Type type = new TypeToken<MsgNotify<JsonObject>>() {
             }.getType();
             MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
@@ -214,6 +236,24 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
             mHandler.removeMessages(0);
             ToastUtils.showToast(this, "Bluetooth disconnect");
             finish();
+        }
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_POWER_OFF
+                || msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_RESET
+                || msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_PASSWORD) {
+            Type type = new TypeToken<MsgNotify<JsonObject>>() {
+            }.getType();
+            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
+            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                return;
+            dismissLoadingProgressDialog();
+            mHandler.removeMessages(0);
+            int resultCode = result.data.get("result_code").getAsInt();
+            if (resultCode == 0) {
+                ToastUtils.showToast(this, "Setup succeed!");
+                finish();
+            } else {
+                ToastUtils.showToast(this, "Setup failed");
+            }
         }
     }
 
@@ -266,6 +306,7 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
                 ToastUtils.showToast(this, "Setup failed");
             }, 30 * 1000);
             showLoadingProgressDialog();
+            mTagId = tagId;
             setBXPButtonTagId(tagId);
         });
         dialog.show(getSupportFragmentManager());
@@ -364,6 +405,97 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
         startActivity(intent);
     }
 
+    public void onBatteryTestParams(View view) {
+        if (isWindowLocked()) return;
+        Intent intent = new Intent(this, BatteryTestParamsActivity.class);
+        intent.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
+        intent.putExtra(AppConstants.EXTRA_KEY_BXP_BUTTON_INFO, mBXPButtonInfo);
+        startActivity(intent);
+    }
+
+    public void onAccParams(View view) {
+        if (isWindowLocked()) return;
+        Intent intent = new Intent(this, AccParamsActivity.class);
+        intent.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
+        intent.putExtra(AppConstants.EXTRA_KEY_BXP_BUTTON_INFO, mBXPButtonInfo);
+        startActivity(intent);
+    }
+
+    public void onSleepModeParams(View view) {
+        if (isWindowLocked()) return;
+        Intent intent = new Intent(this, SleepModeParamsActivity.class);
+        intent.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
+        intent.putExtra(AppConstants.EXTRA_KEY_BXP_BUTTON_INFO, mBXPButtonInfo);
+        startActivity(intent);
+    }
+
+    public void onPowerOff(View view) {
+        if (isWindowLocked()) return;
+        AlertMessageDialog dialog = new AlertMessageDialog();
+        dialog.setMessage("Please confirm whether to power off the beacon?");
+        dialog.setOnAlertConfirmListener(() -> {
+            mHandler.postDelayed(() -> {
+                dismissLoadingProgressDialog();
+                ToastUtils.showToast(BXPButtonInfoActivity.this, "Setup failed");
+            }, 30 * 1000);
+            showLoadingProgressDialog();
+            powerOffDevice();
+        });
+        dialog.show(getSupportFragmentManager());
+    }
+
+    public void onRestore(View view) {
+        if (isWindowLocked()) return;
+        AlertMessageDialog dialog = new AlertMessageDialog();
+        dialog.setMessage("Please confirm whether to reset the beacon?");
+        dialog.setOnAlertConfirmListener(() -> {
+            mHandler.postDelayed(() -> {
+                dismissLoadingProgressDialog();
+                ToastUtils.showToast(BXPButtonInfoActivity.this, "Setup failed");
+            }, 30 * 1000);
+            showLoadingProgressDialog();
+            resetDevice();
+        });
+        dialog.show(getSupportFragmentManager());
+    }
+
+    public void onAdvParams(View view) {
+        if (isWindowLocked()) return;
+        Intent intent = new Intent(this, AdvParamsActivity.class);
+        intent.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
+        intent.putExtra(AppConstants.EXTRA_KEY_BXP_BUTTON_INFO, mBXPButtonInfo);
+        startActivity(intent);
+    }
+
+    public void onPasswordVerify(View view) {
+        if (isWindowLocked())
+            return;
+        if (!MQTTSupport.getInstance().isConnected()) {
+            ToastUtils.showToast(this, R.string.network_error);
+            return;
+        }
+        mHandler.postDelayed(() -> {
+            dismissLoadingProgressDialog();
+            ToastUtils.showToast(this, "Setup failed");
+        }, 30 * 1000);
+        showLoadingProgressDialog();
+        setPasswordVerify(mIsPasswordVerifyOpen ? 0 : 1);
+    }
+
+    public void onChangePassword(View view) {
+        if (isWindowLocked()) return;
+        ChangePasswordDialog dialog = new ChangePasswordDialog();
+        dialog.setOnPasswordClicked(password -> {
+            mHandler.postDelayed(() -> {
+                dismissLoadingProgressDialog();
+                ToastUtils.showToast(this, "Setup failed");
+            }, 30 * 1000);
+            showLoadingProgressDialog();
+            changePassword(password);
+        });
+        dialog.show(getSupportFragmentManager());
+    }
+
     public void onDisconnect(View view) {
         if (isWindowLocked()) return;
         AlertMessageDialog dialog = new AlertMessageDialog();
@@ -381,6 +513,68 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
             disconnectDevice();
         });
         dialog.show(getSupportFragmentManager());
+    }
+
+    private void powerOffDevice() {
+        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_POWER_OFF;
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("mac", mBXPButtonInfo.mac);
+        String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
+        try {
+            MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void resetDevice() {
+        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_RESET;
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("mac", mBXPButtonInfo.mac);
+        String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
+        try {
+            MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setPasswordVerify(int passwordVerify) {
+        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_PASSWORD_VERIFY;
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("mac", mBXPButtonInfo.mac);
+        jsonObject.addProperty("switch_value", passwordVerify);
+        String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
+        try {
+            MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void changePassword(String password) {
+        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_PASSWORD;
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("mac", mBXPButtonInfo.mac);
+        jsonObject.addProperty("passwd", password);
+        String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
+        try {
+            MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getBXPButtonPasswordVerify() {
+        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_GET_PASSWORD_VERIFY;
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("mac", mBXPButtonInfo.mac);
+        String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
+        try {
+            MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
     }
 
     private void disconnectDevice() {

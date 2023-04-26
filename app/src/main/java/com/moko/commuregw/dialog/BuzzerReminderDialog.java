@@ -9,7 +9,6 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.moko.commuregw.R;
 import com.moko.commuregw.databinding.DialogModifyBuzzerReminderBinding;
-import com.moko.commuregw.databinding.DialogModifyLedReminderBinding;
 import com.moko.commuregw.utils.ToastUtils;
 
 public class BuzzerReminderDialog extends MokoBaseDialog<DialogModifyBuzzerReminderBinding> {

@@ -16,4 +16,5 @@ public class BXPButtonInfo implements Serializable {
     public int battery_v;
     public int alarm_status;
     public String tag_id;
+    public int switch_value;
 }

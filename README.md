@@ -373,9 +373,9 @@ The return data is a JSON String,refer to the protocol documentation(communicati
 - The folder name and file name saved on the SD card can be modified.
 
 		public class BaseApplication extends Application {
-			private static final String TAG = "CommureGW";
-    		private static final String LOG_FILE = "CommureGW.txt";
-    		private static final String LOG_FOLDER = "CommureGW";
+			private static final String TAG = "GWConfig";
+    		private static final String LOG_FILE = "GWConfig.txt";
+    		private static final String LOG_FOLDER = "GWConfig";
 			...
 		}
 

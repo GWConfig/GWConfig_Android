@@ -73,13 +73,13 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             // 优先保存到SD卡中
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                PATH_LOGCAT = getExternalFilesDir(null).getAbsolutePath() + File.separator + "CommureGW";
+                PATH_LOGCAT = getExternalFilesDir(null).getAbsolutePath() + File.separator + "GWConfig";
             } else {
-                PATH_LOGCAT = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "CommureGW";
+                PATH_LOGCAT = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "GWConfig";
             }
         } else {
             // 如果SD卡不存在，就保存到本应用的目录下
-            PATH_LOGCAT = getFilesDir().getAbsolutePath() + File.separator + "CommureGW";
+            PATH_LOGCAT = getFilesDir().getAbsolutePath() + File.separator + "GWConfig";
         }
         MokoSupport.getInstance().init(getApplicationContext());
         MQTTSupport.getInstance().init(getApplicationContext());

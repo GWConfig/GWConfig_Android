@@ -268,7 +268,6 @@
 
                 <TextView
                     android:id="@+id/tv_dismiss_alarm"
-                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="35dp"
                     android:layout_gravity="center_vertical"
@@ -280,7 +279,8 @@
                     android:paddingRight="12dp"
                     android:text="Dismiss"
                     android:textColor="@color/white_ffffff"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <TextView
@@ -407,6 +407,138 @@
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp"
                 android:text="@string/self_test_triggered_by_button"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onBatteryTestParams"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/battery_test_parameters"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onAccParams"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/accelerometer_parameters"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onSleepModeParams"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/sleep_mode_parameters"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onPowerOff"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/power_off"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onRestore"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/restore_to_factory_settings"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingLeft="12dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:text="BLE parameters"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onAdvParams"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/adv_parameters"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tv_password_verify"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/ic_cb_close"
+                android:gravity="center_vertical"
+                android:onClick="onPasswordVerify"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="Password verification"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onChangePassword"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="Change password"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
         </LinearLayout>

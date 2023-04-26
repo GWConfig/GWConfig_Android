@@ -12,7 +12,7 @@ import com.google.gson.reflect.TypeToken;
 import com.moko.commuregw.AppConstants;
 import com.moko.commuregw.R;
 import com.moko.commuregw.base.BaseActivity;
-import com.moko.commuregw.databinding.ActivityButtonSosBinding;
+import com.moko.commuregw.databinding.ActivitySleepModeParamsBinding;
 import com.moko.commuregw.entity.MQTTConfig;
 import com.moko.commuregw.entity.MokoDevice;
 import com.moko.commuregw.utils.SPUtiles;
@@ -20,7 +20,6 @@ import com.moko.commuregw.utils.ToastUtils;
 import com.moko.support.commuregw.MQTTConstants;
 import com.moko.support.commuregw.MQTTSupport;
 import com.moko.support.commuregw.entity.BXPButtonInfo;
-import com.moko.support.commuregw.entity.MsgConfigResult;
 import com.moko.support.commuregw.entity.MsgNotify;
 import com.moko.support.commuregw.event.DeviceOnlineEvent;
 import com.moko.support.commuregw.event.MQTTMessageArrivedEvent;
@@ -31,8 +30,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.reflect.Type;
 
-
-public class ButtonSOSActivity extends BaseActivity<ActivityButtonSosBinding> {
+public class SleepModeParamsActivity extends BaseActivity<ActivitySleepModeParamsBinding> {
 
     private MokoDevice mMokoDevice;
     private MQTTConfig appMqttConfig;
@@ -49,18 +47,17 @@ public class ButtonSOSActivity extends BaseActivity<ActivityButtonSosBinding> {
         mAppTopic = TextUtils.isEmpty(appMqttConfig.topicPublish) ? mMokoDevice.topicSubscribe : appMqttConfig.topicPublish;
         mHandler = new Handler(Looper.getMainLooper());
         mBXPButtonInfo = (BXPButtonInfo) getIntent().getSerializableExtra(AppConstants.EXTRA_KEY_BXP_BUTTON_INFO);
-
         mHandler.postDelayed(() -> {
             dismissLoadingProgressDialog();
             finish();
         }, 30 * 1000);
         showLoadingProgressDialog();
-        getButtonSos();
+        getSleepModeParams();
     }
 
     @Override
-    protected ActivityButtonSosBinding getViewBinding() {
-        return ActivityButtonSosBinding.inflate(getLayoutInflater());
+    protected ActivitySleepModeParamsBinding getViewBinding() {
+        return ActivitySleepModeParamsBinding.inflate(getLayoutInflater());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -79,7 +76,7 @@ public class ButtonSOSActivity extends BaseActivity<ActivityButtonSosBinding> {
             e.printStackTrace();
             return;
         }
-        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_GET_BUTTON_SOS) {
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_GET_SLEEP_MODE_PARAMS) {
             Type type = new TypeToken<MsgNotify<JsonObject>>() {
             }.getType();
             MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
@@ -92,41 +89,21 @@ public class ButtonSOSActivity extends BaseActivity<ActivityButtonSosBinding> {
                 ToastUtils.showToast(this, "Setup failed");
                 return;
             }
-            int mode = result.data.get("mode").getAsInt();
-            if (mode == 1) {
-                mBind.rbSingle.setChecked(true);
-            } else if (mode == 2) {
-                mBind.rbDouble.setChecked(true);
-            } else if (mode == 3) {
-                mBind.rbTriple.setChecked(true);
-            }
-            mBind.rgButtonSos.setOnCheckedChangeListener((group, checkedId) -> {
-                int value = 1;
-                if (checkedId == R.id.rb_single) {
-                    value = 1;
-                } else if (checkedId == R.id.rb_double) {
-                    value = 2;
-                } else if (checkedId == R.id.rb_triple) {
-                    value = 3;
-                }
-                mHandler.postDelayed(() -> {
-                    dismissLoadingProgressDialog();
-                    ToastUtils.showToast(this, "Set up failed");
-                }, 30 * 1000);
-                showLoadingProgressDialog();
-                setButtonSos(value);
-            });
-
+            int time = result.data.get("time").getAsInt();
+            mBind.etSleepModeParams.setText(String.valueOf(time));
         }
-        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_BUTTON_SOS) {
-            Type type = new TypeToken<MsgConfigResult>() {
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_SLEEP_MODE_PARAMS) {
+            Type type = new TypeToken<MsgNotify<JsonObject>>() {
             }.getType();
-            MsgConfigResult result = new Gson().fromJson(message, type);
+            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
             if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
                 return;
+            String mac = result.data.get("mac").getAsString();
+            if (!mBXPButtonInfo.mac.equalsIgnoreCase(mac)) return;
+            int result_code = result.data.get("result_code").getAsInt();
             dismissLoadingProgressDialog();
             mHandler.removeMessages(0);
-            if (result.result_code == 0) {
+            if (result_code == 0) {
                 ToastUtils.showToast(this, "Set up succeed");
             } else {
                 ToastUtils.showToast(this, "Set up failed");
@@ -143,8 +120,8 @@ public class ButtonSOSActivity extends BaseActivity<ActivityButtonSosBinding> {
         finish();
     }
 
-    private void getButtonSos() {
-        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_GET_BUTTON_SOS;
+    private void getSleepModeParams() {
+        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_GET_SLEEP_MODE_PARAMS;
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("mac", mBXPButtonInfo.mac);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
@@ -155,11 +132,11 @@ public class ButtonSOSActivity extends BaseActivity<ActivityButtonSosBinding> {
         }
     }
 
-    private void setButtonSos(int value) {
-        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_BUTTON_SOS;
+    private void setSleepModeParams(int duration) {
+        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_SLEEP_MODE_PARAMS;
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("mac", mBXPButtonInfo.mac);
-        jsonObject.addProperty("mode", value);
+        jsonObject.addProperty("time", duration);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
         try {
             MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
@@ -168,4 +145,27 @@ public class ButtonSOSActivity extends BaseActivity<ActivityButtonSosBinding> {
         }
     }
 
+    public void onSave(View view) {
+        if (isWindowLocked()) return;
+        String durationStr = mBind.etSleepModeParams.getText().toString();
+        if (TextUtils.isEmpty(durationStr)) {
+            ToastUtils.showToast(this, "Para Error");
+            return;
+        }
+        int duration = Integer.parseInt(durationStr);
+        if (duration > 65535) {
+            ToastUtils.showToast(this, "Para Error");
+            return;
+        }
+        if (!MQTTSupport.getInstance().isConnected()) {
+            ToastUtils.showToast(this, R.string.network_error);
+            return;
+        }
+        mHandler.postDelayed(() -> {
+            dismissLoadingProgressDialog();
+            ToastUtils.showToast(this, "Set up failed");
+        }, 30 * 1000);
+        showLoadingProgressDialog();
+        setSleepModeParams(duration);
+    }
 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CommureGW</string>
+    <string name="app_name">GWConfig</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
     <string name="save">Save</string>
@@ -50,15 +50,15 @@
     <string name="device_info_sta_mac">WIFI STA MAC</string>
     <string name="device_info_bt_mac">BT MAC</string>
 
-    <string name="permission_storage_close_content">Please find it in cellphone setting- permission, and allow CommureGW use the Storage and location permission</string>
-    <string name="permission_ble_close_content">Please find it in cellphone setting- permission, and allow CommureGW use the bluetooth and location permission</string>
+    <string name="permission_storage_close_content">Please find it in cellphone setting- permission, and allow GWConfig use the Storage and location permission</string>
+    <string name="permission_ble_close_content">Please find it in cellphone setting- permission, and allow GWConfig use the bluetooth and location permission</string>
     <string name="permission_open">OK</string>
-    <string name="permission_storage_need_content">CommureGW requires access to Storage and location permission. If the permissions are not on, CommureGW cannot be used normally.</string>
+    <string name="permission_storage_need_content">GWConfig requires access to Storage and location permission. If the permissions are not on, GWConfig cannot be used normally.</string>
     <string name="location_need_title">Turn on Location permission</string>
-    <string name="location_need_content">After that, CommureGW could search and connect with the device</string>
-    <string name="permission_location_close_content">Please find it in cellphone setting- permission, and allow CommureGW use the Location permission</string>
-    <string name="permission_location_need_content">CommureGW requires access to Location permission. If the permissions are not on, CommureGW cannot be used normally.</string>
-    <string name="permission_ble_content">CommureGW requires access to bluetooth scan contract and location permission. If the permissions are not on, CommureGW cannot be used normally.</string>
+    <string name="location_need_content">After that, GWConfig could search and connect with the device</string>
+    <string name="permission_location_close_content">Please find it in cellphone setting- permission, and allow GWConfig use the Location permission</string>
+    <string name="permission_location_need_content">GWConfig requires access to Location permission. If the permissions are not on, GWConfig cannot be used normally.</string>
+    <string name="permission_ble_content">GWConfig requires access to bluetooth scan contract and location permission. If the permissions are not on, GWConfig cannot be used normally.</string>
     
     
     <string name="version_info">Version:%s</string>
@@ -92,6 +92,13 @@
     <string name="sos_triggered_by_button">SOS triggered by button</string>
     <string name="self_test_triggered_by_button">Self test triggered by button</string>
     <string name="update_encryption_key">Update encryption key</string>
+    <string name="battery_test_parameters">Battery test parameters</string>
+    <string name="accelerometer_parameters">Accelerometer parameters</string>
+    <string name="sleep_mode_parameters">Sleep mode parameters</string>
+    <string name="power_off">Power off</string>
+    <string name="restore_to_factory_settings">Restore to factory settings</string>
+    <string name="adv_parameters">ADV parameters</string>
+    <string name="when_battery_voltage_threshold"><![CDATA[When battery voltage<threshold]]></string>
 
 
 </resources>

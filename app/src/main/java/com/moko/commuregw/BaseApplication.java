@@ -24,9 +24,9 @@ import java.io.Writer;
 
 public class BaseApplication extends Application {
 
-    private static final String TAG = "CommureGW";
-    private static final String LOG_FILE = "CommureGW.txt";
-    private static final String LOG_FOLDER = "CommureGW";
+    private static final String TAG = "GWConfig";
+    private static final String LOG_FILE = "GWConfig.txt";
+    private static final String LOG_FOLDER = "GWConfig";
     private static String PATH_LOGCAT;
 
     @Override

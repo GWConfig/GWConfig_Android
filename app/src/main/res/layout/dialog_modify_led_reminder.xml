@@ -33,9 +33,9 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:text="LED Color"
-                android:textSize="16sp" />
+                android:textSize="15sp" />
 
             <RadioGroup
                 android:id="@+id/rg_led_color"
@@ -51,7 +51,8 @@
                     android:layout_weight="1.0"
                     android:button="@null"
                     android:checked="true"
-                    android:drawableRight="@drawable/radio_btn"
+                    android:drawableLeft="@drawable/radio_btn"
+                    android:drawablePadding="5dp"
                     android:text="Red"
                     android:textColor="@color/black_333333"
                     android:textSize="15sp" />
@@ -60,10 +61,10 @@
                     android:id="@+id/rb_blue"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
                     android:layout_weight="1.0"
                     android:button="@null"
-                    android:drawableRight="@drawable/radio_btn"
+                    android:drawableLeft="@drawable/radio_btn"
+                    android:drawablePadding="5dp"
                     android:text="Blue"
                     android:textColor="@color/black_333333"
                     android:textSize="15sp" />
@@ -72,10 +73,10 @@
                     android:id="@+id/rb_green"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
                     android:layout_weight="1.0"
                     android:button="@null"
-                    android:drawableRight="@drawable/radio_btn"
+                    android:drawableLeft="@drawable/radio_btn"
+                    android:drawablePadding="5dp"
                     android:text="Green"
                     android:textColor="@color/black_333333"
                     android:textSize="15sp" />
@@ -96,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="Blinking interval"
-                android:textSize="16sp" />
+                android:textSize="15sp" />
 
             <EditText
                 android:id="@+id/et_interval"
@@ -127,7 +128,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="Blinking duration"
-                android:textSize="16sp" />
+                android:textSize="15sp" />
 
             <EditText
                 android:id="@+id/et_duration"

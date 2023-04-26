@@ -22,7 +22,6 @@ import com.moko.commuregw.databinding.ActivityMqttDeviceRemoteBinding;
 import com.moko.commuregw.dialog.AlertMessageDialog;
 import com.moko.commuregw.entity.MQTTConfig;
 import com.moko.commuregw.fragment.GeneralDeviceFragment;
-import com.moko.commuregw.fragment.LWTFragment;
 import com.moko.commuregw.fragment.SSLDeviceFragment;
 import com.moko.commuregw.fragment.UserDeviceFragment;
 import com.moko.commuregw.utils.FileUtils;

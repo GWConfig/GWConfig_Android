@@ -28,7 +28,6 @@ import com.moko.support.commuregw.entity.BXPButtonInfo;
 import com.moko.support.commuregw.entity.MsgConfigResult;
 import com.moko.support.commuregw.entity.MsgNotify;
 import com.moko.support.commuregw.entity.MsgReadResult;
-import com.moko.support.commuregw.entity.OtherDeviceInfo;
 import com.moko.support.commuregw.event.DeviceModifyNameEvent;
 import com.moko.support.commuregw.event.DeviceOnlineEvent;
 import com.moko.support.commuregw.event.MQTTMessageArrivedEvent;
@@ -163,7 +162,8 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
             JsonArray list = data.get("mac").getAsJsonArray();
             if (list != null && !list.isEmpty()) {
                 mConnectedBXPButtonInfo = new BXPButtonInfo();
-                readBXPButtonInfo(list.get(0).getAsString());
+                mConnectedBXPButtonInfo.mac = list.get(0).getAsString();
+                getBXPButtonInfo();
             } else {
                 dismissLoadingProgressDialog();
                 mHandler.removeMessages(0);
@@ -185,13 +185,14 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
                 ToastUtils.showToast(this, "Setup failed");
                 return;
             }
+            if (mConnectedBXPButtonInfo == null) return;
             mConnectedBXPButtonInfo.mac = bxpButtonInfo.mac;
             mConnectedBXPButtonInfo.product_model = bxpButtonInfo.product_model;
             mConnectedBXPButtonInfo.company_name = bxpButtonInfo.company_name;
             mConnectedBXPButtonInfo.hardware_version = bxpButtonInfo.hardware_version;
             mConnectedBXPButtonInfo.software_version = bxpButtonInfo.software_version;
             mConnectedBXPButtonInfo.firmware_version = bxpButtonInfo.firmware_version;
-            readBXPButtonStatus(bxpButtonInfo.mac);
+            getBXPButtonStatus();
         }
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_ALARM_STATUS) {
             Type type = new TypeToken<MsgNotify<JsonObject>>() {
@@ -206,9 +207,10 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
                 ToastUtils.showToast(this, "Setup failed");
                 return;
             }
+            if (mConnectedBXPButtonInfo == null) return;
             int alarm_status = result.data.get("alarm_status").getAsInt();
             mConnectedBXPButtonInfo.alarm_status = alarm_status;
-            readBXPButtonBattery(mConnectedBXPButtonInfo.mac);
+            getBXPButtonBattery();
         }
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_BATTERY) {
             Type type = new TypeToken<MsgNotify<JsonObject>>() {
@@ -223,11 +225,30 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
                 ToastUtils.showToast(this, "Setup failed");
                 return;
             }
+            if (mConnectedBXPButtonInfo == null) return;
             int battery_v = result.data.get("battery_v").getAsInt();
             mConnectedBXPButtonInfo.battery_v = battery_v;
-            readBXPButtonTagId(mConnectedBXPButtonInfo.mac);
+            getBXPButtonTagId();
         }
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_GET_TAG_ID) {
+            Type type = new TypeToken<MsgNotify<JsonObject>>() {
+            }.getType();
+            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
+            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                return;
+            int result_code = result.data.get("result_code").getAsInt();
+            if (result_code != 0) {
+                dismissLoadingProgressDialog();
+                mHandler.removeMessages(0);
+                ToastUtils.showToast(this, "Setup failed");
+                return;
+            }
+            if (mConnectedBXPButtonInfo == null) return;
+            String tag_id = result.data.get("tag_id").getAsString();
+            mConnectedBXPButtonInfo.tag_id = tag_id;
+            getBXPButtonPasswordVerify();
+        }
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_GET_PASSWORD_VERIFY) {
             Type type = new TypeToken<MsgNotify<JsonObject>>() {
             }.getType();
             MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
@@ -240,31 +261,13 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
                 ToastUtils.showToast(this, "Setup failed");
                 return;
             }
-            String tag_id = result.data.get("tag_id").getAsString();
-            mConnectedBXPButtonInfo.tag_id = tag_id;
+            if (mConnectedBXPButtonInfo == null) return;
+            int switch_value = result.data.get("switch_value").getAsInt();
+            mConnectedBXPButtonInfo.switch_value = switch_value;
             ToastUtils.showToast(this, "Setup succeed");
             Intent intent = new Intent(this, BXPButtonInfoActivity.class);
             intent.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
             intent.putExtra(AppConstants.EXTRA_KEY_BXP_BUTTON_INFO, mConnectedBXPButtonInfo);
-            startActivity(intent);
-        }
-        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_OTHER_INFO) {
-            Type type = new TypeToken<MsgNotify<OtherDeviceInfo>>() {
-            }.getType();
-            MsgNotify<OtherDeviceInfo> result = new Gson().fromJson(message, type);
-            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
-                return;
-            dismissLoadingProgressDialog();
-            mHandler.removeMessages(0);
-            OtherDeviceInfo otherDeviceInfo = result.data;
-            if (otherDeviceInfo.result_code != 0) {
-                ToastUtils.showToast(this, "Setup failed");
-                return;
-            }
-            ToastUtils.showToast(this, "Setup succeed");
-            Intent intent = new Intent(this, BleOtherInfoActivity.class);
-            intent.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
-            intent.putExtra(AppConstants.EXTRA_KEY_OTHER_DEVICE_INFO, otherDeviceInfo);
             startActivity(intent);
         }
     }
@@ -352,7 +355,7 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
         }
         mHandler.postDelayed(() -> {
             dismissLoadingProgressDialog();
-            ToastUtils.showToast(this, "Set up failed");
+            ToastUtils.showToast(this, "Read gateway connect status and beacon info failed");
         }, 30 * 1000);
         showLoadingProgressDialog();
         getBleConnectedList();
@@ -390,41 +393,10 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
         }
     }
 
-
-    private void readOtherInfo(String mac) {
-        mHandler.postDelayed(() -> {
-            dismissLoadingProgressDialog();
-            ToastUtils.showToast(this, "Setup failed");
-        }, 30 * 1000);
-        showLoadingProgressDialog();
-        getOtherInfo(mac);
-    }
-
-    private void getOtherInfo(String mac) {
-        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_OTHER_INFO;
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("mac", mac);
-        String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
-        try {
-            MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void readBXPButtonInfo(String mac) {
-        mHandler.postDelayed(() -> {
-            dismissLoadingProgressDialog();
-            ToastUtils.showToast(this, "Setup failed");
-        }, 30 * 1000);
-        showLoadingProgressDialog();
-        getBXPButtonInfo(mac);
-    }
-
-    private void getBXPButtonInfo(String mac) {
+    private void getBXPButtonInfo() {
         int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_INFO;
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("mac", mac);
+        jsonObject.addProperty("mac", mConnectedBXPButtonInfo.mac);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
         try {
             MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
@@ -433,19 +405,10 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
         }
     }
 
-    public void readBXPButtonStatus(String mac) {
-        mHandler.postDelayed(() -> {
-            dismissLoadingProgressDialog();
-            ToastUtils.showToast(this, "Setup failed");
-        }, 30 * 1000);
-        showLoadingProgressDialog();
-        getBXPButtonStatus(mac);
-    }
-
-    private void getBXPButtonStatus(String mac) {
+    private void getBXPButtonStatus() {
         int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_ALARM_STATUS;
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("mac", mac);
+        jsonObject.addProperty("mac", mConnectedBXPButtonInfo.mac);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
         try {
             MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
@@ -454,19 +417,10 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
         }
     }
 
-    public void readBXPButtonBattery(String mac) {
-        mHandler.postDelayed(() -> {
-            dismissLoadingProgressDialog();
-            ToastUtils.showToast(this, "Setup failed");
-        }, 30 * 1000);
-        showLoadingProgressDialog();
-        getBXPButtonBattery(mac);
-    }
-
-    private void getBXPButtonBattery(String mac) {
+    private void getBXPButtonBattery() {
         int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_BATTERY;
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("mac", mac);
+        jsonObject.addProperty("mac", mConnectedBXPButtonInfo.mac);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
         try {
             MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
@@ -475,19 +429,22 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
         }
     }
 
-    public void readBXPButtonTagId(String mac) {
-        mHandler.postDelayed(() -> {
-            dismissLoadingProgressDialog();
-            ToastUtils.showToast(this, "Setup failed");
-        }, 30 * 1000);
-        showLoadingProgressDialog();
-        getBXPButtonTagId(mac);
-    }
-
-    private void getBXPButtonTagId(String mac) {
+    private void getBXPButtonTagId() {
         int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_GET_TAG_ID;
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("mac", mac);
+        jsonObject.addProperty("mac", mConnectedBXPButtonInfo.mac);
+        String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
+        try {
+            MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getBXPButtonPasswordVerify() {
+        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_GET_PASSWORD_VERIFY;
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("mac", mConnectedBXPButtonInfo.mac);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
         try {
             MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
