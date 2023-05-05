@@ -171,6 +171,7 @@ public class BeaconDFUActivity extends BaseActivity<ActivityBeaconDfuBinding> {
         ArrayList<BatchDFUBeacon.BleDevice> mBeaconList = new ArrayList<>();
         BatchDFUBeacon.BleDevice bleDevice = new BatchDFUBeacon.BleDevice();
         bleDevice.mac = mBeaconMac;
+        bleDevice.passwd = "";
         mBeaconList.add(bleDevice);
         int msgId = MQTTConstants.CONFIG_MSG_ID_BATCH_DFU;
         BatchDFUBeacon batchDFUBeacon = new BatchDFUBeacon();

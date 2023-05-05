@@ -172,9 +172,17 @@ public class BatchDFUBeaconActivity extends BaseActivity<ActivityBatchDfuBeaconB
                                 Cell cellMac = row.getCell(0);
                                 Cell cellPassword = row.getCell(1);
                                 XLog.i("------Row:" + i + "------");
-                                String mac = cellMac.getStringCellValue();
-                                String password = cellPassword.getStringCellValue();
-                                if (TextUtils.isEmpty(cellMac.getStringCellValue()))
+                                String mac;
+                                if (cellMac.getCellType() != Cell.CELL_TYPE_STRING) {
+                                    cellMac.setCellType(Cell.CELL_TYPE_STRING);
+                                }
+                                mac = cellMac.getStringCellValue();
+                                String password;
+                                if (cellPassword.getCellType() != Cell.CELL_TYPE_STRING) {
+                                    cellPassword.setCellType(Cell.CELL_TYPE_STRING);
+                                }
+                                password = cellPassword.getStringCellValue();
+                                if (TextUtils.isEmpty(mac))
                                     break;
                                 BatchDFUBeacon.BleDevice bleDevice = new BatchDFUBeacon.BleDevice();
                                 bleDevice.mac = mac;
@@ -188,7 +196,10 @@ public class BatchDFUBeaconActivity extends BaseActivity<ActivityBatchDfuBeaconB
                             });
                         } catch (Exception e) {
                             e.printStackTrace();
-                            ToastUtils.showToast(BatchDFUBeaconActivity.this, "Import failed!");
+                            runOnUiThread(() -> {
+                                dismissLoadingProgressDialog();
+                                ToastUtils.showToast(BatchDFUBeaconActivity.this, "Import failed!");
+                            });
                         }
                     }).start();
                 } else {

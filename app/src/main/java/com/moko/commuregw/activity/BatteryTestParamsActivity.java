@@ -301,7 +301,7 @@ public class BatteryTestParamsActivity extends BaseActivity<ActivityBatteryTestP
             return;
         }
         int threshold = Integer.parseInt(thresholdStr);
-        if (threshold < 2000 || threshold > 4200) {
+        if (threshold < 2000 || threshold > 3600) {
             ToastUtils.showToast(this, "Para Error");
             return;
         }

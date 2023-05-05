@@ -42,8 +42,9 @@ public class AccParamsActivity extends BaseActivity<ActivityAccParamsBinding> {
     public Handler mHandler;
     private ArrayList<String> mSampleRateValues;
     private ArrayList<String> mFullScaleValues;
-    private int mSampleRateSelected;
-    private int mFullScaleSelected;
+    private ArrayList<String> mFullScaleUnitValues;
+    private int mSampleRateSelected = 1;
+    private int mFullScaleSelected = 1;
 
     @Override
     protected void onCreate() {
@@ -64,6 +65,11 @@ public class AccParamsActivity extends BaseActivity<ActivityAccParamsBinding> {
         mFullScaleValues.add("±4g");
         mFullScaleValues.add("±8g");
         mFullScaleValues.add("±16g");
+        mFullScaleUnitValues = new ArrayList<>();
+        mFullScaleUnitValues.add("x3.91mg");
+        mFullScaleUnitValues.add("x7.81mg");
+        mFullScaleUnitValues.add("x15.63mg");
+        mFullScaleUnitValues.add("x31.25mg");
         mHandler.postDelayed(() -> {
             dismissLoadingProgressDialog();
             finish();
@@ -77,7 +83,7 @@ public class AccParamsActivity extends BaseActivity<ActivityAccParamsBinding> {
         return ActivityAccParamsBinding.inflate(getLayoutInflater());
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.POSTING)
     public void onMQTTMessageArrivedEvent(MQTTMessageArrivedEvent event) {
         // 更新所有设备的网络状态
         final String topic = event.getTopic();
@@ -113,6 +119,7 @@ public class AccParamsActivity extends BaseActivity<ActivityAccParamsBinding> {
             int sensitivity = result.data.get("sensitivity").getAsInt();
             mBind.tvSampleRate.setText(mSampleRateValues.get(mSampleRateSelected));
             mBind.tvFullScale.setText(mFullScaleValues.get(mFullScaleSelected));
+            mBind.tvScaleUnit.setText(mFullScaleUnitValues.get(mFullScaleSelected));
             mBind.etSensitivity.setText(String.valueOf(sensitivity));
         }
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_ACC_PARAMS) {
@@ -198,6 +205,7 @@ public class AccParamsActivity extends BaseActivity<ActivityAccParamsBinding> {
         dialog.setListener(value -> {
             mFullScaleSelected = value;
             mBind.tvFullScale.setText(mFullScaleValues.get(value));
+            mBind.tvScaleUnit.setText(mFullScaleUnitValues.get(mFullScaleSelected));
         });
         dialog.show(getSupportFragmentManager());
     }

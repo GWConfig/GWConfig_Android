@@ -61,7 +61,7 @@
     <string name="permission_ble_content">GWConfig requires access to bluetooth scan contract and location permission. If the permissions are not on, GWConfig cannot be used normally.</string>
     
     
-    <string name="version_info">Version:%s</string>
+    <string name="version_info">V%s</string>
     <string name="about_moko_name">MOKO TECHNOLOGY LTD.</string>
     <string name="company_website">www.mokosmart.com</string>
     <string name="scan_device_total">Total %d pieces of data</string>

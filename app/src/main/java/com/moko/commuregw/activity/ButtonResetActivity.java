@@ -84,17 +84,17 @@ public class ButtonResetActivity extends BaseActivity<ActivityButtonResetBinding
             dismissLoadingProgressDialog();
             mHandler.removeMessages(0);
             int resetType = result.data.get("key_reset_type").getAsInt();
-            if (resetType == 1) {
+            if (resetType == 0) {
                 mBind.rbFixedTime.setChecked(true);
-            } else if (resetType == 2) {
+            } else if (resetType == 1) {
                 mBind.rbAnyTime.setChecked(true);
             }
             mBind.rgButtonReset.setOnCheckedChangeListener((group, checkedId) -> {
-                int value = 1;
+                int value = 0;
                 if (checkedId == R.id.rb_fixed_time) {
-                    value = 1;
+                    value = 0;
                 } else if (checkedId == R.id.rb_any_time) {
-                    value = 2;
+                    value = 1;
                 }
                 mHandler.postDelayed(() -> {
                     dismissLoadingProgressDialog();

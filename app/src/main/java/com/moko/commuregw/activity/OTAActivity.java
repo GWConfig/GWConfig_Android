@@ -97,7 +97,7 @@ public class OTAActivity extends BaseActivity<ActivityOtaRemoteBinding> {
             mHandler.postDelayed(() -> {
                 dismissLoadingProgressDialog();
                 ToastUtils.showToast(this, "Set up failed");
-            }, 50 * 1000);
+            }, 100 * 1000);
             showLoadingProgressDialog();
             setOTA(firmwareFileUrlStr);
         }

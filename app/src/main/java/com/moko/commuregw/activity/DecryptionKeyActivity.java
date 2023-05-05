@@ -45,6 +45,12 @@ public class DecryptionKeyActivity extends BaseActivity<ActivityDecryptionKeyBin
         appMqttConfig = new Gson().fromJson(mqttConfigAppStr, MQTTConfig.class);
         mAppTopic = TextUtils.isEmpty(appMqttConfig.topicPublish) ? mMokoDevice.topicSubscribe : appMqttConfig.topicPublish;
         mHandler = new Handler(Looper.getMainLooper());
+        mHandler.postDelayed(() -> {
+            dismissLoadingProgressDialog();
+            finish();
+        }, 30 * 1000);
+        showLoadingProgressDialog();
+        getDecryptionKey();
     }
 
     @Override
@@ -101,6 +107,16 @@ public class DecryptionKeyActivity extends BaseActivity<ActivityDecryptionKeyBin
 
     public void onBack(View view) {
         finish();
+    }
+
+    private void getDecryptionKey() {
+        int msgId = MQTTConstants.READ_MSG_ID_DECRYPTION_KEY;
+        String message = assembleReadCommon(msgId, mMokoDevice.mac);
+        try {
+            MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setDecryptionKey(String key) {

@@ -48,7 +48,7 @@
         android:layout_marginLeft="12dp"
         android:layout_marginTop="5dp"
         android:layout_marginRight="12dp"
-        android:hint="0-255，unit:second"
+        android:hint="1-255，unit:second"
         android:inputType="number"
         android:maxLength="3"
         android:paddingLeft="5dp"

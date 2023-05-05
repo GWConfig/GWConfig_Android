@@ -132,6 +132,16 @@ public class ButtonSOSActivity extends BaseActivity<ActivityButtonSosBinding> {
                 ToastUtils.showToast(this, "Set up failed");
             }
         }
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_DISCONNECTED) {
+            Type type = new TypeToken<MsgNotify<JsonObject>>() {
+            }.getType();
+            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
+            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                return;
+            dismissLoadingProgressDialog();
+            mHandler.removeMessages(0);
+            finish();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

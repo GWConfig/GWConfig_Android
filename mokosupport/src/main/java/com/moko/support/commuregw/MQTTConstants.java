@@ -41,7 +41,6 @@ public class MQTTConstants {
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_CONNECT = 1100;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_INFO = 1110;
     public static final int CONFIG_MSG_ID_BLE_DISCONNECT = 1103;
-    public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_ALARM_STATUS = 1152;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_BATTERY = 1112;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_LED_REMINDER = 1114;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_BUZZER_REMINDER = 1116;
@@ -61,13 +60,14 @@ public class MQTTConstants {
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_SELF_TEST_DURATION = 1146;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_GET_BATTERY_TEST_PARAMS = 1148;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_BATTERY_TEST_PARAMS = 1150;
+    public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_ALARM_STATUS = 1152;
+    public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_DISMISS_ALARM = 1154;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_GET_ACC_PARAMS = 1156;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_ACC_PARAMS = 1158;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_GET_SLEEP_MODE_PARAMS = 1160;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_SLEEP_MODE_PARAMS = 1162;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_GET_LED_PARAMS = 1168;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_LED_PARAMS = 1170;
-    public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_DISMISS_ALARM = 1154;
     public static final int CONFIG_MSG_ID_BATCH_DFU = 1200;
     public static final int CONFIG_MSG_ID_BATCH_UPDATE_KEY = 1205;
     public static final int CONFIG_MSG_ID_BLE_OTHER_CONNECT = 1300;

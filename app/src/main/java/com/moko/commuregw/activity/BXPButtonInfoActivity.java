@@ -37,6 +37,7 @@ import com.moko.support.commuregw.event.DeviceOnlineEvent;
 import com.moko.support.commuregw.event.MQTTMessageArrivedEvent;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -98,7 +99,7 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
         return ActivityBxpButtonInfoBinding.inflate(getLayoutInflater());
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.POSTING, priority = 200)
     public void onMQTTMessageArrivedEvent(MQTTMessageArrivedEvent event) {
         // 更新所有设备的网络状态
         final String topic = event.getTopic();
@@ -116,144 +117,160 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
         }
 
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_DISMISS_ALARM) {
-            Type type = new TypeToken<MsgNotify<BXPButtonInfo>>() {
-            }.getType();
-            MsgNotify<BXPButtonInfo> result = new Gson().fromJson(message, type);
-            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
-                return;
-            dismissLoadingProgressDialog();
-            mHandler.removeMessages(0);
-            BXPButtonInfo bxpButtonInfo = result.data;
-            if (bxpButtonInfo.result_code != 0) {
-                ToastUtils.showToast(this, "Setup failed");
-                return;
-            }
-            ToastUtils.showToast(this, "Setup succeed!");
-            mHandler.postDelayed(() -> {
+            runOnUiThread(() -> {
+                Type type = new TypeToken<MsgNotify<BXPButtonInfo>>() {
+                }.getType();
+                MsgNotify<BXPButtonInfo> result = new Gson().fromJson(message, type);
+                if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                    return;
                 dismissLoadingProgressDialog();
-                ToastUtils.showToast(this, "Setup failed");
-            }, 30 * 1000);
-            showLoadingProgressDialog();
-            getBXPButtonStatus();
+                mHandler.removeMessages(0);
+                BXPButtonInfo bxpButtonInfo = result.data;
+                if (bxpButtonInfo.result_code != 0) {
+                    ToastUtils.showToast(this, "Setup failed");
+                    return;
+                }
+                ToastUtils.showToast(this, "Setup succeed!");
+                mHandler.postDelayed(() -> {
+                    dismissLoadingProgressDialog();
+                    ToastUtils.showToast(this, "Setup failed");
+                }, 30 * 1000);
+                showLoadingProgressDialog();
+                getBXPButtonStatus();
+            });
         }
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_ALARM_STATUS) {
-            Type type = new TypeToken<MsgNotify<JsonObject>>() {
-            }.getType();
-            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
-            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
-                return;
-            dismissLoadingProgressDialog();
-            mHandler.removeMessages(0);
-            int result_code = result.data.get("result_code").getAsInt();
-            if (result_code != 0) {
-                ToastUtils.showToast(this, "Setup failed");
-                return;
-            }
-            int alarm_status = result.data.get("alarm_status").getAsInt();
-            String alarmStatusStr = "";
-            if (alarm_status == 0) {
-                alarmStatusStr = "Not triggered";
-            } else if (alarm_status == 1) {
-                alarmStatusStr = "Triggered";
-            } else if (alarm_status == 2) {
-                alarmStatusStr = "Triggered&Dismissed";
-            } else if (alarm_status == 3) {
-                alarmStatusStr = "Self testing";
-            }
-            mBind.tvAlarmStatus.setText(alarmStatusStr);
-            mBind.tvDismissAlarm.setVisibility(alarm_status == 1 ? View.VISIBLE : View.GONE);
+            EventBus.getDefault().cancelEventDelivery(event);
+            runOnUiThread(() -> {
+                Type type = new TypeToken<MsgNotify<JsonObject>>() {
+                }.getType();
+                MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
+                if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                    return;
+                dismissLoadingProgressDialog();
+                mHandler.removeMessages(0);
+                int result_code = result.data.get("result_code").getAsInt();
+                if (result_code != 0) {
+                    ToastUtils.showToast(this, "Setup failed");
+                    return;
+                }
+                int alarm_status = result.data.get("alarm_status").getAsInt();
+                String alarmStatusStr = "";
+                if (alarm_status == 0) {
+                    alarmStatusStr = "Not triggered";
+                } else if (alarm_status == 1) {
+                    alarmStatusStr = "Triggered";
+                } else if (alarm_status == 2) {
+                    alarmStatusStr = "Triggered&Dismissed";
+                } else if (alarm_status == 3) {
+                    alarmStatusStr = "Self testing";
+                }
+                mBind.tvAlarmStatus.setText(alarmStatusStr);
+                mBind.tvDismissAlarm.setVisibility(alarm_status != 1 ? View.GONE : View.VISIBLE);
+            });
         }
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_BATTERY) {
-            Type type = new TypeToken<MsgNotify<JsonObject>>() {
-            }.getType();
-            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
-            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
-                return;
-            dismissLoadingProgressDialog();
-            mHandler.removeMessages(0);
-            int result_code = result.data.get("result_code").getAsInt();
-            if (result_code != 0) {
-                ToastUtils.showToast(this, "Setup failed");
-                return;
-            }
-            ToastUtils.showToast(this, "Setup succeed!");
-            int battery_v = result.data.get("battery_v").getAsInt();
-            mBind.tvBatteryVoltage.setText(String.format("%dmV", battery_v));
+            EventBus.getDefault().cancelEventDelivery(event);
+            runOnUiThread(() -> {
+                Type type = new TypeToken<MsgNotify<JsonObject>>() {
+                }.getType();
+                MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
+                if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                    return;
+                dismissLoadingProgressDialog();
+                mHandler.removeMessages(0);
+                int result_code = result.data.get("result_code").getAsInt();
+                if (result_code != 0) {
+                    ToastUtils.showToast(this, "Setup failed");
+                    return;
+                }
+                ToastUtils.showToast(this, "Setup succeed!");
+                int battery_v = result.data.get("battery_v").getAsInt();
+                mBind.tvBatteryVoltage.setText(String.format("%dmV", battery_v));
+            });
         }
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SYSTEM_TIME
                 || msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_TAG_ID
                 || msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_LED_REMINDER
                 || msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_BUZZER_REMINDER
                 || msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_ENCRYPTION_KEY_RESULT) {
-            Type type = new TypeToken<MsgNotify<JsonObject>>() {
-            }.getType();
-            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
-            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
-                return;
-            String mac = result.data.get("mac").getAsString();
-            if (!mBXPButtonInfo.mac.equalsIgnoreCase(mac)) return;
-            dismissLoadingProgressDialog();
-            mHandler.removeMessages(0);
-            int result_code = result.data.get("result_code").getAsInt();
-            if (result_code == 0) {
-                if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_TAG_ID)
-                    mBind.tvTagId.setText(mTagId);
-                ToastUtils.showToast(this, "Setup succeed!");
-            } else {
-                ToastUtils.showToast(this, "Setup failed");
-            }
+            runOnUiThread(() -> {
+                Type type = new TypeToken<MsgNotify<JsonObject>>() {
+                }.getType();
+                MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
+                if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                    return;
+                String mac = result.data.get("mac").getAsString();
+                if (!mBXPButtonInfo.mac.equalsIgnoreCase(mac)) return;
+                dismissLoadingProgressDialog();
+                mHandler.removeMessages(0);
+                int result_code = result.data.get("result_code").getAsInt();
+                if (result_code == 0) {
+                    if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_TAG_ID)
+                        mBind.tvTagId.setText(mTagId);
+                    ToastUtils.showToast(this, "Setup succeed!");
+                } else {
+                    ToastUtils.showToast(this, "Setup failed");
+                }
+            });
         }
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_PASSWORD_VERIFY) {
-            Type type = new TypeToken<MsgNotify<JsonObject>>() {
-            }.getType();
-            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
-            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
-                return;
-            String mac = result.data.get("mac").getAsString();
-            if (!mBXPButtonInfo.mac.equalsIgnoreCase(mac)) return;
-            dismissLoadingProgressDialog();
-            mHandler.removeMessages(0);
-            int resultCode = result.data.get("result_code").getAsInt();
-            if (resultCode != 0) {
-                ToastUtils.showToast(this, "Setup failed");
-                return;
-            }
-            mIsPasswordVerifyOpen = !mIsPasswordVerifyOpen;
-            Drawable dra = ContextCompat.getDrawable(this, mIsPasswordVerifyOpen ?
-                    R.drawable.ic_cb_open : R.drawable.ic_cb_close);
-            dra.setBounds(0, 0, dra.getIntrinsicWidth(), dra.getIntrinsicHeight());
-            mBind.tvPasswordVerify.setCompoundDrawables(null, null, dra, null);
-            ToastUtils.showToast(this, "Setup succeed!");
+            runOnUiThread(() -> {
+                Type type = new TypeToken<MsgNotify<JsonObject>>() {
+                }.getType();
+                MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
+                if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                    return;
+                String mac = result.data.get("mac").getAsString();
+                if (!mBXPButtonInfo.mac.equalsIgnoreCase(mac)) return;
+                dismissLoadingProgressDialog();
+                mHandler.removeMessages(0);
+                int resultCode = result.data.get("result_code").getAsInt();
+                if (resultCode != 0) {
+                    ToastUtils.showToast(this, "Setup failed");
+                    return;
+                }
+                mIsPasswordVerifyOpen = !mIsPasswordVerifyOpen;
+                Drawable dra = ContextCompat.getDrawable(this, mIsPasswordVerifyOpen ?
+                        R.drawable.ic_cb_open : R.drawable.ic_cb_close);
+                dra.setBounds(0, 0, dra.getIntrinsicWidth(), dra.getIntrinsicHeight());
+                mBind.tvPasswordVerify.setCompoundDrawables(null, null, dra, null);
+                ToastUtils.showToast(this, "Setup succeed!");
+            });
         }
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_DISCONNECTED
                 || msg_id == MQTTConstants.CONFIG_MSG_ID_BLE_DISCONNECT) {
-            Type type = new TypeToken<MsgNotify<JsonObject>>() {
-            }.getType();
-            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
-            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
-                return;
-            dismissLoadingProgressDialog();
-            mHandler.removeMessages(0);
-            ToastUtils.showToast(this, "Bluetooth disconnect");
-            finish();
+            runOnUiThread(() -> {
+                Type type = new TypeToken<MsgNotify<JsonObject>>() {
+                }.getType();
+                MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
+                if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                    return;
+                dismissLoadingProgressDialog();
+                mHandler.removeMessages(0);
+                ToastUtils.showToast(this, "Bluetooth disconnect");
+                finish();
+            });
         }
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_POWER_OFF
                 || msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_RESET
                 || msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_PASSWORD) {
-            Type type = new TypeToken<MsgNotify<JsonObject>>() {
-            }.getType();
-            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
-            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
-                return;
-            dismissLoadingProgressDialog();
-            mHandler.removeMessages(0);
-            int resultCode = result.data.get("result_code").getAsInt();
-            if (resultCode == 0) {
-                ToastUtils.showToast(this, "Setup succeed!");
-                finish();
-            } else {
-                ToastUtils.showToast(this, "Setup failed");
-            }
+            runOnUiThread(() -> {
+                Type type = new TypeToken<MsgNotify<JsonObject>>() {
+                }.getType();
+                MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
+                if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                    return;
+                dismissLoadingProgressDialog();
+                mHandler.removeMessages(0);
+                int resultCode = result.data.get("result_code").getAsInt();
+                if (resultCode == 0) {
+                    ToastUtils.showToast(this, "Setup succeed!");
+                    finish();
+                } else {
+                    ToastUtils.showToast(this, "Setup failed");
+                }
+            });
         }
     }
 
@@ -635,6 +652,7 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
         ArrayList<BatchDFUBeacon.BleDevice> mBeaconList = new ArrayList<>();
         BatchDFUBeacon.BleDevice bleDevice = new BatchDFUBeacon.BleDevice();
         bleDevice.mac = mBXPButtonInfo.mac;
+        bleDevice.passwd = "";
         mBeaconList.add(bleDevice);
         int msgId = MQTTConstants.CONFIG_MSG_ID_BATCH_UPDATE_KEY;
         BatchUpdateKey batchDFUBeacon = new BatchUpdateKey();
