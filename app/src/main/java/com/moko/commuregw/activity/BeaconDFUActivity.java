@@ -105,9 +105,16 @@ public class BeaconDFUActivity extends BaseActivity<ActivityBeaconDfuBinding> {
                 return;
             dismissLoadingMessageDialog();
             int multiDfuResultCode = result.data.get("multi_dfu_result_code").getAsInt();
+            if (multiDfuResultCode == 0) {
+                ToastUtils.showToast(this, "Beacon DFU failed!");
+                return;
+            }
             JsonArray array = result.data.get("fail_dev").getAsJsonArray();
-            ToastUtils.showToast(this,
-                    String.format("Beacon DFU %s!", multiDfuResultCode == 1 && array.isEmpty() ? "successfully" : "failed"));
+            if (!array.isEmpty()) {
+                ToastUtils.showToast(this, "Beacon DFU failed!");
+                return;
+            }
+            ToastUtils.showToast(this, "Beacon DFU successfully!");
             setResult(RESULT_OK);
             finish();
         }
