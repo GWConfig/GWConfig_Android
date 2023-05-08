@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.elvishew.xlog.XLog;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -96,20 +97,17 @@ public class BeaconDFUActivity extends BaseActivity<ActivityBeaconDfuBinding> {
             if (!isFinishing() && mLoadingMessageDialog != null && mLoadingMessageDialog.isResumed())
                 mLoadingMessageDialog.setMessage(String.format("Beacon DFU process: %d%%", percent));
         }
-        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_DFU_RESULT) {
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_DFU_BATCH_RESULT) {
             Type type = new TypeToken<MsgNotify<JsonObject>>() {
             }.getType();
             MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
             if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
                 return;
-            String mac = result.data.get("mac").getAsString();
-            if (!mBeaconMac.equalsIgnoreCase(mac)) return;
             dismissLoadingMessageDialog();
-            int resultCode = result.data.get("status").getAsInt();
-            // DFU开始
-            if (resultCode == 0) return;
+            int multiDfuResultCode = result.data.get("multi_dfu_result_code").getAsInt();
+            JsonArray array = result.data.get("fail_dev").getAsJsonArray();
             ToastUtils.showToast(this,
-                    String.format("Beacon DFU %s!", resultCode == 1 ? "successfully" : "failed"));
+                    String.format("Beacon DFU %s!", multiDfuResultCode == 1 && array.isEmpty() ? "successfully" : "failed"));
             setResult(RESULT_OK);
             finish();
         }
