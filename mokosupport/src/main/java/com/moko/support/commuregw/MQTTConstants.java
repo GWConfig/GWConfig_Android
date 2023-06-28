@@ -23,6 +23,7 @@ public class MQTTConstants {
     public static final int CONFIG_MSG_ID_FILTER_RSSI = 1042;
     public static final int CONFIG_MSG_ID_FILTER_MAC_ADDRESS = 1043;
     public static final int CONFIG_MSG_ID_FILTER_TAG_ID = 1044;
+    public static final int CONFIG_MSG_ID_DATA_REPORT_TIMEOUT = 1045;
     public static final int CONFIG_MSG_ID_TIME_OFFSET = 1046;
     public static final int CONFIG_MSG_ID_DECRYPTION_KEY = 1047;
     public static final int CONFIG_MSG_ID_FILTER_URL = 1048;
@@ -36,7 +37,6 @@ public class MQTTConstants {
     public static final int CONFIG_MSG_ID_FILTER_PIR = 1055;
     public static final int CONFIG_MSG_ID_FILTER_OTHER = 1056;
     public static final int CONFIG_MSG_ID_DUPLICATE_DATA_FILTER = 1057;
-    public static final int CONFIG_MSG_ID_DATA_REPORT_TIMEOUT = 1058;
     public static final int CONFIG_MSG_ID_UPLOAD_DATA_OPTION= 1059;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_CONNECT = 1100;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_INFO = 1110;
@@ -94,7 +94,7 @@ public class MQTTConstants {
     public static final int READ_MSG_ID_FILTER_RSSI = 2042;
     public static final int READ_MSG_ID_FILTER_MAC_ADDRESS = 2043;
     public static final int READ_MSG_ID_FILTER_TAG_ID = 2044;
-    public static final int READ_MSG_ID_FILTER_RAW_DATA_SWITCH = 2045;
+    public static final int READ_MSG_ID_DATA_REPORT_TIMEOUT = 2045;
     public static final int READ_MSG_ID_TIME_OFFSET = 2046;
     public static final int READ_MSG_ID_DECRYPTION_KEY = 2047;
     public static final int READ_MSG_ID_COMMUNICATION_TIMEOUT = 2048;
@@ -105,8 +105,8 @@ public class MQTTConstants {
     public static final int READ_MSG_ID_FILTER_PIR = 2055;
     public static final int READ_MSG_ID_FILTER_OTHER = 2056;
     public static final int READ_MSG_ID_DUPLICATE_DATA_FILTER = 2057;
-    public static final int READ_MSG_ID_DATA_REPORT_TIMEOUT = 2058;
     public static final int READ_MSG_ID_UPLOAD_DATA_OPTION = 2059;
+    public static final int READ_MSG_ID_FILTER_RAW_DATA_SWITCH = 2099;
     public static final int READ_MSG_ID_BLE_CONNECTED_LIST = 2102;
     // NOTIFY
     public static final int NOTIFY_MSG_ID_NETWORKING_STATUS = 3004;

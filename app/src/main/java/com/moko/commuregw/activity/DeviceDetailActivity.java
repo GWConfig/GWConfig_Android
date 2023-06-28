@@ -18,6 +18,8 @@ import com.moko.commuregw.adapter.ScanDeviceAdapter;
 import com.moko.commuregw.base.BaseActivity;
 import com.moko.commuregw.databinding.ActivityDetailRemoteBinding;
 import com.moko.commuregw.db.DBTools;
+import com.moko.commuregw.dialog.AlertMessageDialog;
+import com.moko.commuregw.dialog.FilterTestDialog;
 import com.moko.commuregw.entity.MQTTConfig;
 import com.moko.commuregw.entity.MokoDevice;
 import com.moko.commuregw.utils.SPUtiles;
@@ -54,6 +56,9 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
     private ArrayList<String> mScanDevices;
     private Handler mHandler;
     private BXPButtonInfo mConnectedBXPButtonInfo;
+    private int mPacketCount;
+    private boolean mTestStart;
+    private int mAlarmStatus;
 
     @Override
     protected void onCreate() {
@@ -90,6 +95,7 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
         mBind.tvScanDeviceTotal.setText(getString(R.string.scan_device_total, mScanDevices.size()));
         mBind.tvManageDevices.setVisibility(mScanSwitch ? View.VISIBLE : View.GONE);
         mBind.rvDevices.setVisibility(mScanSwitch ? View.VISIBLE : View.GONE);
+        mBind.tvFilterTest.setVisibility(mScanSwitch ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -134,6 +140,13 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
                 return;
             for (JsonObject jsonObject : result.data) {
                 mScanDevices.add(0, jsonObject.toString());
+                // 过滤alarm_status
+                int typeCode = jsonObject.get("type_code").getAsInt();
+                if (!mTestStart) continue;
+                if (typeCode == 1) continue;
+                int alarmStatus = jsonObject.get("alarm_status").getAsInt();
+                if (alarmStatus == mAlarmStatus)
+                    mPacketCount++;
             }
             mBind.tvScanDeviceTotal.setText(getString(R.string.scan_device_total, mScanDevices.size()));
             mAdapter.replaceData(mScanDevices);
@@ -335,6 +348,7 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
         mBind.tvScanDeviceTotal.setVisibility(mScanSwitch ? View.VISIBLE : View.GONE);
         mBind.tvScanDeviceTotal.setText(getString(R.string.scan_device_total, 0));
         mBind.rvDevices.setVisibility(mScanSwitch ? View.VISIBLE : View.GONE);
+        mBind.tvFilterTest.setVisibility(mScanSwitch ? View.VISIBLE : View.GONE);
         mScanDevices.clear();
         mAdapter.replaceData(mScanDevices);
         mHandler.postDelayed(() -> {
@@ -359,6 +373,26 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
         }, 30 * 1000);
         showLoadingProgressDialog();
         getBleConnectedList();
+    }
+
+
+    public void onFilterTest(View view) {
+        if (isWindowLocked()) return;
+        mPacketCount = 0;
+        FilterTestDialog dialog = new FilterTestDialog();
+        dialog.setOnFilterTestClicked((duration, alarmStatus) -> {
+            mAlarmStatus = alarmStatus;
+            mTestStart = true;
+            showLoadingProgressDialog();
+            mHandler.postDelayed(() -> {
+                dismissLoadingProgressDialog();
+                mTestStart = false;
+                AlertMessageDialog alertDialog = new AlertMessageDialog();
+                alertDialog.setMessage(String.format("Count:%d", mPacketCount));
+                alertDialog.show(getSupportFragmentManager());
+            }, duration * 1000);
+        });
+        dialog.show(getSupportFragmentManager());
     }
 
     private void getBleConnectedList() {
