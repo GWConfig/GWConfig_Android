@@ -10,7 +10,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 31
         versionCode 3
-        versionName "1.0.3"
+        versionName "1.0.2"
         def formatDate = new Date().format("yyyyMMddHHmm")
         setProperty("archivesBaseName", "GWConfig_${versionName}_${formatDate}")
     }
