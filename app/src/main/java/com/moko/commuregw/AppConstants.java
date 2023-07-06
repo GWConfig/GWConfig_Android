@@ -8,6 +8,7 @@ public class AppConstants {
     public static final String PATTERN_MM_DD_2 = "MM-dd";
     public static final String PATTERN_YYYY_MM_DD_HH_MM = "yyyy-MM-dd HH:mm";
     public static final String PATTERN_YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
+    public static final String PATTERN_MAC_CODE = "^[0-9A-Fa-f]{12}$";
     // action
     public static final String ACTION_FINISH_ACTIVITY = "com.moko.commuregw.action.finishActivity";
     public static final String ACTION_MODIFY_NAME = "com.moko.commuregw.action.ACTION_MODIFY_NAME";
@@ -17,6 +18,10 @@ public class AppConstants {
     public static final String SP_NAME = "sp_name_commure_gw";
     //    public static final String SP_KEY_MQTT_CONFIG = "SP_KEY_MQTT_CONFIG";
     public static final String SP_KEY_MQTT_CONFIG_APP = "SP_KEY_MQTT_CONFIG_APP";
+    public static final String SP_KEY_LED_BLINK_INTERVAL = "SP_KEY_LED_BLINK_INTERVAL";
+    public static final String SP_KEY_LED_BLINK_DURATION = "SP_KEY_LED_BLINK_DURATION";
+    public static final String SP_KEY_BUZZER_INTERVAL = "SP_KEY_BUZZER_INTERVAL";
+    public static final String SP_KEY_BUZZER_DURATION = "SP_KEY_BUZZER_DURATION";
 
 
     public static final String SP_KEY_DEVICE_ADDRESS = "sp_key_device_address";
@@ -69,6 +74,8 @@ public class AppConstants {
     public static final int REQUEST_CODE_OPEN_APP_SETTINGS_FILE = 130;
     public static final int REQUEST_CODE_OPEN_DEVICE_SETTINGS_FILE = 131;
     public static final int REQUEST_CODE_OPEN_BEACON_LIST = 132;
+    public static final int REQUEST_CODE_OPEN_GATEWAY_LIST = 133;
+    public static final int REQUEST_CODE_SCAN_GATEWAY_MAC = 134;
 
     public static final int REQUEST_CODE_SELECT_CA = 140;
     public static final int REQUEST_CODE_SELECT_CLIENT_KEY = 141;

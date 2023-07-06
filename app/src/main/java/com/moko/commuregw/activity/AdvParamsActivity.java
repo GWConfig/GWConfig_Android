@@ -108,7 +108,7 @@ public class AdvParamsActivity extends BaseActivity<ActivityAdvParamsBinding> {
                 return;
             }
             int mode = result.data.get("adv_mode").getAsInt();
-            int interval = result.data.get("adv_interval").getAsInt();
+            int interval = result.data.get("adv_interval").getAsInt() / 100;
             int duration = result.data.get("adv_time").getAsInt();
             int txPower = result.data.get("tx_power").getAsInt();
             if (mode == 0) {
@@ -213,7 +213,7 @@ public class AdvParamsActivity extends BaseActivity<ActivityAdvParamsBinding> {
             durationStr = mBind.etTriggerAdvDuration.getText().toString();
             txPower = TxPowerEnum.fromOrdinal(mTriggerSelected).getTxPower();
         }
-        int interval = Integer.parseInt(intervalStr);
+        int interval = Integer.parseInt(intervalStr) * 100;
         int duration = Integer.parseInt(durationStr);
         int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_ADV_PARAMS;
         JsonObject jsonObject = new JsonObject();
@@ -282,8 +282,8 @@ public class AdvParamsActivity extends BaseActivity<ActivityAdvParamsBinding> {
         int configInterval = Integer.parseInt(configIntervalStr);
         int normalInterval = Integer.parseInt(normalIntervalStr);
         int triggerInterval = Integer.parseInt(triggerIntervalStr);
-        if (configInterval < 100 || normalInterval < 100 || triggerInterval < 100
-                || configInterval > 65535 || normalInterval > 65535 || triggerInterval > 65535) {
+        if (configInterval < 1 || normalInterval < 1 || triggerInterval < 1
+                || configInterval > 100 || normalInterval > 100 || triggerInterval > 100) {
             ToastUtils.showToast(this, "Para Error");
             return;
         }

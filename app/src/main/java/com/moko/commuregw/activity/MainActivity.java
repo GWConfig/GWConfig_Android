@@ -451,7 +451,7 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
 
     public void about(View view) {
         if (isWindowLocked()) return;
-        startActivity(new Intent(this, AboutActivity.class));
+        startActivity(new Intent(this, BatchOTAGatewayActivity.class));
     }
 
     public void onBack(View view) {

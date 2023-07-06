@@ -7,8 +7,10 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
+import com.moko.commuregw.AppConstants;
 import com.moko.commuregw.R;
 import com.moko.commuregw.databinding.DialogModifyBuzzerReminderBinding;
+import com.moko.commuregw.utils.SPUtiles;
 import com.moko.commuregw.utils.ToastUtils;
 
 public class BuzzerReminderDialog extends MokoBaseDialog<DialogModifyBuzzerReminderBinding> {
@@ -21,6 +23,10 @@ public class BuzzerReminderDialog extends MokoBaseDialog<DialogModifyBuzzerRemin
 
     @Override
     protected void onCreateView() {
+        String buzzerInterval = SPUtiles.getStringValue(getContext(), AppConstants.SP_KEY_BUZZER_INTERVAL, "");
+        String buzzerDuration = SPUtiles.getStringValue(getContext(), AppConstants.SP_KEY_BUZZER_DURATION, "");
+        mBind.etInterval.setText(buzzerInterval);
+        mBind.etDuration.setText(buzzerDuration);
         mBind.tvCancel.setOnClickListener(v -> {
             dismiss();
         });
@@ -33,7 +39,7 @@ public class BuzzerReminderDialog extends MokoBaseDialog<DialogModifyBuzzerRemin
                 return;
             }
             int interval = Integer.parseInt(intervalStr);
-            if (interval > 10000) {
+            if (interval > 100) {
                 ToastUtils.showToast(getContext(), "Para Error");
                 return;
             }
@@ -43,6 +49,8 @@ public class BuzzerReminderDialog extends MokoBaseDialog<DialogModifyBuzzerRemin
                 return;
             }
             dismiss();
+            SPUtiles.setStringValue(getContext(), AppConstants.SP_KEY_BUZZER_INTERVAL, String.valueOf(interval));
+            SPUtiles.setStringValue(getContext(), AppConstants.SP_KEY_BUZZER_DURATION, String.valueOf(duration));
             if (dialogClickListener != null)
                 dialogClickListener.onEnsureClicked(interval, duration);
         });

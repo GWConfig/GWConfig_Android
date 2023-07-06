@@ -11,5 +11,7 @@ public class BatchDFUBeacon {
     public static class BleDevice {
         public String mac;
         public String passwd;
+        // 0:Wait;1:Upgrading;2:Success;3:Failed
+        public int status;
     }
 }

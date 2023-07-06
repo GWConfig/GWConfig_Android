@@ -19,6 +19,7 @@
     <string name="mqtt_verify_port">Port range is 1~65535</string>
     <string name="mqtt_verify_port_empty">Port error</string>
     <string name="mqtt_verify_firmware_file_url">Firmware file Url error</string>
+    <string name="mqtt_verify_gateway_topic">GatewayTopic error</string>
     <string name="mqtt_verify_ca">CA error</string>
     <string name="mqtt_verify_topic_subscribe">Subscribed Topic error</string>
     <string name="mqtt_verify_topic_publish">Published Topic error</string>
@@ -87,6 +88,7 @@
     <string name="batch_dfu_beacon">Batch DFU Beacon</string>
     <string name="batch_update_beacon_key">Batch update Beacon key</string>
     <string name="init_data_file_url">Init data file Url error</string>
+    <string name="cannot_be_empty">Cannot be empty</string>
     <string name="beacon_list_mac_error">Beacon list mac error</string>
     <string name="encryption_key_error">Encryption key error</string>
     <string name="sos_triggered_by_button">SOS triggered by button</string>
@@ -99,6 +101,9 @@
     <string name="restore_to_factory_settings">Restore to factory settings</string>
     <string name="adv_parameters">ADV parameters</string>
     <string name="when_battery_voltage_threshold"><![CDATA[When battery voltage<threshold]]></string>
+
+    <string name="mac_error">Gateway list MAC error!</string>
+    <string name="size_error">Max 20 gateways are allowed!</string>
 
 
 </resources>

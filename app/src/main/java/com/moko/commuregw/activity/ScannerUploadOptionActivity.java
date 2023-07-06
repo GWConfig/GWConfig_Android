@@ -60,6 +60,7 @@ public class ScannerUploadOptionActivity extends BaseActivity<ActivityScannerUpl
         mRelationshipValues.add("Null");
         mRelationshipValues.add("Only MAC");
         mRelationshipValues.add("Only Tag id");
+        mRelationshipValues.add("MAC|Tag id");
         mRelationshipValues.add("MAC&Tag id");
         mHandler.postDelayed(() -> {
             dismissLoadingProgressDialog();

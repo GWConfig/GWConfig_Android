@@ -4,13 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white_ffffff"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
     android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="53dp"
+        android:layout_height="55dp"
         android:background="@color/blue_0188cc">
 
         <ImageView
@@ -26,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="@string/batch_dfu_beacon"
+            android:text="Batch OTA"
             android:textColor="@color/white_ffffff"
             android:textSize="17sp" />
 
@@ -52,7 +50,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
             android:text="Firmware file URL"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
@@ -63,14 +60,13 @@
             android:layout_height="45dp"
             android:layout_marginLeft="12dp"
             android:layout_weight="1.0"
-            android:hint="1- 256 Characters"
+            android:hint="1-256 Characters"
             android:maxLength="256"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:singleLine="true"
-            android:text=""
+            android:text="http://47.104.172.169:8080/updata_fold/commureMK110_V1.0.3.bin"
             android:textColor="@color/black_333333"
-            android:textColorHint="@color/grey_d9d9d9"
             android:textSize="15sp" />
     </LinearLayout>
 
@@ -84,25 +80,23 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="Init data file URL"
+            android:text="Gateway topic"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
 
         <EditText
-            android:id="@+id/et_init_data_file_url"
+            android:id="@+id/et_gateway_topic"
             android:layout_width="0dp"
             android:layout_height="45dp"
             android:layout_marginLeft="12dp"
             android:layout_weight="1.0"
-            android:hint="1- 256 Characters"
+            android:hint="1-256 Characters"
             android:maxLength="256"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:singleLine="true"
-            android:text=""
+            android:text="/gateway/provision/#"
             android:textColor="@color/black_333333"
-            android:textColorHint="@color/grey_d9d9d9"
             android:textSize="15sp" />
     </LinearLayout>
 
@@ -117,12 +111,12 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:text="Beacon list"
+            android:text="Gateway list"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
 
         <TextView
-            android:id="@+id/tv_beacon_list"
+            android:id="@+id/tv_gateway_list"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
@@ -137,13 +131,26 @@
             android:textSize="13sp" />
 
         <ImageView
-            android:id="@+id/iv_select_beacon_list"
+            android:id="@+id/iv_select_gateway_list"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:clickable="true"
-            android:onClick="onSelectBeaconList"
+            android:onClick="onSelectGatewayList"
             android:src="@drawable/select_file" />
+
+        <ImageView
+            android:id="@+id/iv_scan_gateway_qrcode"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
+            android:clickable="true"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:onClick="onScanGatewayQrcode"
+            android:src="@drawable/ic_scan_grey" />
     </LinearLayout>
 
     <RelativeLayout
@@ -156,27 +163,16 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="12dp"
-            android:text="Mac"
+            android:text="Gateway Mac"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="40dp"
-            android:layout_toLeftOf="@id/tv_status"
-            android:text="Password"
-            android:textColor="@color/black_333333"
-            android:textSize="15sp" />
-
-        <TextView
-            android:id="@+id/tv_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="12dp"
+            android:layout_marginRight="70dp"
             android:text="Status"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
@@ -187,5 +183,5 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1.0"
-        tools:listitem="@layout/item_beacon" />
+        tools:listitem="@layout/item_gateway" />
 </LinearLayout>

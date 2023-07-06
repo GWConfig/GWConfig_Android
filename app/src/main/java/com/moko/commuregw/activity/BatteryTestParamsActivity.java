@@ -41,7 +41,8 @@ public class BatteryTestParamsActivity extends BaseActivity<ActivityBatteryTestP
     private BXPButtonInfo mBXPButtonInfo;
     public Handler mHandler;
     private ArrayList<String> mValues;
-    private int mSelected;
+    private int mHigherSelected;
+    private int mLowerSelected;
     private int mMode = 0;
 
     @Override
@@ -126,24 +127,31 @@ public class BatteryTestParamsActivity extends BaseActivity<ActivityBatteryTestP
             }
             int mode = result.data.get("batt_warn_mode").getAsInt();
             String ledColor = result.data.get("led_color").getAsString();
-            if ("red".equalsIgnoreCase(ledColor))
-                mSelected = 0;
-            if ("blue".equalsIgnoreCase(ledColor))
-                mSelected = 1;
-            if ("green".equalsIgnoreCase(ledColor))
-                mSelected = 2;
-            mBind.tvLedColor.setText(mValues.get(mSelected));
             int ledInterval = result.data.get("led_off_time").getAsInt();
             int ledDuration = result.data.get("led_flash_time").getAsInt();
             if (mode == 0) {
-                mBind.etLowerInterval.setText(String.valueOf(ledInterval));
+                if ("red".equalsIgnoreCase(ledColor))
+                    mLowerSelected = 0;
+                if ("blue".equalsIgnoreCase(ledColor))
+                    mLowerSelected = 1;
+                if ("green".equalsIgnoreCase(ledColor))
+                    mLowerSelected = 2;
+                mBind.tvLowerLedColor.setText(mValues.get(mLowerSelected));
+                mBind.etLowerInterval.setText(String.valueOf(ledInterval / 100));
                 mBind.etLowerDuration.setText(String.valueOf(ledDuration));
                 // higher
                 getLEDParams(1);
             } else {
                 dismissLoadingProgressDialog();
                 mHandler.removeMessages(0);
-                mBind.etHigherInterval.setText(String.valueOf(ledInterval));
+                if ("red".equalsIgnoreCase(ledColor))
+                    mHigherSelected = 0;
+                if ("blue".equalsIgnoreCase(ledColor))
+                    mHigherSelected = 1;
+                if ("green".equalsIgnoreCase(ledColor))
+                    mHigherSelected = 2;
+                mBind.tvHigherLedColor.setText(mValues.get(mHigherSelected));
+                mBind.etHigherInterval.setText(String.valueOf(ledInterval / 100));
                 mBind.etHigherDuration.setText(String.valueOf(ledDuration));
             }
 
@@ -258,19 +266,22 @@ public class BatteryTestParamsActivity extends BaseActivity<ActivityBatteryTestP
     private void setLEDParams(int mode) {
         String lowerIntervalStr;
         String lowerDurationStr;
+        String selectedStr;
         if (mode == 0) {
             lowerIntervalStr = mBind.etLowerInterval.getText().toString();
             lowerDurationStr = mBind.etLowerDuration.getText().toString();
+            selectedStr = mValues.get(mLowerSelected).toLowerCase();
         } else {
             lowerIntervalStr = mBind.etHigherInterval.getText().toString();
             lowerDurationStr = mBind.etHigherDuration.getText().toString();
+            selectedStr = mValues.get(mHigherSelected).toLowerCase();
         }
-        int lowerInterval = Integer.parseInt(lowerIntervalStr);
+        int lowerInterval = Integer.parseInt(lowerIntervalStr) * 100;
         int lowerDuration = Integer.parseInt(lowerDurationStr);
         int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_LED_PARAMS;
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("mac", mBXPButtonInfo.mac);
-        jsonObject.addProperty("led_color", mValues.get(mSelected).toLowerCase());
+        jsonObject.addProperty("led_color", selectedStr);
         jsonObject.addProperty("batt_warn_mode", mode);
         jsonObject.addProperty("led_off_time", lowerInterval);
         jsonObject.addProperty("led_flash_time", lowerDuration);
@@ -282,13 +293,24 @@ public class BatteryTestParamsActivity extends BaseActivity<ActivityBatteryTestP
         }
     }
 
-    public void onSelectLEDColor(View view) {
+    public void onSelectLEDHigherColor(View view) {
         if (isWindowLocked()) return;
         BottomDialog dialog = new BottomDialog();
-        dialog.setDatas(mValues, mSelected);
+        dialog.setDatas(mValues, mHigherSelected);
         dialog.setListener(value -> {
-            mSelected = value;
-            mBind.tvLedColor.setText(mValues.get(value));
+            mHigherSelected = value;
+            mBind.tvHigherLedColor.setText(mValues.get(value));
+        });
+        dialog.show(getSupportFragmentManager());
+    }
+
+    public void onSelectLEDLowerColor(View view) {
+        if (isWindowLocked()) return;
+        BottomDialog dialog = new BottomDialog();
+        dialog.setDatas(mValues, mLowerSelected);
+        dialog.setListener(value -> {
+            mLowerSelected = value;
+            mBind.tvLowerLedColor.setText(mValues.get(value));
         });
         dialog.show(getSupportFragmentManager());
     }

@@ -96,20 +96,32 @@
         android:visibility="gone">
 
         <TextView
-            android:id="@+id/tv_led_color"
+            android:id="@+id/higher_voltage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="When battery voltage>=threshold"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_higher_led_color"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:background="@drawable/shape_radius_blue_btn_bg"
             android:clickable="true"
             android:gravity="center"
             android:minWidth="100dp"
             android:minHeight="30dp"
-            android:onClick="onSelectLEDColor"
+            android:onClick="onSelectLEDHigherColor"
             android:text="Red"
             android:textColor="@color/white_ffffff"
             android:textSize="15sp"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/higher_voltage" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -118,19 +130,9 @@
             android:text="LED color"
             android:textColor="@color/black_333333"
             android:textSize="15sp"
-            app:layout_constraintBaseline_toBaselineOf="@id/tv_led_color"
+            app:layout_constraintBaseline_toBaselineOf="@id/tv_higher_led_color"
             app:layout_constraintLeft_toLeftOf="parent" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginTop="10dp"
-            android:text="When battery voltage>=threshold"
-            android:textColor="@color/black_333333"
-            android:textSize="15sp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_led_color" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -147,7 +149,7 @@
             android:id="@+id/et_higher_interval"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="10dp"
             android:hint="0-100"
             android:inputType="number"
             android:maxLength="3"
@@ -161,7 +163,7 @@
             app:layout_constraintHorizontal_bias="0.65"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_led_color"
+            app:layout_constraintTop_toBottomOf="@id/tv_higher_led_color"
             app:layout_constraintWidth_percent="0.5" />
 
         <TextView
@@ -219,6 +221,7 @@
             app:layout_constraintRight_toRightOf="parent" />
 
         <TextView
+            android:id="@+id/lower_voltage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -228,6 +231,33 @@
             android:textSize="15sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/et_higher_duration" />
+
+        <TextView
+            android:id="@+id/tv_lower_led_color"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/shape_radius_blue_btn_bg"
+            android:clickable="true"
+            android:gravity="center"
+            android:minWidth="100dp"
+            android:minHeight="30dp"
+            android:onClick="onSelectLEDLowerColor"
+            android:text="Red"
+            android:textColor="@color/white_ffffff"
+            android:textSize="15sp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lower_voltage" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="LED color"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/tv_lower_led_color"
+            app:layout_constraintLeft_toLeftOf="parent" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -244,7 +274,7 @@
             android:id="@+id/et_lower_interval"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="10dp"
             android:hint="0-100"
             android:inputType="number"
             android:maxLength="3"
@@ -258,7 +288,7 @@
             app:layout_constraintHorizontal_bias="0.65"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/et_higher_duration"
+            app:layout_constraintTop_toBottomOf="@id/tv_lower_led_color"
             app:layout_constraintWidth_percent="0.5" />
 
         <TextView

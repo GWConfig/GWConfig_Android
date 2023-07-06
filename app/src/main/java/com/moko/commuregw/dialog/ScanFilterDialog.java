@@ -14,7 +14,6 @@ public class ScanFilterDialog extends MokoBaseDialog<DialogScanFilterBinding> {
     public static final String TAG = ScanFilterDialog.class.getSimpleName();
 
     private int filterRssi;
-    private String filterName;
     private String filterMac;
 
     @Override
@@ -24,12 +23,14 @@ public class ScanFilterDialog extends MokoBaseDialog<DialogScanFilterBinding> {
 
     @Override
     protected void onCreateView() {
-        mBind.tvRssi.setText(String.format("%sdBm", filterRssi + ""));
-        mBind.sbRssi.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mBind.tvRssiFilterValue.setText(String.format("%sdBm", filterRssi + ""));
+        mBind.tvRssiFilterTips.setText(getString(R.string.rssi_filter, filterRssi));
+        mBind.sbRssiFilter.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int rssi = (progress * -1);
-                mBind.tvRssi.setText(String.format("%sdBm", rssi + ""));
+                int rssi = progress - 127;
+                mBind.tvRssiFilterValue.setText(String.format("%sdBm", rssi + ""));
+                mBind.tvRssiFilterTips.setText(getString(R.string.rssi_filter, filterRssi));
                 filterRssi = rssi;
             }
 
@@ -43,21 +44,14 @@ public class ScanFilterDialog extends MokoBaseDialog<DialogScanFilterBinding> {
 
             }
         });
-        mBind.sbRssi.setProgress(Math.abs(filterRssi));
-        if (!TextUtils.isEmpty(filterName)) {
-            mBind.etFilterName.setText(filterName);
-            mBind.etFilterName.setSelection(filterName.length());
-        }
+        mBind.sbRssiFilter.setProgress(Math.abs(filterRssi));
         if (!TextUtils.isEmpty(filterMac)) {
             mBind.etFilterMac.setText(filterMac);
             mBind.etFilterMac.setSelection(filterMac.length());
         }
-        mBind.ivFilterNameDelete.setOnClickListener(v -> mBind.etFilterName.setText(""));
         mBind.ivFilterMacDelete.setOnClickListener(v -> mBind.etFilterMac.setText(""));
         mBind.tvDone.setOnClickListener(v -> {
-            listener.onDone(mBind.etFilterName.getText().toString(),
-                    mBind.etFilterMac.getText().toString(),
-                    filterRssi);
+            listener.onDone(mBind.etFilterMac.getText().toString(), filterRssi);
             dismiss();
         });
     }
@@ -98,10 +92,6 @@ public class ScanFilterDialog extends MokoBaseDialog<DialogScanFilterBinding> {
         this.listener = listener;
     }
 
-    public void setFilterName(String filterName) {
-        this.filterName = filterName;
-    }
-
     public void setFilterMac(String filterMac) {
         this.filterMac = filterMac;
     }
@@ -111,6 +101,6 @@ public class ScanFilterDialog extends MokoBaseDialog<DialogScanFilterBinding> {
     }
 
     public interface OnScanFilterListener {
-        void onDone(String filterName, String filterMac, int filterRssi);
+        void onDone(String filterMac, int filterRssi);
     }
 }

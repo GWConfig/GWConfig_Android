@@ -31,6 +31,9 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
+            android:name=".activity.ScanActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name="com.moko.commuregw.activity.MqttSettingsActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|locale|layoutDirection"
             android:hardwareAccelerated="true"
@@ -299,6 +302,11 @@
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".activity.AdvParamsActivity"
+            android:configChanges="orientation|keyboard|keyboardHidden|locale|layoutDirection"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".activity.BatchOTAGatewayActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|locale|layoutDirection"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />

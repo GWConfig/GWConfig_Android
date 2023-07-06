@@ -6,10 +6,12 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 
 import com.elvishew.xlog.XLog;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -28,6 +30,7 @@ import com.moko.support.commuregw.MQTTSupport;
 import com.moko.support.commuregw.entity.BatchDFUBeacon;
 import com.moko.support.commuregw.entity.BatchUpdateKey;
 import com.moko.support.commuregw.entity.MsgConfigResult;
+import com.moko.support.commuregw.entity.MsgNotify;
 import com.moko.support.commuregw.event.DeviceOnlineEvent;
 import com.moko.support.commuregw.event.MQTTMessageArrivedEvent;
 
@@ -55,6 +58,8 @@ public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyB
     private Handler mHandler;
     private ArrayList<BatchDFUBeacon.BleDevice> mBeaconList;
     private BatchBeaconAdapter mAdapter;
+
+    private boolean mIsStart;
 
     @Override
     protected void onCreate() {
@@ -103,8 +108,50 @@ public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyB
             if (result.result_code == 0) {
                 ToastUtils.showToast(this, "setup succeed");
             } else {
+                mIsStart = false;
                 ToastUtils.showToast(this, "setup failed");
             }
+        }
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_ENCRYPTION_KEY_RESULT) {
+            Type type = new TypeToken<MsgNotify<JsonObject>>() {
+            }.getType();
+            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
+            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                return;
+            String mac = result.data.get("mac").getAsString();
+            int result_code = result.data.get("result_code").getAsInt();
+            for (int i = 0, size = mBeaconList.size(); i < size; i++) {
+                BatchDFUBeacon.BleDevice bleDevice = mBeaconList.get(i);
+                if (mac.equalsIgnoreCase(bleDevice.mac)) {
+                    bleDevice.status = result_code + 2;
+                    mAdapter.replaceData(mBeaconList);
+                    break;
+                }
+            }
+        }
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_ENCRYPTION_KEY_RESULT_FINALE) {
+            Type type = new TypeToken<MsgNotify<JsonObject>>() {
+            }.getType();
+            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
+            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                return;
+            mIsStart = false;
+            dismissLoadingMessageDialog();
+            JsonArray array = result.data.get("fail_dev").getAsJsonArray();
+            if (!array.isEmpty()) {
+                for (int i = 0, size = mBeaconList.size(); i < size; i++) {
+                    BatchDFUBeacon.BleDevice bleDevice = mBeaconList.get(i);
+                    if (bleDevice.status != 2) {
+                        bleDevice.status = 3;
+                    }
+                }
+                mAdapter.replaceData(mBeaconList);
+                ToastUtils.showToast(this, "Beacon DFU failed!");
+                return;
+            }
+            ToastUtils.showToast(this, "Beacon DFU successfully!");
+            setResult(RESULT_OK);
+            finish();
         }
     }
 
@@ -113,12 +160,31 @@ public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyB
         super.offline(event, mMokoDevice.mac);
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            return isFinish();
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private boolean isFinish() {
+        if (mIsStart) {
+            ToastUtils.showToast(this, " Please do not leave this page until the batch upgrade is complete!");
+            return false;
+        }
+        return true;
+    }
+
     public void onBack(View view) {
-        finish();
+        if (isFinish()) {
+            finish();
+        }
     }
 
     public void onSelectBeaconList(View view) {
         if (isWindowLocked()) return;
+        if (mIsStart) return;
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");//设置类型，我这里是任意类型，任意后缀的可以这样写。
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -206,21 +272,27 @@ public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyB
             ToastUtils.showToast(this, R.string.encryption_key_error);
             return;
         }
+        if (mIsStart) return;
+        if (!MQTTSupport.getInstance().isConnected()) {
+            ToastUtils.showToast(this, R.string.network_error);
+            return;
+        }
+        if (mBeaconList.isEmpty()) {
+            ToastUtils.showToast(this, R.string.cannot_be_empty);
+            return;
+        }
         for (BatchDFUBeacon.BleDevice device : mBeaconList) {
             if (device.mac.length() != 12) {
                 ToastUtils.showToast(this, R.string.beacon_list_mac_error);
                 return;
             }
         }
-        if (!MQTTSupport.getInstance().isConnected()) {
-            ToastUtils.showToast(this, R.string.network_error);
-            return;
-        }
+        mIsStart = true;
         XLog.i("批量升级");
         mHandler.postDelayed(() -> {
             dismissLoadingProgressDialog();
             ToastUtils.showToast(this, "setup failed");
-        }, 50 * 1000);
+        }, 1000 * 1000);
         showLoadingProgressDialog();
         setBatchUpdateKey();
     }

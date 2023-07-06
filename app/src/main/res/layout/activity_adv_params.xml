@@ -72,9 +72,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
-            android:hint="100-65535, unit: ms"
+            android:layout_marginRight="20dp"
+            android:hint="1-100"
             android:inputType="number"
-            android:maxLength="5"
+            android:maxLength="3"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:singleLine="true"
@@ -84,9 +85,20 @@
             android:textSize="15sp"
             app:layout_constraintHorizontal_bias="1"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/config_adv_interval"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.7" />
+            app:layout_constraintWidth_percent="0.5" />
+
+        <TextView
+            android:id="@+id/config_adv_interval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="x 100ms"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/et_config_adv_interval"
+            app:layout_constraintRight_toRightOf="parent" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -104,7 +116,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:hint="1-65535, unit: s"
+            android:layout_marginRight="30dp"
+            android:hint="1-65535"
             android:inputType="number"
             android:maxLength="5"
             android:paddingLeft="5dp"
@@ -116,9 +129,20 @@
             android:textSize="15sp"
             app:layout_constraintHorizontal_bias="1"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/config_adv_duration"
             app:layout_constraintTop_toBottomOf="@id/et_config_adv_interval"
-            app:layout_constraintWidth_percent="0.7" />
+            app:layout_constraintWidth_percent="0.5" />
+
+        <TextView
+            android:id="@+id/config_adv_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="second"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/et_config_adv_duration"
+            app:layout_constraintRight_toRightOf="parent" />
 
         <TextView
             android:id="@+id/tv_config_tx_power"
@@ -173,9 +197,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:hint="100-65535, unit: ms"
+            android:layout_marginRight="20dp"
+            android:hint="1-100"
             android:inputType="number"
-            android:maxLength="5"
+            android:maxLength="3"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:singleLine="true"
@@ -185,9 +210,20 @@
             android:textSize="15sp"
             app:layout_constraintHorizontal_bias="1"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/normal_adv_interval"
             app:layout_constraintTop_toBottomOf="@id/tv_config_tx_power"
-            app:layout_constraintWidth_percent="0.7" />
+            app:layout_constraintWidth_percent="0.5" />
+
+        <TextView
+            android:id="@+id/normal_adv_interval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="x 100ms"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/et_normal_adv_interval"
+            app:layout_constraintRight_toRightOf="parent" />
 
         <TextView
             android:id="@+id/tv_normal_tx_power"
@@ -242,9 +278,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:hint="100-65535, unit: ms"
+            android:layout_marginRight="20dp"
+            android:hint="1-100"
             android:inputType="number"
-            android:maxLength="5"
+            android:maxLength="3"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:singleLine="true"
@@ -254,9 +291,20 @@
             android:textSize="15sp"
             app:layout_constraintHorizontal_bias="1"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/trigger_adv_interval"
             app:layout_constraintTop_toBottomOf="@id/tv_normal_tx_power"
-            app:layout_constraintWidth_percent="0.7" />
+            app:layout_constraintWidth_percent="0.5" />
+
+        <TextView
+            android:id="@+id/trigger_adv_interval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="x 100ms"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/et_trigger_adv_interval"
+            app:layout_constraintRight_toRightOf="parent" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -274,7 +322,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:hint="1-65535, unit: s"
+            android:layout_marginRight="30dp"
+            android:hint="1-65535"
             android:inputType="number"
             android:maxLength="5"
             android:paddingLeft="5dp"
@@ -286,9 +335,20 @@
             android:textSize="15sp"
             app:layout_constraintHorizontal_bias="1"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/trigger_adv_duration"
             app:layout_constraintTop_toBottomOf="@id/et_trigger_adv_interval"
-            app:layout_constraintWidth_percent="0.7" />
+            app:layout_constraintWidth_percent="0.5" />
+
+        <TextView
+            android:id="@+id/trigger_adv_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="second"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/et_trigger_adv_duration"
+            app:layout_constraintRight_toRightOf="parent" />
 
         <TextView
             android:id="@+id/tv_trigger_tx_power"

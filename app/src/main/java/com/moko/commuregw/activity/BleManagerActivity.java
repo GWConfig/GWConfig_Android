@@ -248,30 +248,23 @@ public class BleManagerActivity extends BaseActivity<ActivityBleDevicesBinding> 
     }
 
     private boolean refreshFlag = true;
-    public String filterName;
     public String filterMac;
     public int filterRssi = -127;
 
     private void updateDevices() {
         mBleDevices.clear();
-        if (!TextUtils.isEmpty(filterName)
-                || !TextUtils.isEmpty(filterMac)
-                || filterRssi != -127) {
+        if (!TextUtils.isEmpty(filterMac) || filterRssi != -127) {
             ArrayList<BleDevice> bleDevices = new ArrayList<>(mBleDevicesMap.values());
             Iterator<BleDevice> iterator = bleDevices.iterator();
             while (iterator.hasNext()) {
                 BleDevice bleDevice = iterator.next();
                 if (bleDevice.rssi > filterRssi) {
-                    if (TextUtils.isEmpty(filterName) && TextUtils.isEmpty(filterMac)) {
+                    if (TextUtils.isEmpty(filterMac)) {
                         continue;
                     } else {
                         if (!TextUtils.isEmpty(filterMac) && TextUtils.isEmpty(bleDevice.mac)) {
                             iterator.remove();
                         } else if (!TextUtils.isEmpty(filterMac) && bleDevice.mac.toLowerCase().replaceAll(":", "").contains(filterMac.toLowerCase())) {
-                            continue;
-                        } else if (!TextUtils.isEmpty(filterName) && TextUtils.isEmpty(bleDevice.adv_name)) {
-                            iterator.remove();
-                        } else if (!TextUtils.isEmpty(filterName) && bleDevice.adv_name.toLowerCase().contains(filterName.toLowerCase())) {
                             continue;
                         } else {
                             iterator.remove();
@@ -300,23 +293,15 @@ public class BleManagerActivity extends BaseActivity<ActivityBleDevicesBinding> 
         if (isWindowLocked())
             return;
         ScanFilterDialog scanFilterDialog = new ScanFilterDialog();
-        scanFilterDialog.setFilterName(filterName);
         scanFilterDialog.setFilterMac(filterMac);
         scanFilterDialog.setFilterRssi(filterRssi);
-        scanFilterDialog.setOnScanFilterListener((filterName, filterMac, filterRssi) -> {
-            BleManagerActivity.this.filterName = filterName;
+        scanFilterDialog.setOnScanFilterListener((filterMac, filterRssi) -> {
             BleManagerActivity.this.filterMac = filterMac;
             BleManagerActivity.this.filterRssi = filterRssi;
-            if (!TextUtils.isEmpty(filterName)
-                    || !TextUtils.isEmpty(filterMac)
-                    || filterRssi != -127) {
+            if (!TextUtils.isEmpty(filterMac) || filterRssi != -127) {
                 mBind.rlFilter.setVisibility(View.VISIBLE);
                 mBind.tvEditFilter.setVisibility(View.GONE);
                 StringBuilder stringBuilder = new StringBuilder();
-                if (!TextUtils.isEmpty(filterName)) {
-                    stringBuilder.append(filterName);
-                    stringBuilder.append(";");
-                }
                 if (!TextUtils.isEmpty(filterMac)) {
                     stringBuilder.append(filterMac);
                     stringBuilder.append(";");
@@ -341,7 +326,6 @@ public class BleManagerActivity extends BaseActivity<ActivityBleDevicesBinding> 
             return;
         mBind.rlFilter.setVisibility(View.GONE);
         mBind.tvEditFilter.setVisibility(View.VISIBLE);
-        filterName = "";
         filterMac = "";
         filterRssi = -127;
         mBleDevicesMap.clear();

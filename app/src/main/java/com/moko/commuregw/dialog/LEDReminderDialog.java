@@ -7,8 +7,10 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
+import com.moko.commuregw.AppConstants;
 import com.moko.commuregw.R;
 import com.moko.commuregw.databinding.DialogModifyLedReminderBinding;
+import com.moko.commuregw.utils.SPUtiles;
 import com.moko.commuregw.utils.ToastUtils;
 
 public class LEDReminderDialog extends MokoBaseDialog<DialogModifyLedReminderBinding> {
@@ -21,6 +23,10 @@ public class LEDReminderDialog extends MokoBaseDialog<DialogModifyLedReminderBin
 
     @Override
     protected void onCreateView() {
+        String blinkInterval = SPUtiles.getStringValue(getContext(), AppConstants.SP_KEY_LED_BLINK_INTERVAL, "");
+        String blinkDuration = SPUtiles.getStringValue(getContext(), AppConstants.SP_KEY_LED_BLINK_DURATION, "");
+        mBind.etInterval.setText(blinkInterval);
+        mBind.etDuration.setText(blinkDuration);
         mBind.tvCancel.setOnClickListener(v -> {
             dismiss();
         });
@@ -33,7 +39,7 @@ public class LEDReminderDialog extends MokoBaseDialog<DialogModifyLedReminderBin
                 return;
             }
             int interval = Integer.parseInt(intervalStr);
-            if (interval > 10000) {
+            if (interval > 100) {
                 ToastUtils.showToast(getContext(), "Para Error");
                 return;
             }
@@ -50,6 +56,8 @@ public class LEDReminderDialog extends MokoBaseDialog<DialogModifyLedReminderBin
                 color = "blue";
             if (mBind.rbGreen.isChecked())
                 color = "green";
+            SPUtiles.setStringValue(getContext(), AppConstants.SP_KEY_LED_BLINK_INTERVAL, String.valueOf(interval));
+            SPUtiles.setStringValue(getContext(), AppConstants.SP_KEY_LED_BLINK_DURATION, String.valueOf(duration));
             if (dialogClickListener != null)
                 dialogClickListener.onEnsureClicked(color, interval, duration);
         });

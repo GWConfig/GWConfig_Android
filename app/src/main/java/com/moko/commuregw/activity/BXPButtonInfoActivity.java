@@ -624,7 +624,7 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("mac", mBXPButtonInfo.mac);
         jsonObject.addProperty("led_color", color);
-        jsonObject.addProperty("flash_interval", interval);
+        jsonObject.addProperty("flash_interval", interval * 100);
         jsonObject.addProperty("flash_time", duration);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
         try {
@@ -638,7 +638,7 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
         int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_BUZZER_REMINDER;
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("mac", mBXPButtonInfo.mac);
-        jsonObject.addProperty("ring_interval", interval);
+        jsonObject.addProperty("ring_interval", interval * 100);
         jsonObject.addProperty("ring_time", duration);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
         try {
