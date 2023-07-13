@@ -5,5 +5,5 @@ import java.util.List;
 public class BatchUpdateKey {
 
     public String key;
-    public List<BatchDFUBeacon.BleDevice> ble_dev;
+    public List<BleTag> ble_dev;
 }

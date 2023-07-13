@@ -7,7 +7,10 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.elvishew.xlog.XLog;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -23,6 +26,7 @@ import com.moko.commuregw.utils.ToastUtils;
 import com.moko.support.commuregw.MQTTConstants;
 import com.moko.support.commuregw.MQTTSupport;
 import com.moko.support.commuregw.entity.BatchDFUBeacon;
+import com.moko.support.commuregw.entity.BleTag;
 import com.moko.support.commuregw.entity.MsgConfigResult;
 import com.moko.support.commuregw.entity.MsgNotify;
 import com.moko.support.commuregw.event.DeviceOnlineEvent;
@@ -173,8 +177,8 @@ public class BeaconDFUActivity extends BaseActivity<ActivityBeaconDfuBinding> {
 
 
     private void setDFU(String firmwareFileUrlStr, String initDataFileUrlStr) {
-        ArrayList<BatchDFUBeacon.BleDevice> mBeaconList = new ArrayList<>();
-        BatchDFUBeacon.BleDevice bleDevice = new BatchDFUBeacon.BleDevice();
+        ArrayList<BleTag> mBeaconList = new ArrayList<>();
+        BleTag bleDevice = new BleTag();
         bleDevice.mac = mBeaconMac;
         bleDevice.passwd = "";
         mBeaconList.add(bleDevice);
@@ -183,10 +187,19 @@ public class BeaconDFUActivity extends BaseActivity<ActivityBeaconDfuBinding> {
         batchDFUBeacon.firmware_url = firmwareFileUrlStr;
         batchDFUBeacon.init_data_url = initDataFileUrlStr;
         batchDFUBeacon.ble_dev = mBeaconList;
-        JsonElement jsonElement = new Gson().toJsonTree(batchDFUBeacon);
-        JsonObject jsonObject = (JsonObject) jsonElement;
-        // property removal
-        jsonObject.remove("property");
+        Gson gson = new GsonBuilder().setExclusionStrategies(new ExclusionStrategy() {
+            @Override
+            public boolean shouldSkipField(FieldAttributes f) {
+                return f.getName().contains("status");
+            }
+
+            @Override
+            public boolean shouldSkipClass(Class<?> clazz) {
+                return false;
+            }
+        }).create();
+        String jsonStr = gson.toJson(batchDFUBeacon);
+        JsonObject jsonObject = gson.fromJson(jsonStr, JsonObject.class);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
         try {
             MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);

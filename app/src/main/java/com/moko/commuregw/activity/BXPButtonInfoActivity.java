@@ -7,7 +7,10 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -29,8 +32,8 @@ import com.moko.commuregw.utils.ToastUtils;
 import com.moko.support.commuregw.MQTTConstants;
 import com.moko.support.commuregw.MQTTSupport;
 import com.moko.support.commuregw.entity.BXPButtonInfo;
-import com.moko.support.commuregw.entity.BatchDFUBeacon;
 import com.moko.support.commuregw.entity.BatchUpdateKey;
+import com.moko.support.commuregw.entity.BleTag;
 import com.moko.support.commuregw.entity.MsgNotify;
 import com.moko.support.commuregw.event.DeviceModifyNameEvent;
 import com.moko.support.commuregw.event.DeviceOnlineEvent;
@@ -649,8 +652,8 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
     }
 
     private void setBXPButtonEncryptionKey(String key) {
-        ArrayList<BatchDFUBeacon.BleDevice> mBeaconList = new ArrayList<>();
-        BatchDFUBeacon.BleDevice bleDevice = new BatchDFUBeacon.BleDevice();
+        ArrayList<BleTag> mBeaconList = new ArrayList<>();
+        BleTag bleDevice = new BleTag();
         bleDevice.mac = mBXPButtonInfo.mac;
         bleDevice.passwd = "";
         mBeaconList.add(bleDevice);
@@ -658,10 +661,19 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
         BatchUpdateKey batchDFUBeacon = new BatchUpdateKey();
         batchDFUBeacon.key = key;
         batchDFUBeacon.ble_dev = mBeaconList;
-        JsonElement jsonElement = new Gson().toJsonTree(batchDFUBeacon);
-        JsonObject jsonObject = (JsonObject) jsonElement;
-        // property removal
-        jsonObject.remove("property");
+        Gson gson = new GsonBuilder().setExclusionStrategies(new ExclusionStrategy() {
+            @Override
+            public boolean shouldSkipField(FieldAttributes f) {
+                return f.getName().contains("status");
+            }
+
+            @Override
+            public boolean shouldSkipClass(Class<?> clazz) {
+                return false;
+            }
+        }).create();
+        String jsonStr = gson.toJson(batchDFUBeacon);
+        JsonObject jsonObject = gson.fromJson(jsonStr, JsonObject.class);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
         try {
             MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);

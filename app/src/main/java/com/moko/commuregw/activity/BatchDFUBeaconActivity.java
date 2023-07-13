@@ -11,7 +11,10 @@ import android.view.KeyEvent;
 import android.view.View;
 
 import com.elvishew.xlog.XLog;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -29,6 +32,7 @@ import com.moko.commuregw.utils.ToastUtils;
 import com.moko.support.commuregw.MQTTConstants;
 import com.moko.support.commuregw.MQTTSupport;
 import com.moko.support.commuregw.entity.BatchDFUBeacon;
+import com.moko.support.commuregw.entity.BleTag;
 import com.moko.support.commuregw.entity.MsgConfigResult;
 import com.moko.support.commuregw.entity.MsgNotify;
 import com.moko.support.commuregw.event.DeviceOnlineEvent;
@@ -57,7 +61,7 @@ public class BatchDFUBeaconActivity extends BaseActivity<ActivityBatchDfuBeaconB
     private String mAppTopic;
 
     private Handler mHandler;
-    private ArrayList<BatchDFUBeacon.BleDevice> mBeaconList;
+    private ArrayList<BleTag> mBeaconList;
     private BatchBeaconAdapter mAdapter;
 
     private boolean mIsStart;
@@ -120,6 +124,11 @@ public class BatchDFUBeaconActivity extends BaseActivity<ActivityBatchDfuBeaconB
             } else {
                 mIsStart = false;
                 ToastUtils.showToast(this, "setup failed");
+                for (int i = 0, size = mBeaconList.size(); i < size; i++) {
+                    BleTag bleDevice = mBeaconList.get(i);
+                    bleDevice.status = 3;
+                }
+                mAdapter.replaceData(mBeaconList);
             }
         }
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_DFU_STATUS) {
@@ -131,7 +140,7 @@ public class BatchDFUBeaconActivity extends BaseActivity<ActivityBatchDfuBeaconB
             String mac = result.data.get("mac").getAsString();
             int status = result.data.get("status").getAsInt();
             for (int i = 0, size = mBeaconList.size(); i < size; i++) {
-                BatchDFUBeacon.BleDevice bleDevice = mBeaconList.get(i);
+                BleTag bleDevice = mBeaconList.get(i);
                 if (mac.equalsIgnoreCase(bleDevice.mac)) {
                     bleDevice.status = status + 1;
                     mAdapter.replaceData(mBeaconList);
@@ -155,7 +164,7 @@ public class BatchDFUBeaconActivity extends BaseActivity<ActivityBatchDfuBeaconB
             JsonArray array = result.data.get("fail_dev").getAsJsonArray();
             if (!array.isEmpty()) {
                 for (int i = 0, size = mBeaconList.size(); i < size; i++) {
-                    BatchDFUBeacon.BleDevice bleDevice = mBeaconList.get(i);
+                    BleTag bleDevice = mBeaconList.get(i);
                     if (bleDevice.status != 2) {
                         bleDevice.status = 3;
                     }
@@ -178,7 +187,8 @@ public class BatchDFUBeaconActivity extends BaseActivity<ActivityBatchDfuBeaconB
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            return isFinish();
+            if (!isFinish())
+                return false;
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -255,7 +265,7 @@ public class BatchDFUBeaconActivity extends BaseActivity<ActivityBatchDfuBeaconB
                                 password = cellPassword.getStringCellValue();
                                 if (TextUtils.isEmpty(mac))
                                     break;
-                                BatchDFUBeacon.BleDevice bleDevice = new BatchDFUBeacon.BleDevice();
+                                BleTag bleDevice = new BleTag();
                                 bleDevice.mac = mac;
                                 bleDevice.passwd = password;
                                 mBeaconList.add(bleDevice);
@@ -301,7 +311,7 @@ public class BatchDFUBeaconActivity extends BaseActivity<ActivityBatchDfuBeaconB
             ToastUtils.showToast(this, R.string.cannot_be_empty);
             return;
         }
-        for (BatchDFUBeacon.BleDevice device : mBeaconList) {
+        for (BleTag device : mBeaconList) {
             if (device.mac.length() != 12) {
                 ToastUtils.showToast(this, R.string.beacon_list_mac_error);
                 return;
@@ -312,6 +322,12 @@ public class BatchDFUBeaconActivity extends BaseActivity<ActivityBatchDfuBeaconB
         mHandler.postDelayed(() -> {
             dismissLoadingProgressDialog();
             ToastUtils.showToast(this, "setup failed");
+            mIsStart = false;
+            for (int i = 0, size = mBeaconList.size(); i < size; i++) {
+                BleTag bleDevice = mBeaconList.get(i);
+                bleDevice.status = 3;
+            }
+            mAdapter.replaceData(mBeaconList);
         }, 1000 * 1000);
         showLoadingProgressDialog();
         setBatchDFUBeacon();
@@ -323,10 +339,19 @@ public class BatchDFUBeaconActivity extends BaseActivity<ActivityBatchDfuBeaconB
         batchDFUBeacon.firmware_url = mBind.etFirmwareFileUrl.getText().toString();
         batchDFUBeacon.init_data_url = mBind.etInitDataFileUrl.getText().toString();
         batchDFUBeacon.ble_dev = mBeaconList;
-        JsonElement jsonElement = new Gson().toJsonTree(batchDFUBeacon);
-        JsonObject jsonObject = (JsonObject) jsonElement;
-        // property removal
-        jsonObject.remove("property");
+        Gson gson = new GsonBuilder().setExclusionStrategies(new ExclusionStrategy() {
+            @Override
+            public boolean shouldSkipField(FieldAttributes f) {
+                return f.getName().contains("status");
+            }
+
+            @Override
+            public boolean shouldSkipClass(Class<?> clazz) {
+                return false;
+            }
+        }).create();
+        String jsonStr = gson.toJson(batchDFUBeacon);
+        JsonObject jsonObject = gson.fromJson(jsonStr, JsonObject.class);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
         try {
             MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);

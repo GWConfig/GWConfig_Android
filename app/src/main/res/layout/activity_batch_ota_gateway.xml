@@ -80,12 +80,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Gateway topic"
+            android:text="Gateway subscribe topic"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
 
         <EditText
-            android:id="@+id/et_gateway_topic"
+            android:id="@+id/et_gateway_subscribe_topic"
             android:layout_width="0dp"
             android:layout_height="45dp"
             android:layout_marginLeft="12dp"
@@ -96,6 +96,36 @@
             android:paddingRight="5dp"
             android:singleLine="true"
             android:text="/gateway/provision/#"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gateway publish topic"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp" />
+
+        <EditText
+            android:id="@+id/et_gateway_publish_topic"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="12dp"
+            android:layout_weight="1.0"
+            android:hint="1-256 Characters"
+            android:maxLength="256"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:singleLine="true"
+            android:text="/gateway/data/#"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
     </LinearLayout>
@@ -145,11 +175,11 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:clickable="true"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp"
             android:onClick="onScanGatewayQrcode"
+            android:paddingLeft="12dp"
+            android:paddingTop="8dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="8dp"
             android:src="@drawable/ic_scan_grey" />
     </LinearLayout>
 

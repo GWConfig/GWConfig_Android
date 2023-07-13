@@ -3,15 +3,15 @@ package com.moko.commuregw.adapter;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.moko.commuregw.R;
-import com.moko.support.commuregw.entity.BatchDFUBeacon;
+import com.moko.support.commuregw.entity.BleTag;
 
-public class BatchBeaconAdapter extends BaseQuickAdapter<BatchDFUBeacon.BleDevice, BaseViewHolder> {
+public class BatchBeaconAdapter extends BaseQuickAdapter<BleTag, BaseViewHolder> {
     public BatchBeaconAdapter() {
         super(R.layout.item_beacon);
     }
 
     @Override
-    protected void convert(BaseViewHolder helper, BatchDFUBeacon.BleDevice item) {
+    protected void convert(BaseViewHolder helper, BleTag item) {
         helper.setText(R.id.tv_mac, item.mac);
         helper.setText(R.id.tv_pwd, item.passwd);
         if (item.status == 0)

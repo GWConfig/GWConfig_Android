@@ -149,7 +149,7 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
 //                }, 30 * 1000);
                 mGatewayMac = mGatewayList.get(mIndex).mac;
                 if (mGatewayTopic.contains("/gateway/provision/#"))
-                    mAppTopic = mGatewayList.get(mIndex).topic;
+                    mAppTopic = mGatewayList.get(mIndex).subscribeTopic;
                 else
                     mAppTopic = mGatewayTopic;
                 setOTA();
@@ -194,7 +194,7 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
 //                    }, 30 * 1000);
                     mGatewayMac = mGatewayList.get(mIndex).mac;
                     if (mGatewayTopic.contains("/gateway/provision/#"))
-                        mAppTopic = mGatewayList.get(mIndex).topic;
+                        mAppTopic = mGatewayList.get(mIndex).subscribeTopic;
                     else
                         mAppTopic = mGatewayTopic;
                     setOTA();
@@ -219,7 +219,7 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
             if (mIndex < mGatewayList.size()) {
                 mGatewayMac = mGatewayList.get(mIndex).mac;
                 if (mGatewayTopic.contains("/gateway/provision/#"))
-                    mAppTopic = mGatewayList.get(mIndex).topic;
+                    mAppTopic = mGatewayList.get(mIndex).subscribeTopic;
                 else
                     mAppTopic = mGatewayTopic;
                 setOTA();
@@ -234,7 +234,8 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            return isFinish();
+            if (!isFinish())
+                return false;
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -325,7 +326,8 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
                                 }
                                 BatchGateway gateway = new BatchGateway();
                                 gateway.mac = mac;
-                                gateway.topic = String.format("/gateway/provision/%s", mac);
+                                gateway.subscribeTopic = String.format("/gateway/provision/%s", mac);
+                                gateway.publishTopic = String.format("/gateway/data/%s", mac);
                                 mGatewayList.add(gateway);
                             }
                             runOnUiThread(() -> {
@@ -364,7 +366,8 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
                 }
                 BatchGateway gateway = new BatchGateway();
                 gateway.mac = contents;
-                gateway.topic = String.format("/gateway/provision/%s", contents);
+                gateway.subscribeTopic = String.format("/gateway/provision/%s", contents);
+                gateway.publishTopic = String.format("/gateway/data/%s", contents);
                 mGatewayList.add(gateway);
                 mAdapter.replaceData(mGatewayList);
             }
@@ -384,12 +387,13 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
     public void onSave(View view) {
         if (isWindowLocked()) return;
         String firmwareFileUrlStr = mBind.etFirmwareFileUrl.getText().toString();
-        String gatewayTopicStr = mBind.etGatewayTopic.getText().toString();
+        String gatewaySubscribeTopicStr = mBind.etGatewaySubscribeTopic.getText().toString();
+        String gatewayPublishTopicStr = mBind.etGatewayPublishTopic.getText().toString();
         if (TextUtils.isEmpty(firmwareFileUrlStr)) {
             ToastUtils.showToast(this, R.string.mqtt_verify_firmware_file_url);
             return;
         }
-        if (TextUtils.isEmpty(gatewayTopicStr)) {
+        if (TextUtils.isEmpty(gatewayPublishTopicStr) || TextUtils.isEmpty(gatewaySubscribeTopicStr)) {
             ToastUtils.showToast(this, R.string.mqtt_verify_gateway_topic);
             return;
         }
@@ -405,7 +409,7 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
         mIsStart = true;
         mIndex = 0;
         mFirmwareFileUrl = firmwareFileUrlStr;
-        mGatewayTopic = gatewayTopicStr;
+        mGatewayTopic = gatewaySubscribeTopicStr;
         XLog.i("批量升级");
 //        mHandler.postDelayed(() -> {
 //            mGatewayList.get(mIndex).status = 4;
@@ -426,10 +430,27 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
 //        showLoadingProgressDialog();
         mGatewayMac = mGatewayList.get(mIndex).mac;
         if (mGatewayTopic.contains("/gateway/provision/#"))
-            mAppTopic = mGatewayList.get(mIndex).topic;
+            mAppTopic = mGatewayList.get(mIndex).subscribeTopic;
         else
             mAppTopic = mGatewayTopic;
-        setOTA();
+        if (gatewayPublishTopicStr.contains("/gateway/data/#")) {
+            for (BatchGateway gateway : mGatewayList) {
+                try {
+                    MQTTSupport.getInstance().subscribe(gateway.publishTopic, appMqttConfig.qos);
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            try {
+                MQTTSupport.getInstance().subscribe(gatewaySubscribeTopicStr, appMqttConfig.qos);
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
+        }
+        mHandler.postDelayed(() -> {
+            setOTA();
+        }, 3000);
     }
 
     private void setOTA() {
@@ -440,7 +461,7 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
             if (mIndex < mGatewayList.size()) {
                 mGatewayMac = mGatewayList.get(mIndex).mac;
                 if (mGatewayTopic.contains("/gateway/provision/#"))
-                    mAppTopic = mGatewayList.get(mIndex).topic;
+                    mAppTopic = mGatewayList.get(mIndex).subscribeTopic;
                 else
                     mAppTopic = mGatewayTopic;
                 setOTA();
