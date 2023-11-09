@@ -28,6 +28,7 @@ public class MQTTConstants {
     public static final int CONFIG_MSG_ID_DECRYPTION_KEY = 1047;
     public static final int CONFIG_MSG_ID_FILTER_URL = 1048;
     public static final int CONFIG_MSG_ID_COMMUNICATION_TIMEOUT = 1048;
+    public static final int CONFIG_MSG_ID_CONNECT_BEACON_TIMEOUT = 1049;
     public static final int CONFIG_MSG_ID_FILTER_TLM = 1049;
     public static final int CONFIG_MSG_ID_FILTER_BXP_DEVICE_INFO = 1050;
     public static final int CONFIG_MSG_ID_FILTER_BXP_ACC = 1051;
@@ -68,6 +69,8 @@ public class MQTTConstants {
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_SLEEP_MODE_PARAMS = 1162;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_GET_LED_PARAMS = 1168;
     public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_LED_PARAMS = 1170;
+    public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_OPEN_LOG = 1172;
+    public static final int CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_CLEAR_LOG = 1174;
     public static final int CONFIG_MSG_ID_BATCH_DFU = 1200;
     public static final int CONFIG_MSG_ID_BATCH_UPDATE_KEY = 1205;
     public static final int CONFIG_MSG_ID_BLE_OTHER_CONNECT = 1300;
@@ -98,6 +101,7 @@ public class MQTTConstants {
     public static final int READ_MSG_ID_TIME_OFFSET = 2046;
     public static final int READ_MSG_ID_DECRYPTION_KEY = 2047;
     public static final int READ_MSG_ID_COMMUNICATION_TIMEOUT = 2048;
+    public static final int READ_MSG_ID_CONNECT_BEACON_TIMEOUT = 2049;
     public static final int READ_MSG_ID_FILTER_URL = 2048;
     public static final int READ_MSG_ID_FILTER_TLM = 2049;
     public static final int READ_MSG_ID_FILTER_BXP_BUTTON = 2053;
@@ -142,6 +146,9 @@ public class MQTTConstants {
     public static final int NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_SLEEP_MODE_PARAMS = 3163;
     public static final int NOTIFY_MSG_ID_BLE_BXP_BUTTON_GET_LED_PARAMS = 3169;
     public static final int NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_LED_PARAMS = 3171;
+    public static final int NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_OPEN_LOG = 3173;
+    public static final int NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_CLEAR_LOG = 3175;
+    public static final int NOTIFY_MSG_ID_BLE_BXP_BUTTON_BUTTON_LOG = 3176;
     public static final int NOTIFY_MSG_ID_BLE_BXP_BUTTON_ALARM_STATUS = 3153;
     public static final int NOTIFY_MSG_ID_BLE_BXP_BUTTON_DISMISS_ALARM = 3155;
     public static final int NOTIFY_MSG_ID_BLE_BXP_BUTTON_DISCONNECTED = 3104;

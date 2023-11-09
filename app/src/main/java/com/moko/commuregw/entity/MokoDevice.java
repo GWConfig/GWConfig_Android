@@ -14,4 +14,6 @@ public class MokoDevice implements Serializable {
     public boolean isOnline;
     public int deviceType;
     public int netStatus;
+    // 0:Wait;1:Added
+    public int status;
 }

@@ -308,4 +308,9 @@ public class DeviceScannerActivity extends BaseActivity<ActivityScannerBinding> 
         }
     });
 
+
+    public void onAddConfiguredDevice(View view) {
+        if (isWindowLocked()) return;
+        startActivity(new Intent(this, AddConfiguredGatewayActivity.class));
+    }
 }

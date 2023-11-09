@@ -80,6 +80,7 @@
     <string name="reconnect_timeout">Reconnect timeout</string>
     <string name="communication_timeout">Communication timeout</string>
     <string name="data_report_timeout">Data report timeout</string>
+    <string name="connect_beacon_timeout">Connect Beacon timeout</string>
     <string name="system_time">System time</string>
     <string name="modify_network_settings">Modify Network Settings</string>
     <string name="reset_device_by_button">Reset device by button</string>
@@ -99,11 +100,15 @@
     <string name="sleep_mode_parameters">Sleep mode parameters</string>
     <string name="power_off">Power off</string>
     <string name="restore_to_factory_settings">Restore to factory settings</string>
+    <string name="button_log">Button log</string>
     <string name="adv_parameters">ADV parameters</string>
     <string name="when_battery_voltage_threshold"><![CDATA[When battery voltage<threshold]]></string>
 
     <string name="mac_error">Gateway list MAC error!</string>
+    <string name="beacon_mac_error">Beacon list MAC error!</string>
     <string name="size_error">Max 20 gateways are allowed!</string>
+    <string name="size_error_50">Max 50 gateways are allowed!</string>
+    <string name="add_configured_device">Add configured device</string>
 
 
 </resources>

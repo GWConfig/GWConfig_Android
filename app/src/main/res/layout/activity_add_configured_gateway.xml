@@ -4,13 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white_ffffff"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
     android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="53dp"
+        android:layout_height="55dp"
         android:background="@color/blue_0188cc">
 
         <ImageView
@@ -26,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="@string/batch_update_beacon_key"
+            android:text="Add Device"
             android:textColor="@color/white_ffffff"
             android:textSize="17sp" />
 
@@ -52,26 +50,23 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="Encryption key"
+            android:text="Gateway publish topic"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
 
         <EditText
-            android:id="@+id/et_encryption_key"
+            android:id="@+id/et_gateway_publish_topic"
             android:layout_width="0dp"
             android:layout_height="45dp"
             android:layout_marginLeft="12dp"
             android:layout_weight="1.0"
-            android:digits="0123456789abcdefABCDEF"
-            android:hint="32 bytes"
-            android:maxLength="64"
+            android:hint="1-128 Characters"
+            android:maxLength="128"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:singleLine="true"
-            android:text=""
+            android:text="/provision/gateway/data"
             android:textColor="@color/black_333333"
-            android:textColorHint="@color/grey_d9d9d9"
             android:textSize="15sp" />
     </LinearLayout>
 
@@ -85,25 +80,23 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="Beacon password"
+            android:text="Gateway subscribe topic"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
 
         <EditText
-            android:id="@+id/et_beacon_password"
+            android:id="@+id/et_gateway_subscribe_topic"
             android:layout_width="0dp"
             android:layout_height="45dp"
             android:layout_marginLeft="12dp"
             android:layout_weight="1.0"
-            android:hint="0-16 Characters"
-            android:maxLength="16"
+            android:hint="1-128 Characters"
+            android:maxLength="128"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:singleLine="true"
-            android:text="Commure4321"
+            android:text="/provision/gateway/cmds"
             android:textColor="@color/black_333333"
-            android:textColorHint="@color/grey_d9d9d9"
             android:textSize="15sp" />
     </LinearLayout>
 
@@ -118,12 +111,12 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:text="Beacon list"
+            android:text="Gateway list"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
 
         <TextView
-            android:id="@+id/tv_beacon_list"
+            android:id="@+id/tv_gateway_list"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
@@ -138,21 +131,21 @@
             android:textSize="13sp" />
 
         <ImageView
-            android:id="@+id/iv_select_beacon_list"
+            android:id="@+id/iv_select_gateway_list"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:clickable="true"
-            android:onClick="onSelectBeaconList"
+            android:onClick="onSelectGatewayList"
             android:src="@drawable/select_file" />
 
         <ImageView
-            android:id="@+id/iv_scan_beacon_qrcode"
+            android:id="@+id/iv_scan_gateway_qrcode"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:clickable="true"
-            android:onClick="onScanBeaconQrcode"
+            android:onClick="onScanGatewayQrcode"
             android:paddingLeft="12dp"
             android:paddingTop="8dp"
             android:paddingRight="12dp"
@@ -170,26 +163,42 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="12dp"
-            android:text="Mac"
+            android:text="Gateway Mac"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
 
         <TextView
-            android:id="@+id/tv_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="12dp"
+            android:layout_marginRight="70dp"
             android:text="Status"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_beacon_list"
+        android:id="@+id/rv_gateway_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1.0"
-        tools:listitem="@layout/item_beacon" />
+        tools:listitem="@layout/item_configured_gateway" />
+
+
+    <TextView
+        android:id="@+id/tv_done"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="53dp"
+        android:layout_marginRight="53dp"
+        android:layout_marginBottom="25dp"
+        android:background="@drawable/shape_corner_btn_bg"
+        android:clickable="true"
+        android:gravity="center"
+        android:onClick="onDone"
+        android:text="@string/modify_device_name_done"
+        android:textColor="@color/white_ffffff"
+        android:textSize="15sp"
+        android:visibility="gone" />
 </LinearLayout>

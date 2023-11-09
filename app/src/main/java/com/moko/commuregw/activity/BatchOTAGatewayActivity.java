@@ -65,9 +65,16 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
     private Handler mHandler;
     private ArrayList<BatchGateway> mGatewayList;
     private BatchGatewayOTAAdapter mAdapter;
+    private ArrayList<Integer> mRetryList;
 
+    // 开始升级标志位
     private boolean mIsStart;
+    // 升级序号
     private int mIndex = 0;
+    // 是否有重试网关
+    private boolean mIsRetry;
+    // 重试升级序号
+    private int mRetryIndex = 0;
 
     @Override
     protected void onCreate() {
@@ -83,12 +90,13 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
         appMqttConfig = new Gson().fromJson(mqttConfigAppStr, MQTTConfig.class);
         mHandler = new Handler(Looper.getMainLooper());
         mGatewayList = new ArrayList<>();
-        mAdapter = new BatchGatewayOTAAdapter();
+        mRetryList = new ArrayList<>();
+        mAdapter = new BatchGatewayOTAAdapter(this);
         mAdapter.openLoadAnimation();
         mAdapter.replaceData(mGatewayList);
         mAdapter.setOnItemChildClickListener(this);
-        mBind.rvBeaconList.setLayoutManager(new LinearLayoutManager(this));
-        mBind.rvBeaconList.setAdapter(mAdapter);
+        mBind.rvGatewayList.setLayoutManager(new LinearLayoutManager(this));
+        mBind.rvGatewayList.setAdapter(mAdapter);
     }
 
     @Override
@@ -129,7 +137,19 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
                 mGatewayList.get(mIndex).status = 3;
             }
             mAdapter.replaceData(mGatewayList);
-            mIndex++;
+            if (mRetryList.isEmpty()) {
+                mIndex++;
+            } else {
+                mRetryIndex++;
+                if (mRetryIndex < mRetryList.size()) {
+                    mIndex = mRetryList.get(mRetryIndex);
+                } else {
+                    mIsStart = false;
+                    ToastUtils.showToast(this, "Batch ota finish");
+                    mRetryList.clear();
+                    return;
+                }
+            }
             if (mIndex < mGatewayList.size()) {
 //                mHandler.postDelayed(() -> {
 //                    mGatewayList.get(mIndex).status = 4;
@@ -156,6 +176,7 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
             } else {
                 mIsStart = false;
                 ToastUtils.showToast(this, "Batch ota finish");
+                mRetryList.clear();
             }
         }
         if (msg_id == MQTTConstants.CONFIG_MSG_ID_OTA) {
@@ -174,7 +195,19 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
                 ToastUtils.showToast(this, "Set up failed");
                 mGatewayList.get(mIndex).status = 3;
                 mAdapter.replaceData(mGatewayList);
-                mIndex++;
+                if (mRetryList.isEmpty()) {
+                    mIndex++;
+                } else {
+                    mRetryIndex++;
+                    if (mRetryIndex < mRetryList.size()) {
+                        mIndex = mRetryList.get(mRetryIndex);
+                    } else {
+                        mIsStart = false;
+                        ToastUtils.showToast(this, "Batch ota finish");
+                        mRetryList.clear();
+                        return;
+                    }
+                }
                 if (mIndex < mGatewayList.size()) {
 //                    mHandler.postDelayed(() -> {
 //                        mGatewayList.get(mIndex).status = 4;
@@ -201,6 +234,7 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
                 } else {
                     mIsStart = false;
                     ToastUtils.showToast(this, "Batch ota finish");
+                    mRetryList.clear();
                 }
             }
         }
@@ -215,7 +249,19 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
             ToastUtils.showToast(this, "Set up failed");
             mGatewayList.get(mIndex).status = 3;
             mAdapter.replaceData(mGatewayList);
-            mIndex++;
+            if (mRetryList.isEmpty()) {
+                mIndex++;
+            } else {
+                mRetryIndex++;
+                if (mRetryIndex < mRetryList.size()) {
+                    mIndex = mRetryList.get(mRetryIndex);
+                } else {
+                    mIsStart = false;
+                    ToastUtils.showToast(this, "Batch ota finish");
+                    mRetryList.clear();
+                    return;
+                }
+            }
             if (mIndex < mGatewayList.size()) {
                 mGatewayMac = mGatewayList.get(mIndex).mac;
                 if (mGatewayTopic.contains("/gateway/provision/#"))
@@ -226,6 +272,7 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
             } else {
                 mIsStart = false;
                 ToastUtils.showToast(this, "Batch ota finish");
+                mRetryList.clear();
             }
         }
     }
@@ -380,8 +427,15 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
         BatchGateway info = (BatchGateway) adapter.getItem(position);
         if (info == null) return;
         if (mIsStart) return;
-        mGatewayList.remove(position);
-        mAdapter.replaceData(mGatewayList);
+        if (view.getId() == R.id.iv_del) {
+            mGatewayList.remove(position);
+            mAdapter.replaceData(mGatewayList);
+        }
+        if (view.getId() == R.id.tv_retry) {
+            mIsRetry = true;
+            mGatewayList.get(position).status = 0;
+            mAdapter.replaceData(mGatewayList);
+        }
     }
 
     public void onSave(View view) {
@@ -406,8 +460,19 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
             ToastUtils.showToast(this, R.string.cannot_be_empty);
             return;
         }
+        if (mIsRetry) {
+            for (int i = 0, size = mGatewayList.size(); i < size; i++) {
+                BatchGateway gateway = mGatewayList.get(i);
+                if (gateway.status == 0)
+                    mRetryList.add(i);
+            }
+        }
+        mRetryIndex = 0;
         mIsStart = true;
-        mIndex = 0;
+        if (mRetryList.isEmpty())
+            mIndex = 0;
+        else
+            mIndex = mRetryList.get(mRetryIndex);
         mFirmwareFileUrl = firmwareFileUrlStr;
         mGatewayTopic = gatewaySubscribeTopicStr;
         XLog.i("批量升级");
@@ -443,11 +508,12 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
             }
         } else {
             try {
-                MQTTSupport.getInstance().subscribe(gatewaySubscribeTopicStr, appMqttConfig.qos);
+                MQTTSupport.getInstance().subscribe(gatewayPublishTopicStr, appMqttConfig.qos);
             } catch (MqttException e) {
                 e.printStackTrace();
             }
         }
+        ToastUtils.showToast(this, "Start batch ota");
         mHandler.postDelayed(() -> {
             setOTA();
         }, 3000);
@@ -457,7 +523,19 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
         mHandler.postDelayed(() -> {
             mGatewayList.get(mIndex).status = 4;
             mAdapter.replaceData(mGatewayList);
-            mIndex++;
+            if (mRetryList.isEmpty()) {
+                mIndex++;
+            } else {
+                mRetryIndex++;
+                if (mRetryIndex < mRetryList.size()) {
+                    mIndex = mRetryList.get(mRetryIndex);
+                } else {
+                    mIsStart = false;
+                    ToastUtils.showToast(this, "Batch ota finish");
+                    mRetryList.clear();
+                    return;
+                }
+            }
             if (mIndex < mGatewayList.size()) {
                 mGatewayMac = mGatewayList.get(mIndex).mac;
                 if (mGatewayTopic.contains("/gateway/provision/#"))
@@ -468,6 +546,7 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
             } else {
                 mIsStart = false;
                 ToastUtils.showToast(this, "Batch ota finish");
+                mRetryList.clear();
             }
         }, 30 * 1000);
         int msgId = MQTTConstants.CONFIG_MSG_ID_OTA;

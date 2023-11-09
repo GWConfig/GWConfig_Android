@@ -87,7 +87,7 @@
         android:layout_height="50dp"
         android:layout_marginLeft="53dp"
         android:layout_marginRight="53dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="25dp"
         android:background="@drawable/shape_corner_btn_bg"
         android:clickable="true"
         android:gravity="center"

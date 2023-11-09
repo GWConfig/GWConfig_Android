@@ -54,6 +54,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -156,10 +157,10 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
         });
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMQTTUnSubscribeSuccessEvent(MQTTUnSubscribeSuccessEvent event) {
-        dismissLoadingProgressDialog();
-    }
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void onMQTTUnSubscribeSuccessEvent(MQTTUnSubscribeSuccessEvent event) {
+//        dismissLoadingProgressDialog();
+//    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMQTTUnSubscribeFailureEvent(MQTTUnSubscribeFailureEvent event) {
@@ -218,6 +219,33 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
                             break;
                         }
                     }
+                }
+                adapter.replaceData(devices);
+                if (!devices.isEmpty()) {
+                    mBind.rvDeviceList.setVisibility(View.VISIBLE);
+                    mBind.rlEmpty.setVisibility(View.GONE);
+                } else {
+                    mBind.rvDeviceList.setVisibility(View.GONE);
+                    mBind.rlEmpty.setVisibility(View.VISIBLE);
+                }
+            }
+            if (AddConfiguredGatewayActivity.TAG.equals(from)) {
+                List<MokoDevice> allDevice = DBTools.getInstance(this).selectAllDevice();
+                for (final MokoDevice device : allDevice) {
+                    if (!TextUtils.isEmpty(device.mqttInfo))
+                        continue;
+                    device.isOnline = true;
+                    if (mHandler.hasMessages(device.id)) {
+                        mHandler.removeMessages(device.id);
+                    }
+                    Message message = Message.obtain(mHandler, () -> {
+                        device.isOnline = false;
+                        XLog.i(device.mac + "离线");
+                        adapter.replaceData(devices);
+                    });
+                    message.what = device.id;
+                    mHandler.sendMessageDelayed(message, 60 * 1000);
+                    devices.add(device);
                 }
                 adapter.replaceData(devices);
                 if (!devices.isEmpty()) {
@@ -313,13 +341,13 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
                 ToastUtils.showToast(MainActivity.this, R.string.network_error);
                 return;
             }
-            showLoadingProgressDialog();
+//            showLoadingProgressDialog();
             // 取消订阅
-            try {
-                MQTTSupport.getInstance().unSubscribe(mokoDevice.topicPublish);
-            } catch (MqttException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                MQTTSupport.getInstance().unSubscribe(mokoDevice.topicPublish);
+//            } catch (MqttException e) {
+//                e.printStackTrace();
+//            }
             XLog.i(String.format("删除设备:%s", mokoDevice.name));
             DBTools.getInstance(MainActivity.this).deleteDevice(mokoDevice);
             EventBus.getDefault().post(new DeviceDeletedEvent(mokoDevice.id));

@@ -4,6 +4,6 @@ public class BleTag {
     public String mac;
 
     public String passwd;
-    // 0:Wait;1:Upgrading;2:Success;3:Failed
+    // 0:Wait;1:Upgrading;2:Success;3:Failed,4:Timeout
     public int status;
 }

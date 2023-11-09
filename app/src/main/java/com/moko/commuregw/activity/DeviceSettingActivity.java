@@ -206,11 +206,11 @@ public class DeviceSettingActivity extends BaseActivity<ActivityDeviceSettingRem
                 ToastUtils.showToast(this, "Set up succeed");
                 XLog.i("重置设备成功");
                 // 取消订阅
-                try {
-                    MQTTSupport.getInstance().unSubscribe(mMokoDevice.topicPublish);
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    MQTTSupport.getInstance().unSubscribe(mMokoDevice.topicPublish);
+//                } catch (MqttException e) {
+//                    e.printStackTrace();
+//                }
                 DBTools.getInstance(this).deleteDevice(mMokoDevice);
                 EventBus.getDefault().post(new DeviceDeletedEvent(mMokoDevice.id));
                 mBind.tvName.postDelayed(() -> {
@@ -303,6 +303,7 @@ public class DeviceSettingActivity extends BaseActivity<ActivityDeviceSettingRem
         i.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
         startActivity(i);
     }
+
     public void onDataReportTimeout(View view) {
         if (isWindowLocked())
             return;
@@ -311,6 +312,18 @@ public class DeviceSettingActivity extends BaseActivity<ActivityDeviceSettingRem
             return;
         }
         Intent i = new Intent(this, DataReportTimeoutActivity.class);
+        i.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
+        startActivity(i);
+    }
+
+    public void onConnectBeaconTimeout(View view) {
+        if (isWindowLocked())
+            return;
+        if (!MQTTSupport.getInstance().isConnected()) {
+            ToastUtils.showToast(this, R.string.network_error);
+            return;
+        }
+        Intent i = new Intent(this, ConnectBeaconTimeoutActivity.class);
         i.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
         startActivity(i);
     }
@@ -367,7 +380,7 @@ public class DeviceSettingActivity extends BaseActivity<ActivityDeviceSettingRem
                         return;
                     }
                     int advTimes = Integer.parseInt(advTimesStr);
-                    if (advTimes < 1 || advTimes > 10) {
+                    if (advTimes < 1 || advTimes > 65535) {
                         ToastUtils.showToast(DeviceSettingActivity.this, "Advertising time range is 1-10");
                         return;
                     }

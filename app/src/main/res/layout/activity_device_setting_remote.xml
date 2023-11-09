@@ -103,6 +103,21 @@
                 android:clickable="true"
                 android:drawableRight="@drawable/arrow_right"
                 android:gravity="center_vertical"
+                android:onClick="onConnectBeaconTimeout"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/connect_beacon_timeout"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
                 android:onClick="onSystemTime"
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp"

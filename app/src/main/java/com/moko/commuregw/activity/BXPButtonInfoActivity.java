@@ -479,6 +479,14 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
         dialog.show(getSupportFragmentManager());
     }
 
+    public void onButtonLog(View view) {
+        if (isWindowLocked()) return;
+        Intent intent = new Intent(this, ButtonLogActivity.class);
+        intent.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
+        intent.putExtra(AppConstants.EXTRA_KEY_BXP_BUTTON_INFO, mBXPButtonInfo);
+        startActivity(intent);
+    }
+
     public void onAdvParams(View view) {
         if (isWindowLocked()) return;
         Intent intent = new Intent(this, AdvParamsActivity.class);

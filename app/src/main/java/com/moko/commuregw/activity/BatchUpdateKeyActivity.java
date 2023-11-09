@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 
+import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.elvishew.xlog.XLog;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -18,6 +20,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.moko.commuregw.AppConstants;
 import com.moko.commuregw.R;
 import com.moko.commuregw.adapter.BatchBeaconAdapter;
@@ -49,11 +53,15 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyBinding> {
-
+public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyBinding> implements BaseQuickAdapter.OnItemChildClickListener {
+    private final String FILTER_ASCII = "[ -~]*";
     private MokoDevice mMokoDevice;
     private MQTTConfig appMqttConfig;
     private String mAppTopic;
@@ -64,8 +72,19 @@ public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyB
 
     private boolean mIsStart;
 
+    private String mPassword;
+
     @Override
     protected void onCreate() {
+        InputFilter inputFilter = (source, start, end, dest, dstart, dend) -> {
+            if (!(source + "").matches(FILTER_ASCII)) {
+                return "";
+            }
+
+            return null;
+        };
+        mBind.etBeaconPassword.setFilters(new InputFilter[]{new InputFilter.LengthFilter(16), inputFilter});
+
         mMokoDevice = (MokoDevice) getIntent().getSerializableExtra(AppConstants.EXTRA_KEY_DEVICE);
         String mqttConfigAppStr = SPUtiles.getStringValue(this, AppConstants.SP_KEY_MQTT_CONFIG_APP, "");
         appMqttConfig = new Gson().fromJson(mqttConfigAppStr, MQTTConfig.class);
@@ -75,8 +94,10 @@ public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyB
         mAdapter = new BatchBeaconAdapter();
         mAdapter.openLoadAnimation();
         mAdapter.replaceData(mBeaconList);
+        mAdapter.setOnItemChildClickListener(this);
         mBind.rvBeaconList.setLayoutManager(new LinearLayoutManager(this));
         mBind.rvBeaconList.setAdapter(mAdapter);
+        mPassword = mBind.etBeaconPassword.getText().toString();
     }
 
     @Override
@@ -111,7 +132,6 @@ public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyB
             if (result.result_code == 0) {
                 ToastUtils.showToast(this, "setup succeed");
             } else {
-                mIsStart = false;
                 ToastUtils.showToast(this, "setup failed");
                 mIsStart = false;
                 for (int i = 0, size = mBeaconList.size(); i < size; i++) {
@@ -192,9 +212,21 @@ public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyB
         }
     }
 
+    public void onScanBeaconQrcode(View view) {
+        if (isWindowLocked()) return;
+        if (mIsStart) return;
+        mPassword = mBind.etBeaconPassword.getText().toString();
+        IntentIntegrator integrator = new IntentIntegrator(this);
+        integrator.setOrientationLocked(false);
+        integrator.setCaptureActivity(ScanActivity.class);
+        integrator.setRequestCode(AppConstants.REQUEST_CODE_SCAN_BEACON_MAC);
+        integrator.initiateScan();
+    }
+
     public void onSelectBeaconList(View view) {
         if (isWindowLocked()) return;
         if (mIsStart) return;
+        mPassword = mBind.etBeaconPassword.getText().toString();
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");//设置类型，我这里是任意类型，任意后缀的可以这样写。
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -231,28 +263,28 @@ public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyB
                             Sheet sheet = workbook.getSheetAt(0);
                             int rows = sheet.getPhysicalNumberOfRows();
                             int columns = sheet.getRow(0).getPhysicalNumberOfCells();
-                            if (columns != 2)
+                            if (columns != 1)
                                 throw new Exception();
                             for (int i = 1; i < rows; i++) {
                                 Row row = sheet.getRow(i);
                                 Cell cellMac = row.getCell(0);
-                                Cell cellPassword = row.getCell(1);
+//                                Cell cellPassword = row.getCell(1);
                                 XLog.i("------Row:" + i + "------");
                                 String mac;
                                 if (cellMac.getCellType() != Cell.CELL_TYPE_STRING) {
                                     cellMac.setCellType(Cell.CELL_TYPE_STRING);
                                 }
                                 mac = cellMac.getStringCellValue();
-                                String password;
-                                if (cellPassword.getCellType() != Cell.CELL_TYPE_STRING) {
-                                    cellPassword.setCellType(Cell.CELL_TYPE_STRING);
-                                }
-                                password = cellPassword.getStringCellValue();
+//                                String password;
+//                                if (cellPassword.getCellType() != Cell.CELL_TYPE_STRING) {
+//                                    cellPassword.setCellType(Cell.CELL_TYPE_STRING);
+//                                }
+//                                password = cellPassword.getStringCellValue();
                                 if (TextUtils.isEmpty(mac))
                                     break;
                                 BleTag bleDevice = new BleTag();
                                 bleDevice.mac = mac;
-                                bleDevice.passwd = password;
+                                bleDevice.passwd = mPassword;
                                 mBeaconList.add(bleDevice);
                             }
                             runOnUiThread(() -> {
@@ -273,11 +305,43 @@ public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyB
                 }
             }
         }
+
+        if (requestCode == AppConstants.REQUEST_CODE_SCAN_BEACON_MAC) {
+            IntentResult result = IntentIntegrator.parseActivityResult(resultCode, data);
+            if (result.getContents() != null) {
+//                ToastUtils.showToast(this, R.string.scan_failed);
+                final String contents = result.getContents().toLowerCase(Locale.ROOT);
+                // 判断扫描内容是否符合MAC
+                Pattern r = Pattern.compile(AppConstants.PATTERN_MAC_CODE);
+                Matcher m = r.matcher(contents);
+                if (!m.matches()) {
+                    ToastUtils.showToast(this, R.string.beacon_mac_error);
+                    return;
+                }
+                BleTag bleDevice = new BleTag();
+                bleDevice.mac = contents;
+                bleDevice.passwd = mPassword;
+                mBeaconList.add(bleDevice);
+                mAdapter.replaceData(mBeaconList);
+            }
+        }
+    }
+
+    @Override
+    public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+        BleTag item = (BleTag) adapter.getItem(position);
+        if (item == null) return;
+        if (mIsStart) return;
+        if (view.getId() == R.id.tv_retry) {
+            mBeaconList.get(position).status = 0;
+            mAdapter.replaceData(mBeaconList);
+        }
     }
 
     public void onSave(View view) {
         if (isWindowLocked()) return;
         String encryptionKeyStr = mBind.etEncryptionKey.getText().toString();
+        mPassword = mBind.etBeaconPassword.getText().toString();
         if (TextUtils.isEmpty(encryptionKeyStr)) {
             ToastUtils.showToast(this, R.string.encryption_key_error);
             return;
@@ -297,6 +361,14 @@ public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyB
                 return;
             }
         }
+        Iterator<BleTag> iterator = mBeaconList.iterator();
+        while (iterator.hasNext()) {
+            BleTag bleTag = iterator.next();
+            bleTag.passwd = mPassword;
+            if (bleTag.status != 0)
+                iterator.remove();
+        }
+        mAdapter.replaceData(mBeaconList);
         mIsStart = true;
         XLog.i("批量升级");
         mHandler.postDelayed(() -> {
@@ -305,7 +377,7 @@ public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyB
             mIsStart = false;
             for (int i = 0, size = mBeaconList.size(); i < size; i++) {
                 BleTag bleDevice = mBeaconList.get(i);
-                bleDevice.status = 3;
+                bleDevice.status = 4;
             }
             mAdapter.replaceData(mBeaconList);
         }, 1000 * 1000);

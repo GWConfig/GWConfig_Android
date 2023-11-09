@@ -65,7 +65,7 @@
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:singleLine="true"
-            android:text="http://47.104.172.169:8080/updata_fold/commureMK110_V1.0.3.bin"
+            android:text=""
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
     </LinearLayout>
@@ -90,12 +90,12 @@
             android:layout_height="45dp"
             android:layout_marginLeft="12dp"
             android:layout_weight="1.0"
-            android:hint="1-256 Characters"
-            android:maxLength="256"
+            android:hint="1-128 Characters"
+            android:maxLength="128"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:singleLine="true"
-            android:text="/gateway/provision/#"
+            android:text="/provision/gateway/cmds"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
     </LinearLayout>
@@ -120,12 +120,12 @@
             android:layout_height="45dp"
             android:layout_marginLeft="12dp"
             android:layout_weight="1.0"
-            android:hint="1-256 Characters"
-            android:maxLength="256"
+            android:hint="1-128 Characters"
+            android:maxLength="128"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:singleLine="true"
-            android:text="/gateway/data/#"
+            android:text="/provision/gateway/data"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />
     </LinearLayout>
@@ -209,7 +209,7 @@
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_beacon_list"
+        android:id="@+id/rv_gateway_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1.0"

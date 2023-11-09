@@ -76,6 +76,7 @@ public class AppConstants {
     public static final int REQUEST_CODE_OPEN_BEACON_LIST = 132;
     public static final int REQUEST_CODE_OPEN_GATEWAY_LIST = 133;
     public static final int REQUEST_CODE_SCAN_GATEWAY_MAC = 134;
+    public static final int REQUEST_CODE_SCAN_BEACON_MAC = 135;
 
     public static final int REQUEST_CODE_SELECT_CA = 140;
     public static final int REQUEST_CODE_SELECT_CLIENT_KEY = 141;
