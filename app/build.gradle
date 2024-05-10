@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion '29.0.3'
+    compileSdk 33
 
     defaultConfig {
+        namespace = "com.moko.commuregw"
         applicationId "com.moko.commuregw"
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 33
         versionCode 5
         versionName "1.0.4"
         def formatDate = new Date().format("yyyyMMddHHmm")

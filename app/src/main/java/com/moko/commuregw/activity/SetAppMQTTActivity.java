@@ -114,12 +114,14 @@ public class SetAppMQTTActivity extends BaseActivity<ActivityMqttAppRemoteBindin
     public void onMQTTConnectionCompleteEvent(MQTTConnectionCompleteEvent event) {
         EventBus.getDefault().cancelEventDelivery(event);
         String mqttConfigStr = new Gson().toJson(mqttConfig, MQTTConfig.class);
-        ToastUtils.showToast(SetAppMQTTActivity.this, getString(R.string.success));
-        dismissLoadingProgressDialog();
-        Intent intent = new Intent();
-        intent.putExtra(AppConstants.EXTRA_KEY_MQTT_CONFIG_APP, mqttConfigStr);
-        setResult(RESULT_OK, intent);
-        finish();
+        runOnUiThread(() -> {
+            ToastUtils.showToast(SetAppMQTTActivity.this, getString(R.string.success));
+            dismissLoadingProgressDialog();
+            Intent intent = new Intent();
+            intent.putExtra(AppConstants.EXTRA_KEY_MQTT_CONFIG_APP, mqttConfigStr);
+            setResult(RESULT_OK, intent);
+            finish();
+        });
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

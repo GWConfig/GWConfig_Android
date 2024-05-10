@@ -70,6 +70,9 @@ public class Utils {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     Uri fileUri = IOUtils.insertDownloadFile(context, files[i]);
                     uris.add(fileUri);
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    Uri uri = FileProvider.getUriForFile(context, "com.moko.commuregw.fileprovider", files[0]);
+                    uris.add(uri);
                 } else {
                     uris.add(Uri.fromFile(files[i]));
                 }
