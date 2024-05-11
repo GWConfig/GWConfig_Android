@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_bg"
+    android:layout_width="120dp"
+    android:layout_height="150dp"
+    android:background="@drawable/popup_bg"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvAbout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.0"
+        android:gravity="center"
+        android:text="About"
+        android:textColor="@color/white_ffffff"
+        android:textSize="15sp" />
+
+    <View
+        style="@style/divider_line"
+        android:layout_marginLeft="7dp"
+        android:layout_marginRight="7dp" />
+
+    <TextView
+        android:id="@+id/tvServer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.0"
+        android:gravity="center"
+        android:text="Server"
+        android:textColor="@color/white_ffffff"
+        android:textSize="15sp" />
+
+    <View
+        style="@style/divider_line"
+        android:layout_marginLeft="7dp"
+        android:layout_marginRight="7dp" />
+
+    <TextView
+        android:id="@+id/tvBatchOTA"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.0"
+        android:gravity="center"
+        android:text="Batch OTA"
+        android:textColor="@color/white_ffffff"
+        android:textSize="15sp" />
+
+    <View
+        style="@style/divider_line"
+        android:layout_marginLeft="7dp"
+        android:layout_marginRight="7dp" />
+
+    <TextView
+        android:id="@+id/tvBatchModify"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.0"
+        android:gravity="center"
+        android:text="Batch Modify"
+        android:textColor="@color/white_ffffff"
+        android:textSize="15sp" />
+</LinearLayout>

@@ -1,6 +1,7 @@
 package com.moko.commuregw;
 
 import android.app.Application;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -14,6 +15,9 @@ import com.elvishew.xlog.printer.AndroidPrinter;
 import com.elvishew.xlog.printer.Printer;
 import com.elvishew.xlog.printer.file.FilePrinter;
 import com.elvishew.xlog.printer.file.naming.ChangelessFileNameGenerator;
+import com.lzy.okgo.OkGo;
+import com.lzy.okgo.interceptor.HttpLoggingInterceptor;
+import com.lzy.okgo.model.HttpHeaders;
 import com.moko.ble.lib.log.ClearLogBackStrategy;
 import com.moko.commuregw.utils.IOUtils;
 
@@ -21,19 +25,48 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+
+import okhttp3.OkHttpClient;
 
 public class BaseApplication extends Application {
 
     private static final String TAG = "GWConfig";
     private static final String LOG_FILE = "GWConfig.txt";
     private static final String LOG_FOLDER = "GWConfig";
-    private static String PATH_LOGCAT;
+    public static String PATH_LOGCAT;
 
     @Override
     public void onCreate() {
         super.onCreate();
         initXLog();
+        initOKGo();
         Thread.setDefaultUncaughtExceptionHandler(new BTUncaughtExceptionHandler());
+    }
+
+    private void initOKGo() {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor("GWConfig");
+        //log打印级别，决定了log显示的详细程度
+        loggingInterceptor.setPrintLevel(HttpLoggingInterceptor.Level.BODY);
+        //log颜色级别，决定了log在控制台显示的颜色
+        loggingInterceptor.setColorLevel(Level.INFO);
+        builder.addInterceptor(loggingInterceptor);
+
+        //全局的读取超时时间
+        builder.readTimeout(OkGo.DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
+        //全局的写入超时时间
+        builder.writeTimeout(OkGo.DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
+        //全局的连接超时时间
+        builder.connectTimeout(OkGo.DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.put("Content-Type", "application/json");
+        OkGo.getInstance().init(this)                       //必须调用初始化
+                .setOkHttpClient(builder.build())               //建议设置OkHttpClient，不设置将使用默认的
+                .setRetryCount(0)                               //全局统一超时重连次数，默认为三次，那么最差的情况会请求4次(一次原始请求，三次重连请求)，不需要可以设置为0
+                .addCommonHeaders(headers);                      //全局公共头
     }
 
     private void initXLog() {

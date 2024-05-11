@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+import com.lxj.xpopup.XPopup;
 import com.moko.commuregw.AppConstants;
 import com.moko.commuregw.R;
 import com.moko.commuregw.adapter.DeviceAdapter;
@@ -28,6 +29,7 @@ import com.moko.commuregw.entity.MokoDevice;
 import com.moko.commuregw.utils.SPUtiles;
 import com.moko.commuregw.utils.ToastUtils;
 import com.moko.commuregw.utils.Utils;
+import com.moko.commuregw.view.CustomAttachPopup;
 import com.moko.support.commuregw.MQTTConstants;
 import com.moko.support.commuregw.MQTTSupport;
 import com.moko.support.commuregw.MokoSupport;
@@ -40,7 +42,6 @@ import com.moko.support.commuregw.event.MQTTConnectionFailureEvent;
 import com.moko.support.commuregw.event.MQTTConnectionLostEvent;
 import com.moko.support.commuregw.event.MQTTMessageArrivedEvent;
 import com.moko.support.commuregw.event.MQTTUnSubscribeFailureEvent;
-import com.moko.support.commuregw.event.MQTTUnSubscribeSuccessEvent;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.greenrobot.eventbus.EventBus;
@@ -54,6 +55,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import androidx.annotation.Nullable;
@@ -106,6 +108,19 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
         adapter.setOnItemLongClickListener(this);
         mBind.rvDeviceList.setLayoutManager(new LinearLayoutManager(this));
         mBind.rvDeviceList.setAdapter(adapter);
+        mBind.rgCondition.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.rbAll) {
+                adapter.replaceData(devices);
+            } else {
+                Iterator<MokoDevice> iterator = devices.iterator();
+                while (iterator.hasNext()) {
+                    MokoDevice device = iterator.next();
+                    if (!device.isOnline)
+                        iterator.remove();
+                }
+                adapter.replaceData(devices);
+            }
+        });
         if (devices.isEmpty()) {
             mBind.rlEmpty.setVisibility(View.VISIBLE);
             mBind.rvDeviceList.setVisibility(View.GONE);
@@ -297,10 +312,41 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
         }
     }
 
-    public void setAppMQTTConfig(View view) {
-        if (isWindowLocked())
+    public void onSettings(View view) {
+        if (isWindowLocked()) {
             return;
-        startActivityForResult(new Intent(this, SetAppMQTTActivity.class), AppConstants.REQUEST_CODE_MQTT_CONFIG_APP);
+        }
+        CustomAttachPopup popup = new CustomAttachPopup(this);
+        popup.setOnPopupClickListener(new CustomAttachPopup.OnPopupClickListener() {
+            @Override
+            public void onAboutClick() {
+                if (isWindowLocked()) return;
+                startActivity(new Intent(MainActivity.this, AboutActivity.class));
+            }
+
+            @Override
+            public void onServerClick() {
+                if (isWindowLocked()) return;
+                startActivityForResult(new Intent(MainActivity.this, SetAppMQTTActivity.class), AppConstants.REQUEST_CODE_MQTT_CONFIG_APP);
+            }
+
+            @Override
+            public void onBatchOTAClick() {
+                if (isWindowLocked()) return;
+                startActivity(new Intent(MainActivity.this, BatchOTAGatewayActivity.class));
+            }
+
+            @Override
+            public void onBatchModifyClick() {
+                if (isWindowLocked()) return;
+                startActivity(new Intent(MainActivity.this, DownDataActivity.class));
+            }
+        });
+        XPopup.Builder builder = new XPopup.Builder(this);
+        builder.atView(view)
+                .offsetX(Utils.dip2px(this, 10))
+                .asCustom(popup)
+                .show();
     }
 
     public void mainAddDevices(View view) {
@@ -489,11 +535,6 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
         } else {
             return true;
         }
-    }
-
-    public void about(View view) {
-        if (isWindowLocked()) return;
-        startActivity(new Intent(this, BatchOTAGatewayActivity.class));
     }
 
     public void onBack(View view) {

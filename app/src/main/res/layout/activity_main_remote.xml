@@ -14,10 +14,10 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:clickable="true"
-            android:onClick="setAppMQTTConfig"
+            android:onClick="onBack"
             android:paddingLeft="12dp"
             android:paddingRight="12dp"
-            android:src="@drawable/settings" />
+            android:src="@drawable/back" />
 
         <TextView
             android:id="@+id/tv_title"
@@ -29,15 +29,14 @@
             android:textSize="17sp" />
 
         <ImageView
-            android:id="@+id/iv_about"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:clickable="true"
-            android:onClick="about"
+            android:onClick="onSettings"
             android:paddingLeft="12dp"
             android:paddingRight="12dp"
-            android:src="@drawable/ic_batch_ota" />
+            android:src="@drawable/settings" />
 
         <View
             style="@style/divider_line"
@@ -50,16 +49,55 @@
         android:layout_height="0dp"
         android:layout_weight="1.0">
 
+        <RadioGroup
+            android:id="@+id/rgCondition"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbAll"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.0"
+                android:button="@null"
+                android:checked="true"
+                android:drawableLeft="@drawable/radio_btn"
+                android:drawablePadding="20dp"
+                android:gravity="left|center_vertical"
+                android:paddingLeft="50dp"
+                android:text="All"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <RadioButton
+                android:id="@+id/rbOnline"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.0"
+                android:button="@null"
+                android:drawableLeft="@drawable/radio_btn"
+                android:drawablePadding="10dp"
+                android:gravity="left|center_vertical"
+                android:paddingLeft="50dp"
+                android:text="Online"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+        </RadioGroup>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_device_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_below="@id/rgCondition"
             android:overScrollMode="never" />
 
         <RelativeLayout
             android:id="@+id/rl_empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_below="@id/rgCondition"
             android:background="@color/grey_f2f2f2"
             android:visibility="visible">
 
