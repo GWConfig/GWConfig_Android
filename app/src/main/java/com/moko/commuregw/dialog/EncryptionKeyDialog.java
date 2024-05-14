@@ -26,7 +26,7 @@ public class EncryptionKeyDialog extends MokoBaseDialog<DialogModifyEncryptionKe
         });
         mBind.tvEnsure.setOnClickListener(v -> {
             String encryptionKey = mBind.etEncryptionKey.getText().toString();
-            if (TextUtils.isEmpty(encryptionKey) || encryptionKey.length() != 64) {
+            if (TextUtils.isEmpty(encryptionKey) || encryptionKey.length() != 52) {
                 ToastUtils.showToast(getContext(), "Para Error");
                 return;
             }

@@ -138,7 +138,7 @@ public class DecryptionKeyActivity extends BaseActivity<ActivityDecryptionKeyBin
             ToastUtils.showToast(this, "Para Error");
             return;
         }
-        if (keyStr.length() != 64) {
+        if (keyStr.length() != 52) {
             ToastUtils.showToast(this, "Para Error");
             return;
         }

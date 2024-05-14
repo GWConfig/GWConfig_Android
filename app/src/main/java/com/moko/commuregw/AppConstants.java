@@ -22,6 +22,13 @@ public class AppConstants {
     public static final String SP_KEY_LED_BLINK_DURATION = "SP_KEY_LED_BLINK_DURATION";
     public static final String SP_KEY_BUZZER_INTERVAL = "SP_KEY_BUZZER_INTERVAL";
     public static final String SP_KEY_BUZZER_DURATION = "SP_KEY_BUZZER_DURATION";
+    public static final String SP_KEY_MQTT_GATEWAY_SETTINGS_URL = "SP_KEY_MQTT_GATEWAY_SETTINGS_URL";
+    public static final String SP_KEY_MQTT_CA_FILE = "SP_KEY_MQTT_CA_FILE";
+    public static final String SP_KEY_MQTT_CERT_FILE = "SP_KEY_MQTT_CERT_FILE";
+    public static final String SP_KEY_MQTT_KEY_FILE = "SP_KEY_MQTT_KEY_FILE";
+    public static final String SP_KEY_WIFI_CA_FILE = "SP_KEY_WIFI_CA_FILE";
+    public static final String SP_KEY_WIFI_CERT_FILE = "SP_KEY_WIFI_CERT_FILE";
+    public static final String SP_KEY_WIFI_KEY_FILE = "SP_KEY_WIFI_KEY_FILE";
 
 
     public static final String SP_KEY_DEVICE_ADDRESS = "sp_key_device_address";

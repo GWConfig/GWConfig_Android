@@ -1,5 +1,6 @@
 package com.moko.commuregw.activity;
 
+import android.content.Intent;
 import android.view.View;
 
 import com.moko.ble.lib.MokoConstants;
@@ -8,8 +9,10 @@ import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
+import com.moko.commuregw.AppConstants;
 import com.moko.commuregw.base.BaseActivity;
 import com.moko.commuregw.databinding.ActivityNetworkSettingsBinding;
+import com.moko.commuregw.entity.GatewayConfig;
 import com.moko.commuregw.utils.ToastUtils;
 import com.moko.support.commuregw.MokoSupport;
 import com.moko.support.commuregw.OrderTaskAssembler;
@@ -33,6 +36,10 @@ public class NetworkSettingsActivity extends BaseActivity<ActivityNetworkSetting
 
     private Pattern pattern;
 
+    private GatewayConfig mGatewayConfig;
+
+    private boolean mIsRetainParams;
+
     @Override
     protected ActivityNetworkSettingsBinding getViewBinding() {
         return ActivityNetworkSettingsBinding.inflate(getLayoutInflater());
@@ -40,10 +47,27 @@ public class NetworkSettingsActivity extends BaseActivity<ActivityNetworkSetting
 
     @Override
     protected void onCreate() {
+        mGatewayConfig = getIntent().getParcelableExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG);
+        mIsRetainParams = mGatewayConfig != null;
         pattern = Pattern.compile(IP_REGEX);
         mBind.cbDhcp.setOnCheckedChangeListener((buttonView, isChecked) -> {
             mBind.clIp.setVisibility(isChecked ? View.GONE : View.VISIBLE);
         });
+
+        if (mIsRetainParams) {
+            mBind.cbDhcp.setChecked(mGatewayConfig.dhcp == 1);
+            mBind.clIp.setVisibility(mGatewayConfig.dhcp == 1 ? View.GONE : View.VISIBLE);
+
+            String ip = mGatewayConfig.ip;
+            String mask = mGatewayConfig.mask;
+            String gateway = mGatewayConfig.gateway;
+            String dns = mGatewayConfig.dns;
+            mBind.etIp.setText(ip);
+            mBind.etMask.setText(mask);
+            mBind.etGateway.setText(gateway);
+            mBind.etDns.setText(dns);
+            return;
+        }
         showLoadingProgressDialog();
         mBind.tvTitle.postDelayed(() -> {
             List<OrderTask> orderTasks = new ArrayList<>();
@@ -173,13 +197,28 @@ public class NetworkSettingsActivity extends BaseActivity<ActivityNetworkSetting
     }
 
     private void saveParams() {
+        String ip = mBind.etIp.getText().toString();
+        String mask = mBind.etMask.getText().toString();
+        String gateway = mBind.etGateway.getText().toString();
+        String dns = mBind.etDns.getText().toString();
+        if (mIsRetainParams) {
+            mGatewayConfig.dhcp = mBind.cbDhcp.isChecked() ? 1 : 0;
+            mGatewayConfig.ip = ip;
+            mGatewayConfig.mask = mask;
+            mGatewayConfig.gateway = gateway;
+            mGatewayConfig.dns = dns;
+            ToastUtils.showToast(this, "Setup succeed！");
+            if (mIsRetainParams) {
+                Intent intent = new Intent();
+                intent.putExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG, mGatewayConfig);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+            return;
+        }
         showLoadingProgressDialog();
         List<OrderTask> orderTasks = new ArrayList<>();
         if (!mBind.cbDhcp.isChecked()) {
-            String ip = mBind.etIp.getText().toString();
-            String mask = mBind.etMask.getText().toString();
-            String gateway = mBind.etGateway.getText().toString();
-            String dns = mBind.etDns.getText().toString();
             String[] ipArray = ip.split("\\.");
             String ipHex = String.format("%s%s%s%s",
                     MokoUtils.int2HexString(Integer.parseInt(ipArray[0])),

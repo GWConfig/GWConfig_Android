@@ -121,7 +121,7 @@ public class BatchConfigGatewayActivity extends BaseActivity<ActivityBatchModify
             if (result.result_code == 0) {
                 mGatewayList.get(mIndex).status = 1;
                 mAdapter.replaceData(mGatewayList);
-                if (mGatewayConfig.eapType == 2)
+                if (mGatewayConfig.eapType != 0)
                     modifyWIFICertFile();
                 else
                     modifyMQTTSettings();
@@ -153,7 +153,7 @@ public class BatchConfigGatewayActivity extends BaseActivity<ActivityBatchModify
             if (!mGatewayMac.equalsIgnoreCase(result.device_info.mac))
                 return;
             if (result.result_code == 0) {
-                if (mGatewayConfig.sslEnable == 1)
+                if (mGatewayConfig.sslEnable != 0)
                     modifyMQTTCertFile();
                 else
                     modifyNetworkSettings();

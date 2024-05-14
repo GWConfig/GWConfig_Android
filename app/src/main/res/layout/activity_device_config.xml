@@ -129,6 +129,23 @@
 
 
             <TextView
+                android:id="@+id/tvRetainParams"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="53dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginRight="53dp"
+                android:background="@drawable/shape_corner_btn_bg"
+                android:clickable="true"
+                android:gravity="center"
+                android:onClick="onRetainParams"
+                android:text="Retain parameters"
+                android:textColor="@color/white_ffffff"
+                android:textSize="18sp" />
+
+
+            <TextView
+                android:id="@+id/tvConnect"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginLeft="53dp"

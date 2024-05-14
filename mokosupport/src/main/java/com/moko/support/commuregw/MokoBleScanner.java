@@ -45,7 +45,7 @@ public final class MokoBleScanner {
                 .build();
         List<ScanFilter> scanFilterList = new ArrayList<>();
         ScanFilter.Builder builder = new ScanFilter.Builder();
-        builder.setServiceData(new ParcelUuid(OrderServices.SERVICE_ADV.getUuid()), null);
+        builder.setServiceUuid(new ParcelUuid(OrderServices.SERVICE_ADV.getUuid()), null);
         scanFilterList.add(builder.build());
 //        List<ScanFilter> scanFilterList = Collections.singletonList(new ScanFilter.Builder().build());
         mMokoLeScanHandler = new MokoLeScanHandler(callback);

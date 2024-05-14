@@ -16,6 +16,7 @@ import com.moko.commuregw.AppConstants;
 import com.moko.commuregw.base.BaseActivity;
 import com.moko.commuregw.databinding.ActivityWifiSettingsBinding;
 import com.moko.commuregw.dialog.BottomDialog;
+import com.moko.commuregw.entity.GatewayConfig;
 import com.moko.commuregw.utils.FileUtils;
 import com.moko.commuregw.utils.ToastUtils;
 import com.moko.support.commuregw.MokoSupport;
@@ -49,8 +50,14 @@ public class WifiSettingsActivity extends BaseActivity<ActivityWifiSettingsBindi
     private String mCertPath;
     private String mKeyPath;
 
+    private GatewayConfig mGatewayConfig;
+
+    private boolean mIsRetainParams;
+
     @Override
     protected void onCreate() {
+        mGatewayConfig = getIntent().getParcelableExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG);
+        mIsRetainParams = mGatewayConfig != null;
         mBind.cbVerifyServer.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (mSecuritySelected != 0 && mEAPTypeSelected != 2)
                 mBind.llCa.setVisibility(isChecked ? View.VISIBLE : View.GONE);
@@ -74,6 +81,56 @@ public class WifiSettingsActivity extends BaseActivity<ActivityWifiSettingsBindi
         mBind.etEapPassword.setFilters(new InputFilter[]{new InputFilter.LengthFilter(64), filter});
         mBind.etSsid.setFilters(new InputFilter[]{new InputFilter.LengthFilter(32), filter});
         mBind.etDomainId.setFilters(new InputFilter[]{new InputFilter.LengthFilter(64), filter});
+
+        if (mIsRetainParams) {
+            mSecuritySelected = mGatewayConfig.security;
+            mBind.tvSecurity.setText(mSecurityValues.get(mSecuritySelected));
+            mBind.clEapType.setVisibility(mSecuritySelected != 0 ? View.VISIBLE : View.GONE);
+            mBind.clPassword.setVisibility(mSecuritySelected != 0 ? View.GONE : View.VISIBLE);
+            if (mSecuritySelected == 0) {
+                mBind.llCa.setVisibility(View.GONE);
+            } else {
+                if (mEAPTypeSelected != 2) {
+                    mBind.llCa.setVisibility(mBind.cbVerifyServer.isChecked() ? View.VISIBLE : View.GONE);
+                } else {
+                    mBind.llCa.setVisibility(View.VISIBLE);
+                }
+            }
+
+            mBind.etSsid.setText(mGatewayConfig.wifiSSID);
+            mBind.etPassword.setText(mGatewayConfig.wifiPassword);
+            mBind.etEapPassword.setText(mGatewayConfig.eapPassword);
+            mEAPTypeSelected = mGatewayConfig.eapType;
+            mBind.tvEapType.setText(mEAPTypeValues.get(mEAPTypeSelected));
+            if (mSecuritySelected == 0) {
+                mBind.llCa.setVisibility(View.GONE);
+                mBind.clUsername.setVisibility(View.GONE);
+                mBind.clEapPassword.setVisibility(View.GONE);
+                mBind.cbVerifyServer.setVisibility(View.GONE);
+                mBind.clDomainId.setVisibility(View.GONE);
+                mBind.llCert.setVisibility(View.GONE);
+                mBind.llKey.setVisibility(View.GONE);
+                mBind.tvCertTips.setVisibility(View.GONE);
+            } else {
+                if (mEAPTypeSelected != 2)
+                    mBind.llCa.setVisibility(mBind.cbVerifyServer.isChecked() ? View.VISIBLE : View.GONE);
+                else
+                    mBind.llCa.setVisibility(View.VISIBLE);
+                mBind.clUsername.setVisibility(mEAPTypeSelected == 2 ? View.GONE : View.VISIBLE);
+                mBind.clEapPassword.setVisibility(mEAPTypeSelected == 2 ? View.GONE : View.VISIBLE);
+                mBind.cbVerifyServer.setVisibility(mEAPTypeSelected == 2 ? View.INVISIBLE : View.VISIBLE);
+                mBind.clDomainId.setVisibility(mEAPTypeSelected == 2 ? View.VISIBLE : View.GONE);
+                mBind.llCert.setVisibility(mEAPTypeSelected == 2 ? View.VISIBLE : View.GONE);
+                mBind.llKey.setVisibility(mEAPTypeSelected == 2 ? View.VISIBLE : View.GONE);
+                mBind.tvCertTips.setVisibility(mEAPTypeSelected == 2 ? View.VISIBLE : View.GONE);
+            }
+            mBind.etUsername.setText(mGatewayConfig.eapUserName);
+            mBind.etDomainId.setText(mGatewayConfig.domainId);
+            mBind.cbVerifyServer.setChecked(mGatewayConfig.verifyServer == 1);
+            if (mSecuritySelected != 0 && mEAPTypeSelected != 2)
+                mBind.llCa.setVisibility(mBind.cbVerifyServer.isChecked() ? View.VISIBLE : View.GONE);
+            return;
+        }
         showLoadingProgressDialog();
         mBind.tvTitle.postDelayed(() -> {
             List<OrderTask> orderTasks = new ArrayList<>();
@@ -380,6 +437,34 @@ public class WifiSettingsActivity extends BaseActivity<ActivityWifiSettingsBindi
             String password = mBind.etPassword.getText().toString();
             String eapPassword = mBind.etEapPassword.getText().toString();
             String domainId = mBind.etDomainId.getText().toString();
+            if (mIsRetainParams) {
+                mGatewayConfig.security = mSecuritySelected;
+                if (mSecuritySelected == 0) {
+                    mGatewayConfig.wifiSSID = ssid;
+                    mGatewayConfig.wifiPassword = password;
+                } else {
+                    if (mEAPTypeSelected != 2) {
+                        mGatewayConfig.wifiSSID = ssid;
+                        mGatewayConfig.eapUserName = username;
+                        mGatewayConfig.eapPassword = eapPassword;
+                        mGatewayConfig.verifyServer = mBind.cbVerifyServer.isChecked() ? 1 : 0;
+                        if (mGatewayConfig.verifyServer == 1)
+                            mGatewayConfig.wifiCaPath = mCaPath;
+                    } else {
+                        mGatewayConfig.wifiSSID = ssid;
+                        mGatewayConfig.domainId = domainId;
+                        mGatewayConfig.wifiCaPath = mCaPath;
+                        if (!TextUtils.isEmpty(mCertPath))
+                            mGatewayConfig.wifiCertPath = mCertPath;
+                        if (!TextUtils.isEmpty(mKeyPath))
+                            mGatewayConfig.wifiKeyPath = mKeyPath;
+                    }
+                }
+                mGatewayConfig.eapType = mEAPTypeSelected;
+                mIsSaved = true;
+                ToastUtils.showToast(this, "Setup succeed！");
+                return;
+            }
             showLoadingProgressDialog();
             List<OrderTask> orderTasks = new ArrayList<>();
             orderTasks.add(OrderTaskAssembler.setWifiSecurityType(mSecuritySelected));
@@ -420,8 +505,15 @@ public class WifiSettingsActivity extends BaseActivity<ActivityWifiSettingsBindi
     }
 
     private void back() {
-        if (mIsSaved)
-            setResult(RESULT_OK);
+        if (mIsSaved) {
+            if (mIsRetainParams) {
+                Intent intent = new Intent();
+                intent.putExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG, mGatewayConfig);
+                setResult(RESULT_OK, intent);
+            } else {
+                setResult(RESULT_OK);
+            }
+        }
         finish();
     }
 
