@@ -205,6 +205,7 @@ public class DeviceDetailActivity extends BaseActivity<ActivityDetailRemoteBindi
             mConnectedBXPButtonInfo.hardware_version = bxpButtonInfo.hardware_version;
             mConnectedBXPButtonInfo.software_version = bxpButtonInfo.software_version;
             mConnectedBXPButtonInfo.firmware_version = bxpButtonInfo.firmware_version;
+            mConnectedBXPButtonInfo.sensor_type = bxpButtonInfo.sensor_type;
             getBXPButtonStatus();
         }
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_ALARM_STATUS) {

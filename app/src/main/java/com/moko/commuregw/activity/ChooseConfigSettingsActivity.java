@@ -10,6 +10,8 @@ import com.lzy.okgo.callback.FileCallback;
 import com.lzy.okgo.model.Progress;
 import com.lzy.okgo.model.Response;
 import com.lzy.okgo.request.base.Request;
+import com.moko.ble.lib.MokoConstants;
+import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.commuregw.AppConstants;
 import com.moko.commuregw.BaseApplication;
 import com.moko.commuregw.base.BaseActivity;
@@ -17,11 +19,15 @@ import com.moko.commuregw.databinding.ActivityImportConfigFileBinding;
 import com.moko.commuregw.entity.GatewayConfig;
 import com.moko.commuregw.utils.SPUtiles;
 import com.moko.commuregw.utils.ToastUtils;
+import com.moko.support.commuregw.MokoSupport;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 
@@ -218,12 +224,28 @@ public class ChooseConfigSettingsActivity extends BaseActivity<ActivityImportCon
                                             ToastUtils.showToast(ChooseConfigSettingsActivity.this, "Import failed!");
                                             return;
                                         }
+                                        SPUtiles.setStringValue(ChooseConfigSettingsActivity.this, AppConstants.SP_KEY_WIFI_CA_FILE, "");
+                                        SPUtiles.setStringValue(ChooseConfigSettingsActivity.this, AppConstants.SP_KEY_WIFI_CERT_FILE, "");
+                                        SPUtiles.setStringValue(ChooseConfigSettingsActivity.this, AppConstants.SP_KEY_WIFI_KEY_FILE, "");
+                                        SPUtiles.setStringValue(ChooseConfigSettingsActivity.this, AppConstants.SP_KEY_MQTT_CA_FILE, "");
+                                        SPUtiles.setStringValue(ChooseConfigSettingsActivity.this, AppConstants.SP_KEY_MQTT_CERT_FILE, "");
+                                        SPUtiles.setStringValue(ChooseConfigSettingsActivity.this, AppConstants.SP_KEY_MQTT_KEY_FILE, "");
                                         if (mGatewayConfig.sslEnable != 0 && !TextUtils.isEmpty(mGatewayConfig.caPath)) {
-                                            String caFileName = mGatewayConfig.caPath.substring(mGatewayConfig.caPath.lastIndexOf("/"));
+                                            String caFileName = mGatewayConfig.caPath.substring(mGatewayConfig.caPath.lastIndexOf("/") + 1);
                                             downloadCertFile(mGatewayConfig.caPath, caFileName, 0);
+                                            return;
+                                        } else if (mGatewayConfig.security == 1 && mGatewayConfig.eapType != 0 && !TextUtils.isEmpty(mGatewayConfig.wifiCaPath)) {
+                                            String fileName = mGatewayConfig.wifiCaPath.substring(mGatewayConfig.wifiCaPath.lastIndexOf("/") + 1);
+                                            downloadCertFile(mGatewayConfig.wifiCaPath, fileName, 3);
                                             return;
                                         }
                                         ToastUtils.showToast(ChooseConfigSettingsActivity.this, "Import success!");
+                                        String fileUrl = mBind.etConfigFileUrl.getText().toString();
+                                        SPUtiles.setStringValue(ChooseConfigSettingsActivity.this, AppConstants.SP_KEY_MQTT_GATEWAY_SETTINGS_URL, fileUrl);
+                                        Intent intent = new Intent(ChooseConfigSettingsActivity.this, DeviceConfigActivity.class);
+                                        intent.putExtra(AppConstants.EXTRA_KEY_SELECTED_DEVICE_TYPE, mSelectedDeviceType);
+                                        intent.putExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG, mGatewayConfig);
+                                        startLauncher.launch(intent);
                                     });
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -271,35 +293,35 @@ public class ChooseConfigSettingsActivity extends BaseActivity<ActivityImportCon
                             if (type == 0) {
                                 SPUtiles.setStringValue(ChooseConfigSettingsActivity.this, AppConstants.SP_KEY_MQTT_CA_FILE, downloadFile.getAbsolutePath());
                                 if (mGatewayConfig.sslEnable != 0 && !TextUtils.isEmpty(mGatewayConfig.clientCertPath)) {
-                                    String fileName = mGatewayConfig.clientCertPath.substring(mGatewayConfig.clientCertPath.lastIndexOf("/"));
+                                    String fileName = mGatewayConfig.clientCertPath.substring(mGatewayConfig.clientCertPath.lastIndexOf("/") + 1);
                                     downloadCertFile(mGatewayConfig.clientCertPath, fileName, 1);
                                     return;
                                 }
                             } else if (type == 1) {
                                 SPUtiles.setStringValue(ChooseConfigSettingsActivity.this, AppConstants.SP_KEY_MQTT_CERT_FILE, downloadFile.getAbsolutePath());
                                 if (mGatewayConfig.sslEnable != 0 && !TextUtils.isEmpty(mGatewayConfig.clientKeyPath)) {
-                                    String fileName = mGatewayConfig.clientKeyPath.substring(mGatewayConfig.clientKeyPath.lastIndexOf("/"));
+                                    String fileName = mGatewayConfig.clientKeyPath.substring(mGatewayConfig.clientKeyPath.lastIndexOf("/") + 1);
                                     downloadCertFile(mGatewayConfig.clientKeyPath, fileName, 2);
                                     return;
                                 }
                             } else if (type == 2) {
                                 SPUtiles.setStringValue(ChooseConfigSettingsActivity.this, AppConstants.SP_KEY_MQTT_KEY_FILE, downloadFile.getAbsolutePath());
-                                if (mGatewayConfig.eapType != 0 && !TextUtils.isEmpty(mGatewayConfig.wifiCaPath)) {
-                                    String fileName = mGatewayConfig.wifiCaPath.substring(mGatewayConfig.wifiCaPath.lastIndexOf("/"));
+                                if (mGatewayConfig.security == 1 && mGatewayConfig.eapType != 0 && !TextUtils.isEmpty(mGatewayConfig.wifiCaPath)) {
+                                    String fileName = mGatewayConfig.wifiCaPath.substring(mGatewayConfig.wifiCaPath.lastIndexOf("/") + 1);
                                     downloadCertFile(mGatewayConfig.wifiCaPath, fileName, 3);
                                     return;
                                 }
                             } else if (type == 3) {
                                 SPUtiles.setStringValue(ChooseConfigSettingsActivity.this, AppConstants.SP_KEY_WIFI_CA_FILE, downloadFile.getAbsolutePath());
-                                if (mGatewayConfig.eapType == 2 && !TextUtils.isEmpty(mGatewayConfig.wifiCertPath)) {
-                                    String fileName = mGatewayConfig.wifiCertPath.substring(mGatewayConfig.wifiCertPath.lastIndexOf("/"));
+                                if (mGatewayConfig.security == 1 && mGatewayConfig.eapType == 2 && !TextUtils.isEmpty(mGatewayConfig.wifiCertPath)) {
+                                    String fileName = mGatewayConfig.wifiCertPath.substring(mGatewayConfig.wifiCertPath.lastIndexOf("/") + 1);
                                     downloadCertFile(mGatewayConfig.wifiCertPath, fileName, 4);
                                     return;
                                 }
                             } else if (type == 4) {
                                 SPUtiles.setStringValue(ChooseConfigSettingsActivity.this, AppConstants.SP_KEY_WIFI_CERT_FILE, downloadFile.getAbsolutePath());
-                                if (mGatewayConfig.eapType == 2 && !TextUtils.isEmpty(mGatewayConfig.wifiKeyPath)) {
-                                    String fileName = mGatewayConfig.wifiKeyPath.substring(mGatewayConfig.wifiKeyPath.lastIndexOf("/"));
+                                if (mGatewayConfig.security == 1 && mGatewayConfig.eapType == 2 && !TextUtils.isEmpty(mGatewayConfig.wifiKeyPath)) {
+                                    String fileName = mGatewayConfig.wifiKeyPath.substring(mGatewayConfig.wifiKeyPath.lastIndexOf("/") + 1);
                                     downloadCertFile(mGatewayConfig.wifiKeyPath, fileName, 5);
                                     return;
                                 }
@@ -335,7 +357,18 @@ public class ChooseConfigSettingsActivity extends BaseActivity<ActivityImportCon
 
 
     public void onBack(View view) {
-        finish();
+        if (isWindowLocked()) return;
+        back();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (isWindowLocked()) return;
+        back();
+    }
+
+    private void back() {
+        MokoSupport.getInstance().disConnectBle();
     }
 
     private final ActivityResultLauncher<Intent> startLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -345,4 +378,17 @@ public class ChooseConfigSettingsActivity extends BaseActivity<ActivityImportCon
             finish();
         }
     });
+
+    @Subscribe(threadMode = ThreadMode.POSTING, priority = 25)
+    public void onConnectStatusEvent(ConnectStatusEvent event) {
+        String action = event.getAction();
+        EventBus.getDefault().cancelEventDelivery(event);
+        if (MokoConstants.ACTION_DISCONNECTED.equals(action)) {
+            runOnUiThread(() -> {
+                Intent intent = new Intent();
+                setResult(RESULT_OK, intent);
+                finish();
+            });
+        }
+    }
 }

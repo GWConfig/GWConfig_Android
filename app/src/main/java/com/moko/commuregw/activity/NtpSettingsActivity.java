@@ -1,5 +1,6 @@
 package com.moko.commuregw.activity;
 
+import android.content.Intent;
 import android.text.InputFilter;
 import android.view.View;
 
@@ -8,9 +9,11 @@ import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
+import com.moko.commuregw.AppConstants;
 import com.moko.commuregw.base.BaseActivity;
 import com.moko.commuregw.databinding.ActivityNtpSettingsBinding;
 import com.moko.commuregw.dialog.BottomDialog;
+import com.moko.commuregw.entity.GatewayConfig;
 import com.moko.commuregw.utils.ToastUtils;
 import com.moko.support.commuregw.MokoSupport;
 import com.moko.support.commuregw.OrderTaskAssembler;
@@ -33,8 +36,14 @@ public class NtpSettingsActivity extends BaseActivity<ActivityNtpSettingsBinding
     private int mSelected;
     private boolean mSavedParamsError;
 
+    private GatewayConfig mGatewayConfig;
+
+    private boolean mIsRetainParams;
+
     @Override
     protected void onCreate() {
+        mGatewayConfig = getIntent().getParcelableExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG);
+        mIsRetainParams = mGatewayConfig != null;
         mTimeZones = new ArrayList<>();
         for (int i = -24; i <= 28; i++) {
             if (i < 0) {
@@ -63,6 +72,13 @@ public class NtpSettingsActivity extends BaseActivity<ActivityNtpSettingsBinding
             return null;
         };
         mBind.etNtpServer.setFilters(new InputFilter[]{new InputFilter.LengthFilter(64), filter});
+        if (mIsRetainParams) {
+            mSelected = mGatewayConfig.timezone + 24;
+            mBind.tvTimezone.setText(mTimeZones.get(mSelected));
+            String url = mGatewayConfig.ntpServer;
+            mBind.etNtpServer.setText(url);
+            return;
+        }
         showLoadingProgressDialog();
         mBind.tvTitle.postDelayed(() -> {
             List<OrderTask> orderTasks = new ArrayList<>();
@@ -171,6 +187,16 @@ public class NtpSettingsActivity extends BaseActivity<ActivityNtpSettingsBinding
     public void onSave(View view) {
         if (isWindowLocked()) return;
         String ntpServer = mBind.etNtpServer.getText().toString();
+        if (mIsRetainParams) {
+            mGatewayConfig.ntpServer = ntpServer;
+            mGatewayConfig.timezone = mSelected - 24;
+            ToastUtils.showToast(this, "Setup succeed！");
+            Intent intent = new Intent();
+            intent.putExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG, mGatewayConfig);
+            setResult(RESULT_OK, intent);
+            finish();
+            return;
+        }
         showLoadingProgressDialog();
         List<OrderTask> orderTasks = new ArrayList<>();
         orderTasks.add(OrderTaskAssembler.setNtpUrl(ntpServer));

@@ -208,12 +208,10 @@ public class NetworkSettingsActivity extends BaseActivity<ActivityNetworkSetting
             mGatewayConfig.gateway = gateway;
             mGatewayConfig.dns = dns;
             ToastUtils.showToast(this, "Setup succeed！");
-            if (mIsRetainParams) {
-                Intent intent = new Intent();
-                intent.putExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG, mGatewayConfig);
-                setResult(RESULT_OK, intent);
-                finish();
-            }
+            Intent intent = new Intent();
+            intent.putExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG, mGatewayConfig);
+            setResult(RESULT_OK, intent);
+            finish();
             return;
         }
         showLoadingProgressDialog();

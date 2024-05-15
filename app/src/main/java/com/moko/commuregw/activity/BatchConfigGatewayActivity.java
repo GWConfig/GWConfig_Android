@@ -126,6 +126,7 @@ public class BatchConfigGatewayActivity extends BaseActivity<ActivityBatchModify
                 else
                     modifyMQTTSettings();
             } else {
+                mHandler.removeMessages(0);
                 ToastUtils.showToast(this, "Set up failed");
                 mGatewayList.get(mIndex).status = 3;
                 refreshListAndNext();
@@ -141,6 +142,7 @@ public class BatchConfigGatewayActivity extends BaseActivity<ActivityBatchModify
             if (resultCode == 1) {
                 modifyMQTTSettings();
             } else {
+                mHandler.removeMessages(0);
                 ToastUtils.showToast(this, R.string.update_failed);
                 mGatewayList.get(mIndex).status = 3;
                 refreshListAndNext();
@@ -158,6 +160,7 @@ public class BatchConfigGatewayActivity extends BaseActivity<ActivityBatchModify
                 else
                     modifyNetworkSettings();
             } else {
+                mHandler.removeMessages(0);
                 ToastUtils.showToast(this, "Set up failed");
                 mGatewayList.get(mIndex).status = 3;
                 refreshListAndNext();
@@ -173,6 +176,7 @@ public class BatchConfigGatewayActivity extends BaseActivity<ActivityBatchModify
             if (resultCode == 1) {
                 modifyNetworkSettings();
             } else {
+                mHandler.removeMessages(0);
                 ToastUtils.showToast(this, R.string.update_failed);
                 mGatewayList.get(mIndex).status = 3;
                 refreshListAndNext();
@@ -187,6 +191,7 @@ public class BatchConfigGatewayActivity extends BaseActivity<ActivityBatchModify
             if (result.result_code == 0) {
                 rebootDevice();
             } else {
+                mHandler.removeMessages(0);
                 ToastUtils.showToast(this, "Set up failed");
                 mGatewayList.get(mIndex).status = 3;
                 refreshListAndNext();
@@ -441,7 +446,7 @@ public class BatchConfigGatewayActivity extends BaseActivity<ActivityBatchModify
         jsonObject.addProperty("eap_type", mGatewayConfig.eapType);
         jsonObject.addProperty("eap_id", mGatewayConfig.eapType == 2 ? mGatewayConfig.domainId : "");
         jsonObject.addProperty("eap_username", mGatewayConfig.security != 0 ? mGatewayConfig.eapUserName : "");
-        jsonObject.addProperty("eap_passwd", mGatewayConfig.security != 0 ? mGatewayConfig.eapUserName : "");
+        jsonObject.addProperty("eap_passwd", mGatewayConfig.security != 0 ? mGatewayConfig.eapPassword : "");
         jsonObject.addProperty("eap_verify_server", mGatewayConfig.verifyServer);
         String message = assembleWriteCommonData(msgId, mGatewayMac, jsonObject);
         try {
@@ -470,7 +475,7 @@ public class BatchConfigGatewayActivity extends BaseActivity<ActivityBatchModify
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("security_type", mGatewayConfig.sslEnable);
         jsonObject.addProperty("host", mGatewayConfig.host);
-        jsonObject.addProperty("port", mGatewayConfig.port);
+        jsonObject.addProperty("port", Integer.parseInt(mGatewayConfig.port));
         jsonObject.addProperty("client_id", mGatewayConfig.clientId);
         jsonObject.addProperty("username", mGatewayConfig.username);
         jsonObject.addProperty("passwd", mGatewayConfig.password);

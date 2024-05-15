@@ -110,6 +110,7 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
         mBind.rvDeviceList.setAdapter(adapter);
         mBind.rgCondition.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.rbAll) {
+                devices = DBTools.getInstance(this).selectAllDevice();
                 adapter.replaceData(devices);
             } else {
                 Iterator<MokoDevice> iterator = devices.iterator();
@@ -515,7 +516,7 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
     protected void onDestroy() {
         super.onDestroy();
         MQTTSupport.getInstance().disconnectMqtt();
-        if (!devices.isEmpty()) {
+        if (devices != null && !devices.isEmpty()) {
             for (final MokoDevice device : devices) {
                 if (mHandler.hasMessages(device.id)) {
                     mHandler.removeMessages(device.id);

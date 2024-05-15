@@ -421,11 +421,12 @@
                 android:onClick="onBatteryTestParams"
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp"
-                android:text="@string/battery_test_parameters"
+                android:text="@string/device_self_test_parameters"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
 
             <TextView
+                android:id="@+id/tvAccParams"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="1dp"
@@ -441,6 +442,7 @@
                 android:textSize="15sp" />
 
             <TextView
+                android:id="@+id/tvSleepModeParams"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="1dp"
@@ -497,6 +499,52 @@
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp"
                 android:text="@string/button_log"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onSOSAlarmNotify"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/sos_alarm_notify"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onDismissSOSAlarmNotify"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/dismiss_sos_alarm_notify"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/white_ffffff"
+                android:clickable="true"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:onClick="onBtnPressEffectiveInterval"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/btn_press_effective_interval"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
 

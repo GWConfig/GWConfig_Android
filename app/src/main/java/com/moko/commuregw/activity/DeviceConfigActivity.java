@@ -336,16 +336,18 @@ public class DeviceConfigActivity extends BaseActivity<ActivityDeviceConfigBindi
             orderTasks.add(OrderTaskAssembler.setMqttUserName(mGatewayConfig.username));
             orderTasks.add(OrderTaskAssembler.setMqttPassword(mGatewayConfig.password));
             orderTasks.add(OrderTaskAssembler.setMqttConnectMode(mGatewayConfig.sslEnable == 1 ? mGatewayConfig.certType : 0));
-            if (mGatewayConfig.certType == 2 && TextUtils.isEmpty(mqttCertFile)) {
-                File file = new File(mqttCaFile);
-                orderTasks.add(OrderTaskAssembler.setCA(file));
-            } else if (mGatewayConfig.certType == 3) {
-                File clientKeyFile = new File(mqttKeyFile);
-                orderTasks.add(OrderTaskAssembler.setClientKey(clientKeyFile));
-                File clientCertFile = new File(mqttCertFile);
-                orderTasks.add(OrderTaskAssembler.setClientCert(clientCertFile));
-                File caFile = new File(mqttCaFile);
-                orderTasks.add(OrderTaskAssembler.setCA(caFile));
+            if (mGatewayConfig.sslEnable == 1) {
+                if (mGatewayConfig.certType == 2 && TextUtils.isEmpty(mqttCertFile)) {
+                    File file = new File(mqttCaFile);
+                    orderTasks.add(OrderTaskAssembler.setCA(file));
+                } else if (mGatewayConfig.certType == 3) {
+                    File clientKeyFile = new File(mqttKeyFile);
+                    orderTasks.add(OrderTaskAssembler.setClientKey(clientKeyFile));
+                    File clientCertFile = new File(mqttCertFile);
+                    orderTasks.add(OrderTaskAssembler.setClientCert(clientCertFile));
+                    File caFile = new File(mqttCaFile);
+                    orderTasks.add(OrderTaskAssembler.setCA(caFile));
+                }
             }
             // net
             if (mGatewayConfig.dhcp == 1) {

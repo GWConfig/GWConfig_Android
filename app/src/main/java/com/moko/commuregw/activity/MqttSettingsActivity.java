@@ -22,6 +22,7 @@ import com.moko.commuregw.entity.MQTTConfig;
 import com.moko.commuregw.fragment.GeneralDeviceFragment;
 import com.moko.commuregw.fragment.SSLDeviceFragment;
 import com.moko.commuregw.fragment.UserDeviceFragment;
+import com.moko.commuregw.utils.SPUtiles;
 import com.moko.commuregw.utils.ToastUtils;
 import com.moko.support.commuregw.MokoSupport;
 import com.moko.support.commuregw.OrderTaskAssembler;
@@ -77,6 +78,7 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
         mBind.etMqttSubscribeTopic.setFilters(new InputFilter[]{new InputFilter.LengthFilter(128), filter});
         mBind.etMqttPublishTopic.setFilters(new InputFilter[]{new InputFilter.LengthFilter(128), filter});
         mqttDeviceConfig = new MQTTConfig();
+        createFragment();
         if (mIsRetainParams) {
             mqttDeviceConfig.connectMode = mGatewayConfig.sslEnable != 0 ? mGatewayConfig.certType : 0;
             sslFragment.setConnectMode(mqttDeviceConfig.connectMode);
@@ -102,19 +104,20 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
             mqttDeviceConfig.topicSubscribe = mGatewayConfig.topicSubscribe;
             mBind.etMqttSubscribeTopic.setText(mqttDeviceConfig.topicSubscribe);
 
-            mqttDeviceConfig.topicPublish = mGatewayConfig.topicSubscribe;
+            mqttDeviceConfig.topicPublish = mGatewayConfig.topicPublish;
             mBind.etMqttPublishTopic.setText(mqttDeviceConfig.topicPublish);
 
             mqttDeviceConfig.username = mGatewayConfig.username;
             userFragment.setUserName(mqttDeviceConfig.username);
             mqttDeviceConfig.password = mGatewayConfig.password;
             userFragment.setPassword(mqttDeviceConfig.password);
-
-            mqttDeviceConfig.caPath = mGatewayConfig.caPath;
-            mqttDeviceConfig.clientCertPath = mGatewayConfig.clientCertPath;
-            mqttDeviceConfig.clientKeyPath = mGatewayConfig.clientKeyPath;
+            String mqttCaFile = SPUtiles.getStringValue(this, AppConstants.SP_KEY_MQTT_CA_FILE, "");
+            String mqttCertFile = SPUtiles.getStringValue(this, AppConstants.SP_KEY_MQTT_CERT_FILE, "");
+            String mqttKeyFile = SPUtiles.getStringValue(this, AppConstants.SP_KEY_MQTT_KEY_FILE, "");
+            mqttDeviceConfig.caPath = mqttCaFile;
+            mqttDeviceConfig.clientCertPath = mqttCertFile;
+            mqttDeviceConfig.clientKeyPath = mqttKeyFile;
         }
-        createFragment();
         initData();
         adapter = new MQTTFragmentAdapter(this);
         adapter.setFragmentList(fragments);
@@ -368,9 +371,6 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
     private void back() {
         if (mIsSaved) {
             Intent intent = new Intent();
-            if (mIsRetainParams) {
-                intent.putExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG, mGatewayConfig);
-            }
             intent.putExtra(AppConstants.EXTRA_KEY_MQTT_CONFIG_DEVICE, mqttDeviceConfig);
             setResult(RESULT_OK, intent);
         }
@@ -411,6 +411,11 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
             mGatewayConfig.clientCertPath = mqttDeviceConfig.clientCertPath;
             mIsSaved = true;
             ToastUtils.showToast(this, "Setup succeed！");
+            Intent intent = new Intent();
+            intent.putExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG, mGatewayConfig);
+            intent.putExtra(AppConstants.EXTRA_KEY_MQTT_CONFIG_DEVICE, mqttDeviceConfig);
+            setResult(RESULT_OK, intent);
+            finish();
             return;
         }
         setMQTTDeviceConfig();

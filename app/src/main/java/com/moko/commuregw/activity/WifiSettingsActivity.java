@@ -18,6 +18,7 @@ import com.moko.commuregw.databinding.ActivityWifiSettingsBinding;
 import com.moko.commuregw.dialog.BottomDialog;
 import com.moko.commuregw.entity.GatewayConfig;
 import com.moko.commuregw.utils.FileUtils;
+import com.moko.commuregw.utils.SPUtiles;
 import com.moko.commuregw.utils.ToastUtils;
 import com.moko.support.commuregw.MokoSupport;
 import com.moko.support.commuregw.OrderTaskAssembler;
@@ -123,6 +124,12 @@ public class WifiSettingsActivity extends BaseActivity<ActivityWifiSettingsBindi
                 mBind.llCert.setVisibility(mEAPTypeSelected == 2 ? View.VISIBLE : View.GONE);
                 mBind.llKey.setVisibility(mEAPTypeSelected == 2 ? View.VISIBLE : View.GONE);
                 mBind.tvCertTips.setVisibility(mEAPTypeSelected == 2 ? View.VISIBLE : View.GONE);
+                String wifiCaFile = SPUtiles.getStringValue(this, AppConstants.SP_KEY_WIFI_CA_FILE, "");
+                String wifiCertFile = SPUtiles.getStringValue(this, AppConstants.SP_KEY_WIFI_CERT_FILE, "");
+                String wifiKeyFile = SPUtiles.getStringValue(this, AppConstants.SP_KEY_WIFI_KEY_FILE, "");
+                mBind.tvCaFile.setText(wifiCaFile);
+                mBind.tvCertFile.setText(wifiCertFile);
+                mBind.tvKeyFile.setText(wifiKeyFile);
             }
             mBind.etUsername.setText(mGatewayConfig.eapUserName);
             mBind.etDomainId.setText(mGatewayConfig.domainId);
@@ -463,6 +470,10 @@ public class WifiSettingsActivity extends BaseActivity<ActivityWifiSettingsBindi
                 mGatewayConfig.eapType = mEAPTypeSelected;
                 mIsSaved = true;
                 ToastUtils.showToast(this, "Setup succeed！");
+                Intent intent = new Intent();
+                intent.putExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG, mGatewayConfig);
+                setResult(RESULT_OK, intent);
+                finish();
                 return;
             }
             showLoadingProgressDialog();
@@ -506,13 +517,7 @@ public class WifiSettingsActivity extends BaseActivity<ActivityWifiSettingsBindi
 
     private void back() {
         if (mIsSaved) {
-            if (mIsRetainParams) {
-                Intent intent = new Intent();
-                intent.putExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG, mGatewayConfig);
-                setResult(RESULT_OK, intent);
-            } else {
-                setResult(RESULT_OK);
-            }
+            setResult(RESULT_OK);
         }
         finish();
     }

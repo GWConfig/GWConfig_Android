@@ -95,6 +95,8 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
                 R.drawable.ic_cb_close : R.drawable.ic_cb_open);
         dra.setBounds(0, 0, dra.getIntrinsicWidth(), dra.getIntrinsicHeight());
         mBind.tvPasswordVerify.setCompoundDrawables(null, null, dra, null);
+        mBind.tvAccParams.setVisibility((mBXPButtonInfo.sensor_type & 0x01) == 1 ? View.VISIBLE : View.GONE);
+        mBind.tvSleepModeParams.setVisibility((mBXPButtonInfo.sensor_type & 0x01) == 1 ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -427,7 +429,7 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
 
     public void onBatteryTestParams(View view) {
         if (isWindowLocked()) return;
-        Intent intent = new Intent(this, BatteryTestParamsActivity.class);
+        Intent intent = new Intent(this, DeviceSelfTestParamsActivity.class);
         intent.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
         intent.putExtra(AppConstants.EXTRA_KEY_BXP_BUTTON_INFO, mBXPButtonInfo);
         startActivity(intent);
@@ -482,6 +484,30 @@ public class BXPButtonInfoActivity extends BaseActivity<ActivityBxpButtonInfoBin
     public void onButtonLog(View view) {
         if (isWindowLocked()) return;
         Intent intent = new Intent(this, ButtonLogActivity.class);
+        intent.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
+        intent.putExtra(AppConstants.EXTRA_KEY_BXP_BUTTON_INFO, mBXPButtonInfo);
+        startActivity(intent);
+    }
+
+    public void onSOSAlarmNotify(View view) {
+        if (isWindowLocked()) return;
+        Intent intent = new Intent(this, SOSAlarmNotifyActivity.class);
+        intent.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
+        intent.putExtra(AppConstants.EXTRA_KEY_BXP_BUTTON_INFO, mBXPButtonInfo);
+        startActivity(intent);
+    }
+
+    public void onDismissSOSAlarmNotify(View view) {
+        if (isWindowLocked()) return;
+        Intent intent = new Intent(this, DismissSOSAlarmNotifyActivity.class);
+        intent.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
+        intent.putExtra(AppConstants.EXTRA_KEY_BXP_BUTTON_INFO, mBXPButtonInfo);
+        startActivity(intent);
+    }
+
+    public void onBtnPressEffectiveInterval(View view) {
+        if (isWindowLocked()) return;
+        Intent intent = new Intent(this, BtnPressEffectiveIntervalActivity.class);
         intent.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
         intent.putExtra(AppConstants.EXTRA_KEY_BXP_BUTTON_INFO, mBXPButtonInfo);
         startActivity(intent);

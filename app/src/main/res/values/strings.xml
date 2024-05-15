@@ -95,14 +95,18 @@
     <string name="sos_triggered_by_button">SOS triggered by button</string>
     <string name="self_test_triggered_by_button">Self test triggered by button</string>
     <string name="update_encryption_key">Update encryption key</string>
-    <string name="battery_test_parameters">Battery test parameters</string>
+    <string name="device_self_test_parameters">Device self-test parameters</string>
     <string name="accelerometer_parameters">Accelerometer parameters</string>
     <string name="sleep_mode_parameters">Sleep mode parameters</string>
     <string name="power_off">Power off</string>
     <string name="restore_to_factory_settings">Restore to factory settings</string>
     <string name="button_log">Button log</string>
+    <string name="sos_alarm_notify">SOS alarm notification</string>
+    <string name="dismiss_sos_alarm_notify">Dismiss SOS alarm notification</string>
+    <string name="btn_press_effective_interval">Button press effective interval</string>
     <string name="adv_parameters">ADV parameters</string>
     <string name="when_battery_voltage_threshold"><![CDATA[When battery voltage<threshold]]></string>
+    <string name="btn_press_effective_interval_tips">Button press effective interval: The threshold value to distinguish the single press, double press and triple press.\nFor example: If you have set with 2000ms, when you press button once and in the next 2000ms if you press button again, and no more actions in the next 2000ms, then it will be recognized as double press action.</string>
 
     <string name="mac_error">Gateway list MAC error!</string>
     <string name="beacon_mac_error">Beacon list MAC error!</string>

@@ -10,6 +10,7 @@ import com.lzy.okgo.callback.FileCallback;
 import com.lzy.okgo.model.Progress;
 import com.lzy.okgo.model.Response;
 import com.lzy.okgo.request.base.Request;
+import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.commuregw.AppConstants;
 import com.moko.commuregw.BaseApplication;
 import com.moko.commuregw.base.BaseActivity;
@@ -22,6 +23,8 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 
@@ -233,6 +236,11 @@ public class DownDataActivity extends BaseActivity<ActivityDownDataBinding> {
 
     public void onBack(View view) {
         finish();
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onConnectStatusEvent(ConnectStatusEvent event) {
     }
 
 }

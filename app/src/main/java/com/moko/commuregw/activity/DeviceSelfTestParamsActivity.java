@@ -12,7 +12,7 @@ import com.google.gson.reflect.TypeToken;
 import com.moko.commuregw.AppConstants;
 import com.moko.commuregw.R;
 import com.moko.commuregw.base.BaseActivity;
-import com.moko.commuregw.databinding.ActivityBatteryTestParamsBinding;
+import com.moko.commuregw.databinding.ActivityDeviceSelfTestParamsBinding;
 import com.moko.commuregw.dialog.BottomDialog;
 import com.moko.commuregw.entity.MQTTConfig;
 import com.moko.commuregw.entity.MokoDevice;
@@ -32,7 +32,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class BatteryTestParamsActivity extends BaseActivity<ActivityBatteryTestParamsBinding> {
+public class DeviceSelfTestParamsActivity extends BaseActivity<ActivityDeviceSelfTestParamsBinding> {
 
     private MokoDevice mMokoDevice;
     private MQTTConfig appMqttConfig;
@@ -44,6 +44,8 @@ public class BatteryTestParamsActivity extends BaseActivity<ActivityBatteryTestP
     private int mHigherSelected;
     private int mLowerSelected;
     private int mMode = 0;
+
+    private int mThreshold;
 
     @Override
     protected void onCreate() {
@@ -65,12 +67,12 @@ public class BatteryTestParamsActivity extends BaseActivity<ActivityBatteryTestP
             finish();
         }, 30 * 1000);
         showLoadingProgressDialog();
-        getBatteryTestParams();
+        getDeviceTestParams(MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_GET_LED_BUZZER_TEST_PARAMS);
     }
 
     @Override
-    protected ActivityBatteryTestParamsBinding getViewBinding() {
-        return ActivityBatteryTestParamsBinding.inflate(getLayoutInflater());
+    protected ActivityDeviceSelfTestParamsBinding getViewBinding() {
+        return ActivityDeviceSelfTestParamsBinding.inflate(getLayoutInflater());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -88,6 +90,29 @@ public class BatteryTestParamsActivity extends BaseActivity<ActivityBatteryTestP
         } catch (Exception e) {
             e.printStackTrace();
             return;
+        }
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_GET_LED_BUZZER_TEST_PARAMS) {
+            Type type = new TypeToken<MsgNotify<JsonObject>>() {
+            }.getType();
+            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
+            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                return;
+            String mac = result.data.get("mac").getAsString();
+            if (!mBXPButtonInfo.mac.equalsIgnoreCase(mac)) return;
+            int result_code = result.data.get("result_code").getAsInt();
+            if (result_code != 0) {
+                dismissLoadingProgressDialog();
+                mHandler.removeMessages(0);
+                ToastUtils.showToast(this, "Setup failed");
+                return;
+            }
+            int ledFlashTime = result.data.get("led_flash_time").getAsInt();
+            int buzzerOffTime = result.data.get("buzzer_off_time").getAsInt();
+            int buzzerWorkTime = result.data.get("buzzer_work_time").getAsInt();
+            mBind.etBlinkingDuration.setText(String.valueOf(ledFlashTime));
+            mBind.etBeepInterval.setText(String.valueOf(buzzerOffTime / 100));
+            mBind.etBeepDuration.setText(String.valueOf(buzzerWorkTime / 100));
+            getDeviceTestParams(MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_GET_BATTERY_TEST_PARAMS);
         }
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_GET_BATTERY_TEST_PARAMS) {
             Type type = new TypeToken<MsgNotify<JsonObject>>() {
@@ -155,6 +180,24 @@ public class BatteryTestParamsActivity extends BaseActivity<ActivityBatteryTestP
                 mBind.etHigherDuration.setText(String.valueOf(ledDuration));
             }
 
+        }
+        if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_LED_BUZZER_TEST_PARAMS) {
+            Type type = new TypeToken<MsgNotify<JsonObject>>() {
+            }.getType();
+            MsgNotify<JsonObject> result = new Gson().fromJson(message, type);
+            if (!mMokoDevice.mac.equalsIgnoreCase(result.device_info.mac))
+                return;
+            String mac = result.data.get("mac").getAsString();
+            if (!mBXPButtonInfo.mac.equalsIgnoreCase(mac)) return;
+            int result_code = result.data.get("result_code").getAsInt();
+            if (result_code == 0) {
+                setBatteryTestParams(mThreshold);
+                return;
+            } else {
+                ToastUtils.showToast(this, "Set up failed");
+            }
+            dismissLoadingProgressDialog();
+            mHandler.removeMessages(0);
         }
         if (msg_id == MQTTConstants.NOTIFY_MSG_ID_BLE_BXP_BUTTON_SET_BATTERY_TEST_PARAMS) {
             Type type = new TypeToken<MsgNotify<JsonObject>>() {
@@ -224,8 +267,7 @@ public class BatteryTestParamsActivity extends BaseActivity<ActivityBatteryTestP
         finish();
     }
 
-    private void getBatteryTestParams() {
-        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_GET_BATTERY_TEST_PARAMS;
+    private void getDeviceTestParams(int msgId) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("mac", mBXPButtonInfo.mac);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
@@ -241,6 +283,21 @@ public class BatteryTestParamsActivity extends BaseActivity<ActivityBatteryTestP
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("mac", mBXPButtonInfo.mac);
         jsonObject.addProperty("batt_warn_mode", mode);
+        String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
+        try {
+            MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setLEDBuzzerTestParams(int ledFlashTime, int interval, int duration) {
+        int msgId = MQTTConstants.CONFIG_MSG_ID_BLE_BXP_BUTTON_SET_LED_BUZZER_TEST_PARAMS;
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("mac", mBXPButtonInfo.mac);
+        jsonObject.addProperty("led_flash_time", ledFlashTime);
+        jsonObject.addProperty("buzzer_off_time", interval * 100);
+        jsonObject.addProperty("buzzer_work_time", duration * 100);
         String message = assembleWriteCommonData(msgId, mMokoDevice.mac, jsonObject);
         try {
             MQTTSupport.getInstance().publish(mAppTopic, message, msgId, appMqttConfig.qos);
@@ -317,13 +374,43 @@ public class BatteryTestParamsActivity extends BaseActivity<ActivityBatteryTestP
 
     public void onSave(View view) {
         if (isWindowLocked()) return;
+        String ledFlashTimeStr = mBind.etBlinkingDuration.getText().toString();
+        if (TextUtils.isEmpty(ledFlashTimeStr)) {
+            ToastUtils.showToast(this, "Para Error");
+            return;
+        }
+        int ledFlashTime = Integer.parseInt(ledFlashTimeStr);
+        if (ledFlashTime < 1 || ledFlashTime > 255) {
+            ToastUtils.showToast(this, "Para Error");
+            return;
+        }
+        String beepIntervalStr = mBind.etBeepInterval.getText().toString();
+        if (TextUtils.isEmpty(beepIntervalStr)) {
+            ToastUtils.showToast(this, "Para Error");
+            return;
+        }
+        int beepInterval = Integer.parseInt(beepIntervalStr);
+        if (beepInterval > 100) {
+            ToastUtils.showToast(this, "Para Error");
+            return;
+        }
+        String beepDurationStr = mBind.etBeepDuration.getText().toString();
+        if (TextUtils.isEmpty(beepDurationStr)) {
+            ToastUtils.showToast(this, "Para Error");
+            return;
+        }
+        int beepDuration = Integer.parseInt(beepDurationStr);
+        if (beepDuration > 655) {
+            ToastUtils.showToast(this, "Para Error");
+            return;
+        }
         String thresholdStr = mBind.etVoltageThreshold.getText().toString();
         if (TextUtils.isEmpty(thresholdStr)) {
             ToastUtils.showToast(this, "Para Error");
             return;
         }
-        int threshold = Integer.parseInt(thresholdStr);
-        if (threshold < 2000 || threshold > 3600) {
+        mThreshold = Integer.parseInt(thresholdStr);
+        if (mThreshold < 2000 || mThreshold > 4200) {
             ToastUtils.showToast(this, "Para Error");
             return;
         }
@@ -362,6 +449,6 @@ public class BatteryTestParamsActivity extends BaseActivity<ActivityBatteryTestP
             ToastUtils.showToast(this, "Set up failed");
         }, 30 * 1000);
         showLoadingProgressDialog();
-        setBatteryTestParams(threshold);
+        setLEDBuzzerTestParams(ledFlashTime, beepInterval, beepDuration);
     }
 }
