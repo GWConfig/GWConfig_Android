@@ -60,8 +60,8 @@
     <string name="permission_location_close_content">Please find it in cellphone setting- permission, and allow GWConfig use the Location permission</string>
     <string name="permission_location_need_content">GWConfig requires access to Location permission. If the permissions are not on, GWConfig cannot be used normally.</string>
     <string name="permission_ble_content">GWConfig requires access to bluetooth scan contract and location permission. If the permissions are not on, GWConfig cannot be used normally.</string>
-    
-    
+
+
     <string name="version_info">V%s</string>
     <string name="about_moko_name">MOKO TECHNOLOGY LTD.</string>
     <string name="company_website">www.mokosmart.com</string>
@@ -109,8 +109,11 @@
     <string name="btn_press_effective_interval_tips">Button press effective interval: The threshold value to distinguish the single press, double press and triple press.\nFor example: If you have set with 2000ms, when you press button once and in the next 2000ms if you press button again, and no more actions in the next 2000ms, then it will be recognized as double press action.</string>
 
     <string name="mac_error">Gateway list MAC error!</string>
+    <string name="save_success">Save success</string>
+    <string name="mac_repeat">MAC repeated!</string>
     <string name="beacon_mac_error">Beacon list MAC error!</string>
     <string name="size_error">Max 20 gateways are allowed!</string>
+    <string name="size_error_beacon">Max 20 beacon are allowed!</string>
     <string name="size_error_50">Max 50 gateways are allowed!</string>
     <string name="add_configured_device">Add configured device</string>
 

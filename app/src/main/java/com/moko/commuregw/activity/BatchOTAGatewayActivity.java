@@ -407,6 +407,12 @@ public class BatchOTAGatewayActivity extends BaseActivity<ActivityBatchOtaGatewa
                     ToastUtils.showToast(this, R.string.mac_error);
                     return;
                 }
+                for (BatchGateway gateway : mGatewayList) {
+                    if (contents.equalsIgnoreCase(gateway.mac)) {
+                        ToastUtils.showToast(this, R.string.mac_repeat);
+                        return;
+                    }
+                }
                 if (mGatewayList.size() >= 20) {
                     ToastUtils.showToast(this, R.string.size_error);
                     return;

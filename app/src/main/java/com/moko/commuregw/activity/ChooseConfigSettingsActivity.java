@@ -14,6 +14,7 @@ import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.commuregw.AppConstants;
 import com.moko.commuregw.BaseApplication;
+import com.moko.commuregw.R;
 import com.moko.commuregw.base.BaseActivity;
 import com.moko.commuregw.databinding.ActivityImportConfigFileBinding;
 import com.moko.commuregw.entity.GatewayConfig;
@@ -33,12 +34,15 @@ import java.io.File;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
 
 public class ChooseConfigSettingsActivity extends BaseActivity<ActivityImportConfigFileBinding> {
     private GatewayConfig mGatewayConfig;
     private boolean isFileError;
     private int mIndex = 1;
     private int mSelectedDeviceType;
+
+    private boolean mIsManual;
 
     @Override
     protected void onCreate() {
@@ -48,7 +52,7 @@ public class ChooseConfigSettingsActivity extends BaseActivity<ActivityImportCon
         mGatewayConfig = new GatewayConfig();
         mBind.tvNext.setOnClickListener(v -> {
             String fileUrl = mBind.etConfigFileUrl.getText().toString();
-            if (mBind.cbImportConfig.isChecked()) {
+            if (!mIsManual) {
                 if (TextUtils.isEmpty(fileUrl)) {
                     ToastUtils.showToast(this, "URL error");
                     return;
@@ -62,13 +66,15 @@ public class ChooseConfigSettingsActivity extends BaseActivity<ActivityImportCon
             }
         });
         mBind.llImportConfig.setOnClickListener(v -> {
-            mBind.cbImportConfig.setChecked(true);
-            mBind.cbManualSettings.setChecked(false);
+            mIsManual = false;
+            mBind.ivImportConfig.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_selected));
+            mBind.ivManualSettings.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_unselected));
             mBind.etConfigFileUrl.setVisibility(View.VISIBLE);
         });
         mBind.llManualSettings.setOnClickListener(v -> {
-            mBind.cbImportConfig.setChecked(false);
-            mBind.cbManualSettings.setChecked(true);
+            mIsManual = true;
+            mBind.ivImportConfig.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_unselected));
+            mBind.ivManualSettings.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_selected));
             mBind.etConfigFileUrl.setVisibility(View.GONE);
         });
     }
@@ -258,10 +264,12 @@ public class ChooseConfigSettingsActivity extends BaseActivity<ActivityImportCon
                     @Override
                     public void onError(Response<File> response) {
                         ToastUtils.showToast(ChooseConfigSettingsActivity.this, "Download error");
+                        dismissLoadingProgressDialog();
                     }
 
                     @Override
                     public void onFinish() {
+                        dismissLoadingProgressDialog();
                     }
                 });
     }
@@ -342,10 +350,12 @@ public class ChooseConfigSettingsActivity extends BaseActivity<ActivityImportCon
                     @Override
                     public void onError(Response<File> response) {
                         ToastUtils.showToast(ChooseConfigSettingsActivity.this, "Download error");
+                        dismissLoadingProgressDialog();
                     }
 
                     @Override
                     public void onFinish() {
+                        dismissLoadingProgressDialog();
                     }
                 });
     }

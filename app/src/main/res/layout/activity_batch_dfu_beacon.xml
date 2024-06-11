@@ -206,22 +206,12 @@
             android:textSize="15sp" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="40dp"
-            android:layout_toLeftOf="@id/tv_status"
-            android:text="Password"
-            android:textColor="@color/black_333333"
-            android:textSize="15sp" />
-
-        <TextView
             android:id="@+id/tv_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="12dp"
+            android:layout_marginRight="70dp"
             android:text="Status"
             android:textColor="@color/black_333333"
             android:textSize="15sp" />

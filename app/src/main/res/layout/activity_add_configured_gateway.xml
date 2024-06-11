@@ -201,4 +201,20 @@
         android:textColor="@color/white_ffffff"
         android:textSize="15sp"
         android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tv_start"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="53dp"
+        android:layout_marginRight="53dp"
+        android:layout_marginBottom="25dp"
+        android:background="@drawable/shape_corner_btn_bg"
+        android:clickable="true"
+        android:gravity="center"
+        android:onClick="onStart"
+        android:text="Start"
+        android:textColor="@color/white_ffffff"
+        android:textSize="15sp"
+        android:visibility="visible" />
 </LinearLayout>

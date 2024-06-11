@@ -410,7 +410,7 @@ public class DeviceSelfTestParamsActivity extends BaseActivity<ActivityDeviceSel
             return;
         }
         mThreshold = Integer.parseInt(thresholdStr);
-        if (mThreshold < 2000 || mThreshold > 4200) {
+        if (mThreshold < 2000 || mThreshold > 3600) {
             ToastUtils.showToast(this, "Para Error");
             return;
         }

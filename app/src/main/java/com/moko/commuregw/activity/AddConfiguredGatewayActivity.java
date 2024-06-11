@@ -29,6 +29,7 @@ import com.moko.commuregw.utils.SPUtiles;
 import com.moko.commuregw.utils.ToastUtils;
 import com.moko.support.commuregw.MQTTConstants;
 import com.moko.support.commuregw.MQTTSupport;
+import com.moko.support.commuregw.entity.BatchGateway;
 import com.moko.support.commuregw.entity.ConfiguredGateway;
 import com.moko.support.commuregw.entity.MsgNotify;
 import com.moko.support.commuregw.event.MQTTMessageArrivedEvent;
@@ -85,6 +86,10 @@ public class AddConfiguredGatewayActivity extends BaseActivity<ActivityAddConfig
 //        mBind.etGatewayPublishTopic.setFilters(new InputFilter[]{new InputFilter.LengthFilter(128), inputFilter});
 //        mBind.etGatewaySubscribeTopic.setFilters(new InputFilter[]{new InputFilter.LengthFilter(128), inputFilter});
         String mqttConfigAppStr = SPUtiles.getStringValue(this, AppConstants.SP_KEY_MQTT_CONFIG_APP, "");
+        String deviceSubscribeTopic = SPUtiles.getStringValue(this, AppConstants.SP_KEY_ADD_DEVICE_SUBSCRIBE, "");
+        String devicePublishTopic = SPUtiles.getStringValue(this, AppConstants.SP_KEY_ADD_DEVICE_PUBLISH, "");
+        mBind.etGatewayPublishTopic.setText(devicePublishTopic);
+        mBind.etGatewaySubscribeTopic.setText(deviceSubscribeTopic);
         appMqttConfig = new Gson().fromJson(mqttConfigAppStr, MQTTConfig.class);
         mHandler = new Handler(Looper.getMainLooper());
         mGatewayList = new ArrayList<>();
@@ -125,14 +130,23 @@ public class AddConfiguredGatewayActivity extends BaseActivity<ActivityAddConfig
 //            dismissLoadingProgressDialog();
             mHandler.removeMessages(0);
             mGatewayList.get(mIndex).status = 1;
-            MokoDevice mokoDevice = new MokoDevice();
-            mokoDevice.name = String.format("MK110-%s", mGatewayMac.substring(mGatewayMac.length() - 4)).toUpperCase(Locale.ROOT);
-            mokoDevice.mac = mGatewayMac;
-            mokoDevice.mqttInfo = "";
-            mokoDevice.topicSubscribe = mGatewaySubscribeTopic;
-            mokoDevice.topicPublish = mGatewayPublicTopic;
-            mokoDevice.deviceType = 1;
-            DBTools.getInstance(AddConfiguredGatewayActivity.this).insertDevice(mokoDevice);
+            MokoDevice mokoDevice = DBTools.getInstance(AddConfiguredGatewayActivity.this).selectDeviceByMac(mGatewayMac);
+            if (mokoDevice == null) {
+                mokoDevice = new MokoDevice();
+                mokoDevice.name = String.format("MK110-%s", mGatewayMac.substring(mGatewayMac.length() - 4)).toUpperCase(Locale.ROOT);
+                mokoDevice.mac = mGatewayMac;
+                mokoDevice.mqttInfo = "";
+                mokoDevice.topicSubscribe = mGatewaySubscribeTopic;
+                mokoDevice.topicPublish = mGatewayPublicTopic;
+                mokoDevice.deviceType = 1;
+                DBTools.getInstance(AddConfiguredGatewayActivity.this).insertDevice(mokoDevice);
+            } else {
+                mokoDevice.name = String.format("MK110-%s", mGatewayMac.substring(mGatewayMac.length() - 4)).toUpperCase(Locale.ROOT);
+                mokoDevice.topicSubscribe = mGatewaySubscribeTopic;
+                mokoDevice.topicPublish = mGatewayPublicTopic;
+                mokoDevice.deviceType = 1;
+                DBTools.getInstance(AddConfiguredGatewayActivity.this).updateDevice(mokoDevice);
+            }
             // 添加成功
             mAdapter.replaceData(mGatewayList);
             mIndex++;
@@ -263,6 +277,8 @@ public class AddConfiguredGatewayActivity extends BaseActivity<ActivityAddConfig
                                 mGatewayList.add(gateway);
                             }
                             runOnUiThread(() -> {
+                                mBind.tvStart.setVisibility(View.VISIBLE);
+                                mBind.tvDone.setVisibility(View.GONE);
                                 mAdapter.replaceData(mGatewayList);
                                 dismissLoadingProgressDialog();
                                 ToastUtils.showToast(AddConfiguredGatewayActivity.this, "Import success!");
@@ -292,6 +308,12 @@ public class AddConfiguredGatewayActivity extends BaseActivity<ActivityAddConfig
                     ToastUtils.showToast(this, R.string.mac_error);
                     return;
                 }
+                for (ConfiguredGateway gateway : mGatewayList) {
+                    if (contents.equalsIgnoreCase(gateway.mac)) {
+                        ToastUtils.showToast(this, R.string.mac_repeat);
+                        return;
+                    }
+                }
                 if (mGatewayList.size() >= 50) {
                     ToastUtils.showToast(this, R.string.size_error_50);
                     return;
@@ -300,27 +322,29 @@ public class AddConfiguredGatewayActivity extends BaseActivity<ActivityAddConfig
                 gateway.mac = contents;
                 mGatewayList.add(gateway);
                 mAdapter.replaceData(mGatewayList);
+                mBind.tvStart.setVisibility(View.VISIBLE);
+                mBind.tvDone.setVisibility(View.GONE);
             }
         }
     }
 
     public void onSave(View view) {
         if (isWindowLocked()) return;
+        if (mIsStart) return;
         mGatewaySubscribeTopic = mBind.etGatewaySubscribeTopic.getText().toString();
         mGatewayPublicTopic = mBind.etGatewayPublishTopic.getText().toString();
         if (TextUtils.isEmpty(mGatewayPublicTopic) || TextUtils.isEmpty(mGatewaySubscribeTopic)) {
             ToastUtils.showToast(this, R.string.mqtt_verify_gateway_topic);
             return;
         }
-        if (mIsStart) return;
-        if (!MQTTSupport.getInstance().isConnected()) {
-            ToastUtils.showToast(this, R.string.network_error);
-            return;
-        }
-        if (mGatewayList.isEmpty()) {
-            ToastUtils.showToast(this, R.string.cannot_be_empty);
-            return;
-        }
+        SPUtiles.setStringValue(this, AppConstants.SP_KEY_ADD_DEVICE_SUBSCRIBE, mGatewaySubscribeTopic);
+        SPUtiles.setStringValue(this, AppConstants.SP_KEY_ADD_DEVICE_PUBLISH, mGatewayPublicTopic);
+        ToastUtils.showToast(this, R.string.save_success);
+    }
+
+    public void onStart(View view) {
+        if (isWindowLocked()) return;
+        mBind.tvStart.setVisibility(View.GONE);
         Iterator<ConfiguredGateway> gatewayIterator = mGatewayList.iterator();
         while (gatewayIterator.hasNext()) {
             ConfiguredGateway gateway = gatewayIterator.next();
@@ -336,6 +360,7 @@ public class AddConfiguredGatewayActivity extends BaseActivity<ActivityAddConfig
         } catch (MqttException e) {
             e.printStackTrace();
         }
+        mIsStart = true;
         getDeviceInfo();
     }
 

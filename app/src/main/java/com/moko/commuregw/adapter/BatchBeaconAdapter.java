@@ -32,6 +32,7 @@ public class BatchBeaconAdapter extends BaseQuickAdapter<BleTag, BaseViewHolder>
             helper.setTextColor(R.id.tv_status, ContextCompat.getColor(mContext, R.color.red_ff0000));
         else
             helper.setTextColor(R.id.tv_status, ContextCompat.getColor(mContext, R.color.green_95f204));
+        helper.addOnClickListener(R.id.iv_del);
         helper.addOnClickListener(R.id.tv_retry);
     }
 }

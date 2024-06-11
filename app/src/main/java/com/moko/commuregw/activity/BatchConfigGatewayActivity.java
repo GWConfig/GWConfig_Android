@@ -360,6 +360,12 @@ public class BatchConfigGatewayActivity extends BaseActivity<ActivityBatchModify
                     ToastUtils.showToast(this, R.string.mac_error);
                     return;
                 }
+                for (BatchGateway gateway : mGatewayList) {
+                    if (contents.equalsIgnoreCase(gateway.mac)) {
+                        ToastUtils.showToast(this, R.string.mac_repeat);
+                        return;
+                    }
+                }
                 if (mGatewayList.size() >= 20) {
                     ToastUtils.showToast(this, R.string.size_error);
                     return;
@@ -473,10 +479,11 @@ public class BatchConfigGatewayActivity extends BaseActivity<ActivityBatchModify
     private void modifyMQTTSettings() {
         int msgId = MQTTConstants.CONFIG_MSG_ID_MQTT_SETTINGS;
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("security_type", mGatewayConfig.sslEnable);
+        jsonObject.addProperty("security_type", mGatewayConfig.sslEnable != 0  ? mGatewayConfig.certType : 0);
         jsonObject.addProperty("host", mGatewayConfig.host);
         jsonObject.addProperty("port", Integer.parseInt(mGatewayConfig.port));
-        jsonObject.addProperty("client_id", mGatewayConfig.clientId);
+        // 这里取当前设备的MAC地址
+        jsonObject.addProperty("client_id", mGatewayMac);
         jsonObject.addProperty("username", mGatewayConfig.username);
         jsonObject.addProperty("passwd", mGatewayConfig.password);
         jsonObject.addProperty("sub_topic", mGatewayConfig.topicSubscribe);

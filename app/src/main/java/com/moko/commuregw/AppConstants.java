@@ -29,6 +29,8 @@ public class AppConstants {
     public static final String SP_KEY_WIFI_CA_FILE = "SP_KEY_WIFI_CA_FILE";
     public static final String SP_KEY_WIFI_CERT_FILE = "SP_KEY_WIFI_CERT_FILE";
     public static final String SP_KEY_WIFI_KEY_FILE = "SP_KEY_WIFI_KEY_FILE";
+    public static final String SP_KEY_ADD_DEVICE_SUBSCRIBE = "SP_KEY_ADD_DEVICE_SUBSCRIBE";
+    public static final String SP_KEY_ADD_DEVICE_PUBLISH = "SP_KEY_ADD_DEVICE_PUBLISH";
 
 
     public static final String SP_KEY_DEVICE_ADDRESS = "sp_key_device_address";

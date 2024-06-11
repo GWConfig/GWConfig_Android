@@ -2,15 +2,18 @@ package com.moko.commuregw.fragment;
 
 import android.os.Bundle;
 import android.text.InputFilter;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 
+import com.moko.commuregw.R;
 import com.moko.commuregw.activity.ModifyMQTTSettingsActivity;
 import com.moko.commuregw.databinding.FragmentSslDeviceUrlBinding;
 import com.moko.commuregw.dialog.BottomDialog;
+import com.moko.commuregw.utils.ToastUtils;
 
 import java.util.ArrayList;
 
@@ -187,6 +190,34 @@ public class SSLDeviceUrlFragment extends Fragment {
             }
         });
         dialog.show(activity.getSupportFragmentManager());
+    }
+
+
+
+    public boolean isValid() {
+        final String caFile = mBind.etCaUrl.getText().toString();
+        final String clientKeyFile = mBind.etCaUrl.getText().toString();
+        final String clientCertFile = mBind.etClientCertUrl.getText().toString();
+        if (mConnectMode == 2) {
+            if (TextUtils.isEmpty(caFile)) {
+                ToastUtils.showToast(activity, getString(R.string.mqtt_verify_ca));
+                return false;
+            }
+        } else if (mConnectMode == 3) {
+            if (TextUtils.isEmpty(caFile)) {
+                ToastUtils.showToast(activity, getString(R.string.mqtt_verify_ca));
+                return false;
+            }
+            if (TextUtils.isEmpty(clientKeyFile)) {
+                ToastUtils.showToast(activity, getString(R.string.mqtt_verify_client_key));
+                return false;
+            }
+            if (TextUtils.isEmpty(clientCertFile)) {
+                ToastUtils.showToast(activity, getString(R.string.mqtt_verify_client_cert));
+                return false;
+            }
+        }
+        return true;
     }
 
     public int getConnectMode() {

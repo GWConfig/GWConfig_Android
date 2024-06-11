@@ -1,5 +1,6 @@
 package com.moko.commuregw.activity;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -13,6 +14,7 @@ import com.moko.commuregw.AppConstants;
 import com.moko.commuregw.R;
 import com.moko.commuregw.base.BaseActivity;
 import com.moko.commuregw.databinding.ActivityNetworkSettingsBinding;
+import com.moko.commuregw.entity.GatewayConfig;
 import com.moko.commuregw.entity.MQTTConfig;
 import com.moko.commuregw.entity.MokoDevice;
 import com.moko.commuregw.utils.SPUtiles;
@@ -42,9 +44,13 @@ public class ModifyNetworkSettingsActivity extends BaseActivity<ActivityNetworkS
     public Handler mHandler;
 
     private Pattern pattern;
+    private GatewayConfig mGatewayConfig;
+    private boolean mIsRetainParams;
 
     @Override
     protected void onCreate() {
+        mGatewayConfig = getIntent().getParcelableExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG);
+        mIsRetainParams = mGatewayConfig != null;
         pattern = Pattern.compile(IP_REGEX);
         mBind.cbDhcp.setOnCheckedChangeListener((buttonView, isChecked) -> {
             mBind.clIp.setVisibility(isChecked ? View.GONE : View.VISIBLE);
@@ -54,6 +60,20 @@ public class ModifyNetworkSettingsActivity extends BaseActivity<ActivityNetworkS
         appMqttConfig = new Gson().fromJson(mqttConfigAppStr, MQTTConfig.class);
         mAppTopic = TextUtils.isEmpty(appMqttConfig.topicPublish) ? mMokoDevice.topicSubscribe : appMqttConfig.topicPublish;
         mHandler = new Handler(Looper.getMainLooper());
+        if (mIsRetainParams) {
+            mBind.cbDhcp.setChecked(mGatewayConfig.dhcp == 1);
+            mBind.clIp.setVisibility(mGatewayConfig.dhcp == 1 ? View.GONE : View.VISIBLE);
+
+            String ip = mGatewayConfig.ip;
+            String mask = mGatewayConfig.mask;
+            String gateway = mGatewayConfig.gateway;
+            String dns = mGatewayConfig.dns;
+            mBind.etIp.setText(ip);
+            mBind.etMask.setText(mask);
+            mBind.etGateway.setText(gateway);
+            mBind.etDns.setText(dns);
+            return;
+        }
         mHandler.postDelayed(() -> {
             dismissLoadingProgressDialog();
             finish();
@@ -154,6 +174,23 @@ public class ModifyNetworkSettingsActivity extends BaseActivity<ActivityNetworkS
     public void onSave(View view) {
         if (isWindowLocked()) return;
         if (!isParaError()) {
+            if (mIsRetainParams) {
+                String ip = mBind.etIp.getText().toString();
+                String mask = mBind.etMask.getText().toString();
+                String gateway = mBind.etGateway.getText().toString();
+                String dns = mBind.etDns.getText().toString();
+                mGatewayConfig.dhcp = mBind.cbDhcp.isChecked() ? 1 : 0;
+                mGatewayConfig.ip = ip;
+                mGatewayConfig.mask = mask;
+                mGatewayConfig.gateway = gateway;
+                mGatewayConfig.dns = dns;
+                ToastUtils.showToast(this, "Setup succeed！");
+                Intent intent = new Intent();
+                intent.putExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG, mGatewayConfig);
+                setResult(RESULT_OK, intent);
+                finish();
+                return;
+            }
             if (!MQTTSupport.getInstance().isConnected()) {
                 ToastUtils.showToast(this, R.string.network_error);
                 return;

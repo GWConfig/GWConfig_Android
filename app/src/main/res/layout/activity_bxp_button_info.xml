@@ -294,7 +294,7 @@
                 android:onClick="onLEDReminder"
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp"
-                android:text="LED reminder"
+                android:text="LED remote reminder"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
 
@@ -309,7 +309,7 @@
                 android:onClick="onBuzzerReminder"
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp"
-                android:text="Buzzer reminder"
+                android:text="Buzzer remote reminder"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
 

@@ -437,7 +437,7 @@ public class DeviceSettingActivity extends BaseActivity<ActivityDeviceSettingRem
             ToastUtils.showToast(this, R.string.network_error);
             return;
         }
-        Intent i = new Intent(this, ModifySettingsActivity.class);
+        Intent i = new Intent(this, ChooseModifySettingsActivity.class);
         i.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
         startActivity(i);
     }

@@ -34,6 +34,7 @@ import com.moko.commuregw.utils.SPUtiles;
 import com.moko.commuregw.utils.ToastUtils;
 import com.moko.support.commuregw.MQTTConstants;
 import com.moko.support.commuregw.MQTTSupport;
+import com.moko.support.commuregw.entity.BatchGateway;
 import com.moko.support.commuregw.entity.BatchUpdateKey;
 import com.moko.support.commuregw.entity.BleTag;
 import com.moko.support.commuregw.entity.MsgConfigResult;
@@ -318,6 +319,16 @@ public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyB
                     ToastUtils.showToast(this, R.string.beacon_mac_error);
                     return;
                 }
+                for (BleTag bleDevice : mBeaconList) {
+                    if (contents.equalsIgnoreCase(bleDevice.mac)) {
+                        ToastUtils.showToast(this, R.string.mac_repeat);
+                        return;
+                    }
+                }
+                if (mBeaconList.size() >= 20) {
+                    ToastUtils.showToast(this, R.string.size_error_beacon);
+                    return;
+                }
                 BleTag bleDevice = new BleTag();
                 bleDevice.mac = contents;
                 bleDevice.passwd = mPassword;
@@ -332,6 +343,10 @@ public class BatchUpdateKeyActivity extends BaseActivity<ActivityBatchUpdateKeyB
         BleTag item = (BleTag) adapter.getItem(position);
         if (item == null) return;
         if (mIsStart) return;
+        if (view.getId() == R.id.iv_del) {
+            mBeaconList.remove(position);
+            mAdapter.replaceData(mBeaconList);
+        }
         if (view.getId() == R.id.tv_retry) {
             mBeaconList.get(position).status = 0;
             mAdapter.replaceData(mBeaconList);

@@ -10,48 +10,73 @@ import com.lzy.okgo.callback.FileCallback;
 import com.lzy.okgo.model.Progress;
 import com.lzy.okgo.model.Response;
 import com.lzy.okgo.request.base.Request;
+import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.commuregw.AppConstants;
 import com.moko.commuregw.BaseApplication;
+import com.moko.commuregw.R;
 import com.moko.commuregw.base.BaseActivity;
-import com.moko.commuregw.databinding.ActivityDownDataBinding;
+import com.moko.commuregw.databinding.ActivityImportConfigFileBinding;
 import com.moko.commuregw.entity.GatewayConfig;
+import com.moko.commuregw.entity.MokoDevice;
 import com.moko.commuregw.utils.SPUtiles;
 import com.moko.commuregw.utils.ToastUtils;
+import com.moko.support.commuregw.MokoSupport;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 
-public class DownDataActivity extends BaseActivity<ActivityDownDataBinding> {
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
+
+public class ChooseModifySettingsActivity extends BaseActivity<ActivityImportConfigFileBinding> {
     private GatewayConfig mGatewayConfig;
     private boolean isFileError;
     private int mIndex = 1;
+    private MokoDevice mMokoDevice;
+
+    private boolean mIsManual;
 
     @Override
     protected void onCreate() {
+        mMokoDevice = (MokoDevice) getIntent().getSerializableExtra(AppConstants.EXTRA_KEY_DEVICE);
         String url = SPUtiles.getStringValue(this, AppConstants.SP_KEY_MQTT_GATEWAY_SETTINGS_URL, "");
         mBind.etConfigFileUrl.setText(url);
         mGatewayConfig = new GatewayConfig();
-        mBind.tvImportConfig.setOnClickListener(v -> {
-            String fileUrl = mBind.etConfigFileUrl.getText().toString();
-            if (TextUtils.isEmpty(fileUrl)) {
-                ToastUtils.showToast(this, "URL error");
-                return;
-            }
-            downloadNewConfigFile(fileUrl);
-        });
         mBind.tvNext.setOnClickListener(v -> {
             String fileUrl = mBind.etConfigFileUrl.getText().toString();
-            SPUtiles.setStringValue(this, AppConstants.SP_KEY_MQTT_GATEWAY_SETTINGS_URL, fileUrl);
-            Intent intent = new Intent(this, BatchConfigGatewayActivity.class);
-            intent.putExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG, mGatewayConfig);
-            startActivity(intent);
+            if (!mIsManual) {
+                if (TextUtils.isEmpty(fileUrl)) {
+                    ToastUtils.showToast(this, "URL error");
+                    return;
+                }
+                downloadNewConfigFile(fileUrl);
+            } else {
+                SPUtiles.setStringValue(ChooseModifySettingsActivity.this, AppConstants.SP_KEY_MQTT_GATEWAY_SETTINGS_URL, fileUrl);
+                Intent intent = new Intent(ChooseModifySettingsActivity.this, ModifySettingsActivity.class);
+                intent.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
+                startLauncher.launch(intent);
+            }
+        });
+        mBind.llImportConfig.setOnClickListener(v -> {
+            mIsManual = false;
+            mBind.ivImportConfig.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_selected));
+            mBind.ivManualSettings.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_unselected));
+            mBind.etConfigFileUrl.setVisibility(View.VISIBLE);
+        });
+        mBind.llManualSettings.setOnClickListener(v -> {
+            mIsManual = true;
+            mBind.ivImportConfig.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_unselected));
+            mBind.ivManualSettings.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_selected));
+            mBind.etConfigFileUrl.setVisibility(View.GONE);
         });
     }
 
@@ -79,7 +104,6 @@ public class DownDataActivity extends BaseActivity<ActivityDownDataBinding> {
                     @Override
                     public void onSuccess(Response<File> response) {
                         if (response.isSuccessful()) {
-                            mBind.tvNext.setVisibility(View.VISIBLE);
                             File downloadFile = response.body();
                             mIndex = 1;
                             new Thread(() -> {
@@ -92,7 +116,7 @@ public class DownDataActivity extends BaseActivity<ActivityDownDataBinding> {
                                     if (rows < 33 || columns < 3) {
                                         runOnUiThread(() -> {
                                             dismissLoadingProgressDialog();
-                                            ToastUtils.showToast(DownDataActivity.this, "Please select the correct file!");
+                                            ToastUtils.showToast(ChooseModifySettingsActivity.this, "Please select the correct file!");
                                         });
                                         return;
                                     }
@@ -204,10 +228,16 @@ public class DownDataActivity extends BaseActivity<ActivityDownDataBinding> {
                                     runOnUiThread(() -> {
                                         dismissLoadingProgressDialog();
                                         if (isFileError) {
-                                            ToastUtils.showToast(DownDataActivity.this, "Import failed!");
+                                            ToastUtils.showToast(ChooseModifySettingsActivity.this, "Import failed!");
                                             return;
                                         }
-                                        ToastUtils.showToast(DownDataActivity.this, "Import success!");
+                                        ToastUtils.showToast(ChooseModifySettingsActivity.this, "Import success!");
+                                        String fileUrl = mBind.etConfigFileUrl.getText().toString();
+                                        SPUtiles.setStringValue(ChooseModifySettingsActivity.this, AppConstants.SP_KEY_MQTT_GATEWAY_SETTINGS_URL, fileUrl);
+                                        Intent intent = new Intent(ChooseModifySettingsActivity.this, ModifySettingsActivity.class);
+                                        intent.putExtra(AppConstants.EXTRA_KEY_DEVICE, mMokoDevice);
+                                        intent.putExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG, mGatewayConfig);
+                                        startLauncher.launch(intent);
                                     });
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -219,7 +249,7 @@ public class DownDataActivity extends BaseActivity<ActivityDownDataBinding> {
 
                     @Override
                     public void onError(Response<File> response) {
-                        ToastUtils.showToast(DownDataActivity.this, "Download error");
+                        ToastUtils.showToast(ChooseModifySettingsActivity.this, "Download error");
                         dismissLoadingProgressDialog();
                     }
 
@@ -231,18 +261,34 @@ public class DownDataActivity extends BaseActivity<ActivityDownDataBinding> {
     }
 
     @Override
-    protected ActivityDownDataBinding getViewBinding() {
-        return ActivityDownDataBinding.inflate(getLayoutInflater());
+    protected ActivityImportConfigFileBinding getViewBinding() {
+        return ActivityImportConfigFileBinding.inflate(getLayoutInflater());
     }
 
 
     public void onBack(View view) {
+        if (isWindowLocked()) return;
         finish();
     }
 
+    private final ActivityResultLauncher<Intent> startLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == RESULT_OK) {
+            Intent intent = new Intent();
+            setResult(RESULT_OK, intent);
+            finish();
+        }
+    });
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.POSTING, priority = 25)
     public void onConnectStatusEvent(ConnectStatusEvent event) {
+        String action = event.getAction();
+        EventBus.getDefault().cancelEventDelivery(event);
+        if (MokoConstants.ACTION_DISCONNECTED.equals(action)) {
+            runOnUiThread(() -> {
+                Intent intent = new Intent();
+                setResult(RESULT_OK, intent);
+                finish();
+            });
+        }
     }
-
 }

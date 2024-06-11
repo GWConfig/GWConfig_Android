@@ -37,12 +37,11 @@
         android:layout_margin="10dp"
         android:gravity="center_vertical">
 
-        <CheckBox
-            android:id="@+id/cbImportConfig"
+        <ImageView
+            android:id="@+id/ivImportConfig"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:button="@drawable/radio_btn"
-            android:checked="true" />
+            android:src="@drawable/ic_selected" />
 
         <TextView
             android:id="@+id/tvImportConfig"
@@ -60,7 +59,8 @@
         android:id="@+id/etConfigFileUrl"
         android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:layout_marginLeft="12dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:hint="Please input URL link here"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
@@ -76,12 +76,11 @@
         android:layout_margin="10dp"
         android:gravity="center_vertical">
 
-        <CheckBox
-            android:id="@+id/cbManualSettings"
+        <ImageView
+            android:id="@+id/ivManualSettings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:button="@drawable/radio_btn"
-            android:checked="false" />
+            android:src="@drawable/ic_unselected" />
 
         <TextView
             android:id="@+id/tvManualSettings"

@@ -220,7 +220,7 @@
                     android:layout_height="45dp"
                     android:layout_marginLeft="12dp"
                     android:layout_weight="1.0"
-                    android:hint="2000-4200, unit: mV"
+                    android:hint="2000-3600, unit: mV"
                     android:inputType="number"
                     android:maxLength="4"
                     android:paddingLeft="5dp"

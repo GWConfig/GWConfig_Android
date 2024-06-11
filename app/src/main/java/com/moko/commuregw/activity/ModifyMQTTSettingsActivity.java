@@ -19,6 +19,7 @@ import com.moko.commuregw.R;
 import com.moko.commuregw.adapter.MQTTFragmentAdapter;
 import com.moko.commuregw.base.BaseActivity;
 import com.moko.commuregw.databinding.ActivityMqttDeviceModifyRemoteBinding;
+import com.moko.commuregw.entity.GatewayConfig;
 import com.moko.commuregw.entity.MQTTConfig;
 import com.moko.commuregw.entity.MokoDevice;
 import com.moko.commuregw.fragment.GeneralDeviceFragment;
@@ -66,10 +67,15 @@ public class ModifyMQTTSettingsActivity extends BaseActivity<ActivityMqttDeviceM
     public InputFilter filter;
 
     private boolean mIsConfigFinish;
+    private GatewayConfig mGatewayConfig;
+
+    private boolean mIsRetainParams;
 
     @Override
     protected void onCreate() {
         mqttDeviceConfig = new MQTTConfig();
+        mGatewayConfig = getIntent().getParcelableExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG);
+        mIsRetainParams = mGatewayConfig != null;
         filter = (source, start, end, dest, dstart, dend) -> {
             if (!(source + "").matches(FILTER_ASCII)) {
                 return "";
@@ -105,6 +111,49 @@ public class ModifyMQTTSettingsActivity extends BaseActivity<ActivityMqttDeviceM
         appMqttConfig = new Gson().fromJson(mqttConfigAppStr, MQTTConfig.class);
         mAppTopic = TextUtils.isEmpty(appMqttConfig.topicPublish) ? mMokoDevice.topicSubscribe : appMqttConfig.topicPublish;
         mHandler = new Handler(Looper.getMainLooper());
+        if (mIsRetainParams) {
+            mqttDeviceConfig.connectMode = mGatewayConfig.sslEnable != 0 ? mGatewayConfig.certType : 0;
+            sslFragment.setConnectMode(mqttDeviceConfig.connectMode);
+
+            mqttDeviceConfig.host = mGatewayConfig.host;
+            mBind.etMqttHost.setText(mqttDeviceConfig.host);
+
+            mqttDeviceConfig.port = mGatewayConfig.port;
+            mBind.etMqttPort.setText(mqttDeviceConfig.port);
+
+            mqttDeviceConfig.cleanSession = mGatewayConfig.cleanSession;
+            generalFragment.setCleanSession(mqttDeviceConfig.cleanSession);
+
+            mqttDeviceConfig.keepAlive = mGatewayConfig.keepAlive;
+            generalFragment.setKeepAlive(mqttDeviceConfig.keepAlive);
+
+            mqttDeviceConfig.qos = mGatewayConfig.qos;
+            generalFragment.setQos(mqttDeviceConfig.qos);
+
+            mqttDeviceConfig.clientId = mGatewayConfig.clientId;
+            mBind.etMqttClientId.setText(mqttDeviceConfig.clientId);
+
+            mqttDeviceConfig.topicSubscribe = mGatewayConfig.topicSubscribe;
+            mBind.etMqttSubscribeTopic.setText(mqttDeviceConfig.topicSubscribe);
+
+            mqttDeviceConfig.topicPublish = mGatewayConfig.topicPublish;
+            mBind.etMqttPublishTopic.setText(mqttDeviceConfig.topicPublish);
+
+            mqttDeviceConfig.username = mGatewayConfig.username;
+            userFragment.setUserName(mqttDeviceConfig.username);
+            mqttDeviceConfig.password = mGatewayConfig.password;
+            userFragment.setPassword(mqttDeviceConfig.password);
+
+            mqttDeviceConfig.caPath = mGatewayConfig.caPath;
+            sslFragment.setCAUrl(mqttDeviceConfig.caPath);
+
+            mqttDeviceConfig.clientKeyPath = mGatewayConfig.clientKeyPath;
+            sslFragment.setClientKeyUrl(mqttDeviceConfig.clientKeyPath);
+
+            mqttDeviceConfig.clientCertPath = mGatewayConfig.clientCertPath;
+            sslFragment.setClientCertUrl(mqttDeviceConfig.clientCertPath);
+            return;
+        }
         mHandler.postDelayed(() -> {
             dismissLoadingProgressDialog();
             finish();
@@ -309,6 +358,32 @@ public class ModifyMQTTSettingsActivity extends BaseActivity<ActivityMqttDeviceM
             ToastUtils.showToast(this, R.string.network_error);
             return;
         }
+        if (mIsRetainParams) {
+            mGatewayConfig.host = mqttDeviceConfig.host;
+            mGatewayConfig.port = mqttDeviceConfig.port;
+            mGatewayConfig.clientId = mqttDeviceConfig.clientId;
+            mGatewayConfig.cleanSession = mqttDeviceConfig.cleanSession;
+            mGatewayConfig.qos = mqttDeviceConfig.qos;
+            mGatewayConfig.keepAlive = mqttDeviceConfig.keepAlive;
+            mGatewayConfig.topicSubscribe = mqttDeviceConfig.topicSubscribe;
+            mGatewayConfig.topicPublish = mqttDeviceConfig.topicPublish;
+            mGatewayConfig.username = mqttDeviceConfig.username;
+            mGatewayConfig.password = mqttDeviceConfig.password;
+            mGatewayConfig.sslEnable = mqttDeviceConfig.connectMode > 0 ? 1 : 0;
+            if (mqttDeviceConfig.connectMode > 0) {
+                mGatewayConfig.certType = mqttDeviceConfig.connectMode;
+            }
+            mGatewayConfig.caPath = mqttDeviceConfig.caPath;
+            mGatewayConfig.clientKeyPath = mqttDeviceConfig.clientKeyPath;
+            mGatewayConfig.clientCertPath = mqttDeviceConfig.clientCertPath;
+            ToastUtils.showToast(this, "Setup succeed！");
+            Intent intent = new Intent();
+            intent.putExtra(AppConstants.EXTRA_KEY_GATEWAY_CONFIG, mGatewayConfig);
+            intent.putExtra(AppConstants.EXTRA_KEY_MQTT_CONFIG_DEVICE, mqttDeviceConfig);
+            setResult(RESULT_OK, intent);
+            finish();
+            return;
+        }
         XLog.i("查询设备当前状态");
         mHandler.postDelayed(() -> {
             dismissLoadingProgressDialog();
@@ -402,8 +477,22 @@ public class ModifyMQTTSettingsActivity extends BaseActivity<ActivityMqttDeviceM
             ToastUtils.showToast(this, "Subscribed and published topic can't be same !");
             return true;
         }
-        if (!generalFragment.isValid())
+        if (!generalFragment.isValid() || !sslFragment.isValid())
             return true;
+        mqttDeviceConfig.host = host;
+        mqttDeviceConfig.port = port;
+        mqttDeviceConfig.clientId = clientId;
+        mqttDeviceConfig.cleanSession = generalFragment.isCleanSession();
+        mqttDeviceConfig.qos = generalFragment.getQos();
+        mqttDeviceConfig.keepAlive = generalFragment.getKeepAlive();
+        mqttDeviceConfig.topicSubscribe = topicSubscribe;
+        mqttDeviceConfig.topicPublish = topicPublish;
+        mqttDeviceConfig.username = userFragment.getUsername();
+        mqttDeviceConfig.password = userFragment.getPassword();
+        mqttDeviceConfig.connectMode = sslFragment.getConnectMode();
+        mqttDeviceConfig.caPath = sslFragment.getCAUrl();
+        mqttDeviceConfig.clientKeyPath = sslFragment.getClientKeyUrl();
+        mqttDeviceConfig.clientCertPath = sslFragment.getClientCertUrl();
         return false;
     }
 

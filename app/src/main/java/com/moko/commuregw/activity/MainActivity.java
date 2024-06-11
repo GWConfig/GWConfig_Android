@@ -260,11 +260,9 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
                 }
             }
             if (AddConfiguredGatewayActivity.TAG.equals(from)) {
-                List<MokoDevice> allDevice = DBTools.getInstance(this).selectAllDevice();
-                for (final MokoDevice device : allDevice) {
-                    if (!TextUtils.isEmpty(device.mqttInfo))
-                        continue;
-                    device.isOnline = true;
+                devices.clear();
+                devices.addAll(DBTools.getInstance(this).selectAllDevice());
+                for (final MokoDevice device : devices) {
                     if (mHandler.hasMessages(device.id)) {
                         mHandler.removeMessages(device.id);
                     }
@@ -275,7 +273,6 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
                     });
                     message.what = device.id;
                     mHandler.sendMessageDelayed(message, 60 * 1000);
-                    devices.add(device);
                 }
                 adapter.replaceData(devices);
                 if (!devices.isEmpty()) {

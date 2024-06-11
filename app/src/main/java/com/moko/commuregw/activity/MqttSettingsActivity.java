@@ -153,7 +153,6 @@ public class MqttSettingsActivity extends BaseActivity<ActivityMqttDeviceRemoteB
             orderTasks.add(OrderTaskAssembler.getMQTTPublishTopic());
             orderTasks.add(OrderTaskAssembler.getMQTTUsername());
             orderTasks.add(OrderTaskAssembler.getMQTTPassword());
-            ;
             MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
         }, 500);
 

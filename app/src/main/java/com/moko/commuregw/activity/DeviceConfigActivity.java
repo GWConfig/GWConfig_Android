@@ -46,6 +46,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -81,6 +82,13 @@ public class DeviceConfigActivity extends BaseActivity<ActivityDeviceConfigBindi
         mHandler = new Handler(Looper.getMainLooper());
         mBind.tvConnect.setVisibility(mIsRetainParams ? View.GONE : View.VISIBLE);
         mBind.tvRetainParams.setVisibility(mIsRetainParams ? View.VISIBLE : View.GONE);
+        if (mIsRetainParams) {
+            showLoadingProgressDialog();
+            mBind.tvName.postDelayed(() -> {
+                // 线上clientId都一样，这里读取设备自己的
+                MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getMQTTClientId());
+            }, 500);
+        }
     }
 
     @Override
@@ -130,20 +138,24 @@ public class DeviceConfigActivity extends BaseActivity<ActivityDeviceConfigBindi
                             if (flag == 0x01) {
                                 // write
                                 int result = value[4] & 0xFF;
-                                switch (configKeyEnum) {
-                                    case KEY_EXIT_CONFIG_MODE:
-                                        if (result != 1) {
-                                            ToastUtils.showToast(this, "Setup failed！");
-                                        } else {
-                                            if (mIsRetainParams) {
-                                                ToastUtils.showToast(this, "Setup succeed！");
-                                                return;
-                                            }
-                                            isSettingSuccess = true;
-                                            showConnMqttDialog();
-                                            subscribeTopic();
+                                if (configKeyEnum == ParamsKeyEnum.KEY_EXIT_CONFIG_MODE) {
+                                    if (result != 1) {
+                                        ToastUtils.showToast(this, "Setup failed！");
+                                    } else {
+                                        if (mIsRetainParams) {
+                                            ToastUtils.showToast(this, "Setup succeed！");
+                                            return;
                                         }
-                                        break;
+                                        isSettingSuccess = true;
+                                        showConnMqttDialog();
+                                        subscribeTopic();
+                                    }
+                                }
+                            }
+                            if (flag == 0x00) {
+                                if (length == 0) return;
+                                if (configKeyEnum == ParamsKeyEnum.KEY_MQTT_CLIENT_ID) {
+                                    mGatewayConfig.clientId = new String(Arrays.copyOfRange(value, 4, 4 + length));
                                 }
                             }
                         }
