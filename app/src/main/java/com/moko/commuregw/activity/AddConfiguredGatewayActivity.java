@@ -86,8 +86,8 @@ public class AddConfiguredGatewayActivity extends BaseActivity<ActivityAddConfig
 //        mBind.etGatewayPublishTopic.setFilters(new InputFilter[]{new InputFilter.LengthFilter(128), inputFilter});
 //        mBind.etGatewaySubscribeTopic.setFilters(new InputFilter[]{new InputFilter.LengthFilter(128), inputFilter});
         String mqttConfigAppStr = SPUtiles.getStringValue(this, AppConstants.SP_KEY_MQTT_CONFIG_APP, "");
-        String deviceSubscribeTopic = SPUtiles.getStringValue(this, AppConstants.SP_KEY_ADD_DEVICE_SUBSCRIBE, "");
-        String devicePublishTopic = SPUtiles.getStringValue(this, AppConstants.SP_KEY_ADD_DEVICE_PUBLISH, "");
+        String deviceSubscribeTopic = SPUtiles.getStringValue(this, AppConstants.SP_KEY_ADD_DEVICE_SUBSCRIBE, "/provision/gateway/cmds");
+        String devicePublishTopic = SPUtiles.getStringValue(this, AppConstants.SP_KEY_ADD_DEVICE_PUBLISH, "/provision/gateway/data");
         mBind.etGatewayPublishTopic.setText(devicePublishTopic);
         mBind.etGatewaySubscribeTopic.setText(deviceSubscribeTopic);
         appMqttConfig = new Gson().fromJson(mqttConfigAppStr, MQTTConfig.class);
