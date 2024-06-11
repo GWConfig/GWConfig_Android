@@ -290,8 +290,6 @@ public class MainActivity extends BaseActivity<ActivityMainRemoteBinding> implem
                         if (mac.equals(device.mac)) {
                             try {
                                 if (!device.topicPublish.equals(mokoDevice.topicPublish)) {
-                                    // 取消订阅旧主题
-                                    MQTTSupport.getInstance().unSubscribe(device.topicPublish);
                                     // 订阅新主题
                                     MQTTSupport.getInstance().subscribe(mokoDevice.topicPublish, mAppMqttConfig.qos);
                                 }
